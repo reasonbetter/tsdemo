@@ -50,8 +50,21 @@ function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boole
 
   // (optional) avoid over-quoting the stem
   const stem = (item.text || "").toLowerCase();
-  const overlap = t.split(/\s+/).filter(w => stem.includes(w)).length;
-  if (overlap > 12) return false;
+
+  // Robust tokenization: remove basic punctuation and filter short words
+  const tokenize = (text: string) => new Set(text.replace(/[.,!?]/g, '').split(/\s+/).filter(w => w.length > 3));
+
+  const probeTokens = Array.from(tokenize(t));
+  const stemTokens = tokenize(stem);
+
+  if (probeTokens.length === 0) return true; // Allow very short, non-quoting probes
+
+  const overlapCount = probeTokens.filter(w => stemTokens.has(w)).length;
+
+  // Thresholds: too many absolute overlapping words, or too high a percentage of the probe is just quoting the stem
+  if (overlapCount > 10 || (overlapCount / probeTokens.length) > 0.7) {
+    return false;
+  }
 
   return true;
 }
@@ -143,34 +156,28 @@ function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeature
   const ajProbe = aj.probe || { intent: "None", text: "" };
   if (ajProbe.intent !== "None") {
     if (passesProbeGuard(item, ajProbe)) {
-        trace.push(`Using AJ probe intent=${ajProbe.intent} (guard passed).`);
+        trace.push(`Using AJ probe intent=${ajProbe.intent} (guard passed). Rationale: ${ajProbe.rationale}`);
         return { finalLabel, probe: { ...ajProbe, source: "AJ" } as Probe, trace };
     } else {
         trace.push(`AJ probe intent=${ajProbe.intent} failed guard. Falling back.`);
+        // If AJ probe failed guard, use the fallback for that specific intent
+        const p = fallbackProbe(ajProbe.intent);
+        trace.push(`Using fallback for AJ intent=${ajProbe.intent} (after guard failure).`);
+        return { finalLabel, probe: p, trace };
     }
   }
 
-  // 2) Otherwise, apply a tiny schema-aware default (Fallback)
-  if (item.family?.startsWith("C1")) {
-    const onlyOne = (pit["only_one_reason_given"] || 0) >= 0.5 || (labels["Partial"] || 0) >= 0.6;
-    if (onlyOne) {
-      const p = fallbackProbe("Completion");
-      trace.push("C1: only one reason given → Completion probe (fallback).");
-      return { finalLabel, probe: p, trace };
-    }
-  }
+  // 2) Fallback: minimal label-aware fallback (if AJ recommended "None")
 
-  if (item.family?.startsWith("C8") && (["Partial", "Incorrect", "Novel"] as AJLabel[]).includes(finalLabel)) {
-    const p = fallbackProbe("Boundary");
-    trace.push("C8: low-quality → Boundary probe (fallback).");
-    return { finalLabel, probe: p, trace };
-  }
-
-  // 3) Last resort: minimal label-aware fallback
   let intent: ProbeIntent = "None";
-  if (finalLabel === "Correct&Complete") intent = "None";
-  else if (finalLabel === "Correct_Missing" || finalLabel === "Correct_Flawed") intent = "Mechanism";
+  if (finalLabel === "Correct_Missing" || finalLabel === "Correct_Flawed") intent = "Mechanism";
   else if ((["Partial", "Incorrect", "Novel"] as AJLabel[]).includes(finalLabel)) intent = "Alternative";
+
+  // Avoid probing if the determined intent is None
+  if (intent === "None") {
+    trace.push("No suitable probe intent determined (fallback).");
+    return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
+  }
 
   const p = fallbackProbe(intent);
   trace.push(`Fallback intent=${intent} (minimal policy).`);
@@ -239,6 +246,7 @@ function selectNextItem() {
 
 function mergeTwIntoItem(ajItem: AJJudgment, tw: AJJudgment): AJJudgment {
     // Attach-TW policy (simple): if Mechanism present & correct → upgrade completeness.
+    // This logic can be expanded later using the Deep Evaluator (Phi)
     if (!tw?.tw_labels) return ajItem;
     const twLab = tw.tw_labels;
     // Check if 'mech_present_correct' exists in the TW labels and meets the threshold
@@ -306,13 +314,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     trace.push(...t1);
 
     // Theta update (Modifies SESSION state)
-    // Note: The existing logic updates theta every turn, even if a probe is issued.
-    // This is acceptable for the current architecture where the probe evidence is merged back into the original item score.
     const t2 = thetaUpdate(item, ajUsed);
     trace.push(...t2);
 
     // Update coverage & asked (Modifies SESSION state)
-    // Ensure we don't double count if an item somehow gets processed twice (e.g. due to probe merging logic)
     if (!SESSION.asked.includes(item.item_id)) {
         SESSION.asked.push(item.item_id);
         // Ensure the coverage tag is correctly cast and updated

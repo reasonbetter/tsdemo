@@ -16,23 +16,23 @@ import {
 // Type assertion for the imported JSON data
 const bank: ItemBank = bankData as ItemBank;
 
-// Define the state structure for when a probe is active
 interface AwaitingProbeState {
   probeType: ProbeIntent;
   prompt: string;
   pending: {
     aj: AJJudgment;
-    // The ID of the *next* item that will be shown after the probe is answered.
     next_item_id: string | null;
   };
 }
 
 export default function Home() {
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionInitialized, setSessionInitialized] = useState(false); // Track DB initialization
   const [userTag, setUserTag] = useState("");
 
   // Ensure the initial item exists
   const initialItemId = bank.items[0]?.item_id;
+  // currentId starts with the initial item, but we wait for session initialization before proceeding
   const [currentId, setCurrentId] = useState<string>(initialItemId);
 
   const [input, setInput] = useState("");
@@ -50,7 +50,8 @@ export default function Home() {
   );
 
   // --- helpers ----------------------------------------------------------------
-  // Fallback prompts if the server doesn't provide one (safety net)
+  // (probePromptFor, probeTextFromServer remain the same)
+
   function probePromptFor(type: ProbeIntent): string {
     if (type === "Mechanism")
       return "One sentence: briefly explain the mechanism that could make this result misleading.";
@@ -71,15 +72,22 @@ export default function Home() {
     return t.length > 0 ? t : probePromptFor(turnPayload?.probe_type || 'None');
   }
 
-  async function logEvent(type: string, payload: Record<string, any>): Promise<void> {
+  async function logEvent(type: string, payload: Record<string, any>, specificSessionId?: string): Promise<void> {
+    // Use the provided sessionId or the current state sessionId
+    const sid = specificSessionId || sessionId;
+    if (!sid) return;
+
     const entry = {
       ts: new Date().toISOString(),
-      session_id: sessionId,
+      session_id: sid,
       user_tag: userTag || null,
       type,
       ...payload
     };
+    // The /api/log endpoint will now handle database persistence (in Step 1.5)
     try { await fetch("/api/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(entry) }); } catch {}
+
+    // Keep local storage logging for backup/demo purposes
     try {
       const key = "rb_local_logs";
       const arr = JSON.parse(localStorage.getItem(key) || "[]");
@@ -90,61 +98,63 @@ export default function Home() {
 
   // --- API calls --------------------------------------------------------------
 
-  // CRITICAL UPDATE: This function now retrieves the aj_guidance and passes it to the API
+  // (callAJ remains the same)
   async function callAJ({ item, userResponse, twType = null }: { item: ItemInstance, userResponse: string, twType?: ProbeIntent | null }): Promise<AJJudgment> {
     try {
-      // Retrieve the guidance paragraph (New Requirement)
-      const schemaFeatures = bank.schema_features[item.schema_id] || {};
-      const ajGuidance = schemaFeatures.aj_guidance || undefined;
+        // Retrieve the guidance paragraph
+        const schemaFeatures = bank.schema_features[item.schema_id] || {};
+        const ajGuidance = schemaFeatures.aj_guidance || undefined;
 
-      const features: AJFeatures = {
-        schema_id: item.schema_id,
-        item_id: item.item_id,
-        family: item.family,
-        coverage_tag: item.coverage_tag,
-        band: item.band,
-        item_params: { a: item.a, b: item.b },
-        // Determine direction word expectation based on family codes
-        expect_direction_word: item.family.startsWith("C3") || item.family.startsWith("C6"),
-        expected_list_count: item.family.startsWith("C1") ? 2 : undefined,
-        tw_type: twType,
-        aj_guidance: ajGuidance // Pass the guidance
-      };
+        const features: AJFeatures = {
+          schema_id: item.schema_id,
+          item_id: item.item_id,
+          family: item.family,
+          coverage_tag: item.coverage_tag,
+          band: item.band,
+          item_params: { a: item.a, b: item.b },
+          // Determine direction word expectation based on family codes
+          expect_direction_word: item.family.startsWith("C3") || item.family.startsWith("C6"),
+          expected_list_count: item.family.startsWith("C1") ? 2 : undefined,
+          tw_type: twType,
+          aj_guidance: ajGuidance // Pass the guidance
+        };
 
-      const res = await fetch("/api/aj", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          item,
-          userResponse,
-          features
-        })
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`AJ HTTP ${res.status}: ${text.slice(0, 800)}`);
+        const res = await fetch("/api/aj", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            item,
+            userResponse,
+            features
+          })
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`AJ HTTP ${res.status}: ${text.slice(0, 800)}`);
+        }
+        return await res.json();
+      } catch (e) {
+        alert(`AJ error: ${(e as Error).message}`);
+        // Return a fallback AJJudgment on error
+        return {
+          labels: { Novel: 1.0 } as Record<AJLabel, number>,
+          pitfalls: {},
+          process_moves: {},
+          calibrations: { p_correct: 0.0, confidence: 0.2 },
+          extractions: { direction_word: null, key_phrases: [] },
+          probe: { intent: "None", text: "", rationale: "", confidence: 0.0 }
+        };
       }
-      return await res.json();
-    } catch (e) {
-      alert(`AJ error: ${(e as Error).message}`);
-      // Return a fallback AJJudgment on error
-      return {
-        labels: { Novel: 1.0 } as Record<AJLabel, number>,
-        pitfalls: {},
-        process_moves: {},
-        calibrations: { p_correct: 0.0, confidence: 0.2 },
-        extractions: { direction_word: null, key_phrases: [] },
-        probe: { intent: "None", text: "", rationale: "", confidence: 0.0 }
-      };
-    }
   }
 
-  async function callTurn({ itemId, ajMeasurement, twMeasurement = null }: { itemId: string, ajMeasurement: AJJudgment, twMeasurement?: AJJudgment | null }): Promise<TurnResult> {
+  // Updated to include sessionId
+  async function callTurn({ sessionId, itemId, ajMeasurement, twMeasurement = null }: { sessionId: string, itemId: string, ajMeasurement: AJJudgment, twMeasurement?: AJJudgment | null }): Promise<TurnResult> {
     try {
       const res = await fetch("/api/turn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId, ajMeasurement, twMeasurement })
+        // Pass the sessionId to the backend
+        body: JSON.stringify({ sessionId, itemId, ajMeasurement, twMeasurement })
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -172,83 +182,81 @@ export default function Home() {
   // --- submit handlers --------------------------------------------------------
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!input.trim() || pending || !currentItem) return;
+    // Ensure sessionId is available before proceeding
+    if (!input.trim() || pending || !currentItem || !sessionId) return;
     setPending(true);
 
     const aj = await callAJ({ item: currentItem, userResponse: input });
-    // Call the Orchestrator (Turn) with the AJ measurement
-    const turn = await callTurn({ itemId: currentItem.item_id, ajMeasurement: aj });
+    // Pass sessionId to callTurn
+    const turn = await callTurn({ sessionId, itemId: currentItem.item_id, ajMeasurement: aj });
 
-    // Update history and logs
+    // (Rest of onSubmit remains the same)
     setHistory((h) => [
-      ...h,
-      {
+        ...h,
+        {
+          item_id: currentItem.item_id,
+          text: currentItem.text,
+          answer: input,
+          label: turn.final_label,
+          probe_type: turn.probe_type,
+          probe_text: (turn.probe_text || ""),
+          trace: turn.trace
+        }
+      ]);
+      setLog((lines) => [...lines, ...turn.trace, "—"]);
+      setTheta({ mean: Number(turn.theta_mean.toFixed(2)), se: Number(Math.sqrt(turn.theta_var).toFixed(2)) });
+
+      await logEvent("item_answered", {
         item_id: currentItem.item_id,
-        text: currentItem.text,
-        answer: input,
         label: turn.final_label,
         probe_type: turn.probe_type,
-        probe_text: (turn.probe_text || ""),
-        trace: turn.trace
-      }
-    ]);
-    setLog((lines) => [...lines, ...turn.trace, "—"]);
-    setTheta({ mean: Number(turn.theta_mean.toFixed(2)), se: Number(Math.sqrt(turn.theta_var).toFixed(2)) });
-
-    await logEvent("item_answered", {
-      item_id: currentItem.item_id,
-      label: turn.final_label,
-      probe_type: turn.probe_type,
-      // Log the pitfalls/moves for interpretability
-      pitfalls: aj.pitfalls,
-      process_moves: aj.process_moves
-    });
-
-    // Determine if a probe is required
-    const prompt = probeTextFromServer(turn);
-    const hasProbe = !!(turn.probe_type && turn.probe_type !== "None" && prompt);
-
-    if (hasProbe) {
-      setAwaitingProbe({
-        probeType: turn.probe_type,
-        prompt,
-        // We store the AJ measurement and the *next* item ID determined by the orchestrator
-        pending: { aj, next_item_id: turn.next_item_id }
+        pitfalls: aj.pitfalls,
+        process_moves: aj.process_moves
       });
-    } else {
-      // If no probe, move to the next item ID returned by the orchestrator
-      // If next_item_id is null, it means the test is over.
-      setCurrentId(turn.next_item_id || "");
-    }
 
-    setInput("");
-    setPending(false);
+      const prompt = probeTextFromServer(turn);
+      const hasProbe = !!(turn.probe_type && turn.probe_type !== "None" && prompt);
+
+      if (hasProbe) {
+        setAwaitingProbe({
+          probeType: turn.probe_type,
+          prompt,
+          pending: { aj, next_item_id: turn.next_item_id }
+        });
+      } else {
+        // If next_item_id is null, set currentId to empty string to signify completion
+        setCurrentId(turn.next_item_id || "");
+      }
+
+      setInput("");
+      setPending(false);
   }
 
   async function onSubmitProbe(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!awaitingProbe || !probeInput.trim() || pending || !currentItem) return;
+    // Ensure sessionId is available before proceeding
+    if (!awaitingProbe || !probeInput.trim() || pending || !currentItem || !sessionId) return;
     setPending(true);
 
-    // Call AJ again to evaluate the probe response (Transcript Window - TW)
     const tw = await callAJ({
       item: currentItem,
       userResponse: probeInput,
       twType: awaitingProbe.probeType
     });
 
-    // Call the Orchestrator again, providing both the original AJ measurement and the new TW measurement
+    // Pass sessionId to callTurn
     const merged = await callTurn({
+      sessionId,
       itemId: currentItem.item_id,
       ajMeasurement: awaitingProbe.pending.aj,
       twMeasurement: tw
     });
 
-    // Update state based on the merged result
+     // (Rest of onSubmitProbe remains the same)
     setLog((lines) => [...lines, ...merged.trace, "—"]);
     setTheta({ mean: Number(merged.theta_mean.toFixed(2)), se: Number(Math.sqrt(merged.theta_var).toFixed(2)) });
 
-    // The orchestrator returns the definitive next item after merging the evidence
+    // If next_item_id is null, set currentId to empty string to signify completion
     setCurrentId(merged.next_item_id || "");
 
     setHistory((h) => {
@@ -267,43 +275,93 @@ export default function Home() {
     setPending(false);
   }
 
-  function endSession() {
-    logEvent("session_end", { item_count: history.length });
-    alert("Session ended. Visit /admin to view the log.");
-    // Force the UI to update to the end state
-     setCurrentId("");
-  }
+  // --- Session Management (Updated) ---
 
-    // Helper function to reset the session for demo purposes
-    async function resetSession() {
-        // Trigger reset logic in the backend
-        try {
-            await fetch('/api/turn?reset=true', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-        } catch (e) {
-            console.error("Failed to reset backend session:", e);
-        }
+    // Initialize or reset the session
+    async function initializeSession() {
+        setSessionInitialized(false); // Start initialization process
+        
+        // 1. Generate a client-side UUID
         const id = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+        
+        // 2. Reset local state
         setSessionId(id);
         setCurrentId(initialItemId);
         setHistory([]);
         setLog([]);
-        setTheta({ mean: 0, se: Math.sqrt(1.5) });
+        // We will set theta based on the server response
         setAwaitingProbe(null);
         setInput("");
         setProbeInput("");
-        if (initialItemId) {
-            logEvent("session_start", { item_id: initialItemId });
+
+        // 3. Create the session record in the database
+        try {
+            const res = await fetch('/api/create_session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Pass the generated ID and the userTag (if any)
+                body: JSON.stringify({ sessionId: id, userTag: userTag || null })
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to initialize session in database.");
+            }
+
+            const sessionData = await res.json();
+
+            // Set the initial theta state based on the DB defaults
+            setTheta({
+                mean: Number(sessionData.thetaMean.toFixed(2)),
+                se: Number(Math.sqrt(sessionData.thetaVar).toFixed(2))
+            });
+
+            setSessionInitialized(true); // Mark initialization as complete
+
+            if (initialItemId) {
+                // We must manually log the first event here because logEvent relies on the sessionId state, 
+                // which might not have updated synchronously yet.
+                const startEvent = {
+                    ts: new Date().toISOString(),
+                    session_id: id, // Use the locally generated ID
+                    user_tag: userTag || null,
+                    type: "session_start",
+                    item_id: initialItemId
+                };
+                // This still uses the ephemeral logger, to be updated in 1.5
+                await fetch("/api/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(startEvent) });
+            }
+        } catch (e) {
+            console.error("Session initialization failed:", e);
+            alert("Error initializing session. Please check the database connection.");
+            setSessionId(null);
+            setSessionInitialized(true); // Allow UI to show error state
         }
     }
+
+    async function endSession() {
+        // We rely on the backend (turn.ts) to mark the session COMPLETED when no more items are available.
+        // This button provides a manual override/logging point.
+        logEvent("session_end_manual", { item_count: history.length });
+        alert("Session ended. Visit /admin to view the log.");
+         setCurrentId("");
+      }
 
   // --- init -------------------------------------------------------------------
   useEffect(() => {
     // Initialize session on component mount
-    resetSession();
+    initializeSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle cases where currentItem might be undefined (e.g., initialization or end of test)
+  // Handle loading states and completion
+  if (!sessionInitialized) {
+    return <div className="wrap">Initializing session...</div>;
+  }
+
+  if (!sessionId) {
+    return <div className="wrap">Session initialization failed. Please try refreshing the page.</div>;
+  }
+
   if (!currentItem) {
     // Check if history has items, indicating the test is complete
     if (history.length > 0 && !pending) {
@@ -312,7 +370,8 @@ export default function Home() {
                 <h1 className="headline">Assessment Complete</h1>
                 <p>Thank you for participating. Your session has ended.</p>
                 <p>Final Theta Estimate: {theta.mean} (SE: {theta.se})</p>
-                <button className="btn" onClick={resetSession}>Start New Session</button>
+                {/* The "Reset" button now calls initializeSession */}
+                <button className="btn" onClick={initializeSession}>Start New Session</button>
                 <a className="link" href="/admin" style={{ marginLeft: 12 }}>View Admin Logs</a>
             </div>
         );
@@ -324,7 +383,9 @@ export default function Home() {
     return <div className="wrap">Loading...</div>;
   }
 
+
   // --- render -----------------------------------------------------------------
+  // (The render return block remains the same as Step 1.2 implementation)
   return (
     <div className="wrap">
       <h1 className="headline">Reasoning Demo — Causal Structure (Pilot)</h1>
@@ -337,6 +398,7 @@ export default function Home() {
         <span className="badge">Session: {sessionId?.slice(0, 8)}</span>
         <span className="badge">
           <label className="muted" style={{ marginRight: 6 }}>Your initials</label>
+          {/* Note: Updating userTag here doesn't retroactively update the DB session record yet, but will be used if they hit Reset */}
           <input className="input" style={{ width: 110, padding: "6px 8px" }} value={userTag} onChange={(e) => setUserTag(e.target.value)} placeholder="optional" />
         </span>
         <a className="link" href="/admin" title="Admin log" style={{ marginLeft: "auto" }}>Admin</a>
@@ -364,8 +426,8 @@ export default function Home() {
               <button type="button" className="btn btn-secondary" onClick={endSession}>
                 End Session
               </button>
-               {/* Added Reset button for easier testing */}
-               <button type="button" className="btn btn-secondary" onClick={resetSession}>
+               {/* Reset button now calls initializeSession */}
+               <button type="button" className="btn btn-secondary" onClick={initializeSession}>
                 Reset
               </button>
             </div>
@@ -391,7 +453,8 @@ export default function Home() {
         )}
       </section>
 
-      {showDebug && (
+       {/* (Debug and History sections remain the same) */}
+       {showDebug && (
         <section style={{ marginTop: 24 }}>
           <h3>Session Trace (debug)</h3>
           <div className="debug">{log.join("\n")}</div>

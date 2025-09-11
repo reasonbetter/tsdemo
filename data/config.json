@@ -1,0 +1,29 @@
+{
+  "CFG": {
+    "tau_complete": 0.70,
+    "tau_required_move": 0.60,
+    "tau_pitfall_hi": 0.30,
+    "tau_confidence": 0.75,
+    "enable_c6_patch": true,
+    "coverage_targets": ["confounding", "temporality", "complexity"],
+    "score_map": {
+      "Correct&Complete": 1.0,
+      "Correct_Missing": 0.85,
+      "Correct_Flawed": 0.60,
+      "Partial": 0.40,
+      "Incorrect": 0.0,
+      "Novel": 0.0
+    }
+  },
+  "BANNED_TOKENS": [
+    "confounder",
+    "mediator",
+    "collider",
+    "post-treatment",
+    "reverse causation",
+    "selection bias",
+    "instrumental variable",
+    "simpson",
+    "berkson"
+  ]
+}

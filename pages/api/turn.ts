@@ -1,7 +1,10 @@
 // Minimal orchestrator API: policy, theta update, next-item selection
 import type { NextApiRequest, NextApiResponse } from 'next';
-// Using the path alias defined in tsconfig.json
+// Import the externalized data files
 import bankData from "@/data/itemBank.json";
+import configData from "@/data/config.json";
+import probeLibraryData from "@/data/probeLibrary.json";
+
 import {
   ItemBank,
   ItemInstance,
@@ -11,58 +14,19 @@ import {
   SchemaFeatures,
   InMemorySession,
   TurnResult,
-  CoverageTag
+  CoverageTag,
+  AssessmentConfig,
+  ProbeLibrary
 } from '@/types/assessment';
 
 // Type assertion for the imported JSON data
 const bank: ItemBank = bankData as ItemBank;
+const CONFIG: AssessmentConfig = configData as AssessmentConfig;
+const PROBE_LIBRARY: ProbeLibrary = probeLibraryData as ProbeLibrary;
 
-// Configuration Constants
-const CFG = {
-  tau_complete: 0.70,
-  tau_required_move: 0.60,
-  tau_pitfall_hi: 0.30,
-  tau_confidence: 0.75,
-  enable_c6_patch: true,
-  coverage_targets: ["confounding", "temporality", "complexity"] as CoverageTag[],
-  score_map: {
-    "Correct&Complete": 1.0,
-    "Correct_Missing": 0.85,
-    "Correct_Flawed": 0.60,
-    "Partial": 0.40,
-    "Incorrect": 0.0,
-    "Novel": 0.0
-  } as Record<AJLabel, number>
-};
+// Extract configuration constants from the imported config
+const { CFG, BANNED_TOKENS } = CONFIG;
 
-const BANNED_TOKENS = [
-  "confounder","mediator","collider","post-treatment","reverse causation",
-  "selection bias","instrumental variable","simpson","berkson"
-];
-
-// Expanded Probe Library (To be moved to external config in Step 1.2)
-const PROBE_LIBRARY: Record<ProbeIntent, string[]> = {
-  Completion: [
-    "Good start—please add one more different reason (a few words).",
-    "Thanks—give one more distinct reason (a few words)."
-  ],
-  Clarify: [
-    "Please make that more concrete (a few words).",
-    "Could you be more specific (a few words)?"
-  ],
-  Mechanism: [
-    "In one sentence, briefly explain the path from cause to result.",
-    "One sentence: how would this lead to that?"
-  ],
-  Alternative: [
-    "Give one fundamentally different explanation (a few words).",
-    "Name a second, different way the link could arise (few words)."
-  ],
-  Boundary: [
-    "Name a condition under which your conclusion would no longer hold (few words)."
-  ],
-  None: [""]
-};
 
 interface Probe {
   intent: ProbeIntent;
@@ -343,15 +307,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     // Theta update (Modifies SESSION state)
     // Note: The existing logic updates theta every turn, even if a probe is issued.
-    // In Phase 1.2, we will refine this to only update theta when the item is complete.
+    // This is acceptable for the current architecture where the probe evidence is merged back into the original item score.
     const t2 = thetaUpdate(item, ajUsed);
     trace.push(...t2);
 
     // Update coverage & asked (Modifies SESSION state)
-    // Ensure we don't double count if an item somehow gets processed twice
+    // Ensure we don't double count if an item somehow gets processed twice (e.g. due to probe merging logic)
     if (!SESSION.asked.includes(item.item_id)) {
         SESSION.asked.push(item.item_id);
-        SESSION.coverage[item.coverage_tag as CoverageTag] = (SESSION.coverage[item.coverage_tag as CoverageTag] || 0) + 1;
+        // Ensure the coverage tag is correctly cast and updated
+        const tag = item.coverage_tag as CoverageTag;
+        // Initialize if the specific tag doesn't exist yet (handles dynamic tags outside the core three)
+        if (!(tag in SESSION.coverage)) {
+            SESSION.coverage[tag] = 0;
+        }
+        SESSION.coverage[tag] += 1;
     }
 
     // Select next item

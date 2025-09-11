@@ -1,0 +1,22 @@
+{
+  "Completion": [
+    "Good start—please add one more different reason (a few words).",
+    "Thanks—give one more distinct reason (a few words)."
+  ],
+  "Clarify": [
+    "Please make that more concrete (a few words).",
+    "Could you be more specific (a few words)?"
+  ],
+  "Mechanism": [
+    "In one sentence, briefly explain the path from cause to result.",
+    "One sentence: how would this lead to that?"
+  ],
+  "Alternative": [
+    "Give one fundamentally different explanation (a few words).",
+    "Name a second, different way the link could arise (few words)."
+  ],
+  "Boundary": [
+    "Name a condition under which your conclusion would no longer hold (few words)."
+  ],
+  "None": [""]
+}

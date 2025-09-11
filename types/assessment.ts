@@ -29,6 +29,26 @@ export interface ItemBank {
 export type AJLabel = 'Correct&Complete' | 'Correct_Missing' | 'Correct_Flawed' | 'Partial' | 'Incorrect' | 'Novel';
 export type ProbeIntent = 'None' | 'Completion' | 'Mechanism' | 'Alternative' | 'Clarify' | 'Boundary';
 
+// --- Configuration Structures (New) ---
+
+// Type for data/config.json
+export interface AssessmentConfig {
+  CFG: {
+    tau_complete: number;
+    tau_required_move: number;
+    tau_pitfall_hi: number;
+    tau_confidence: number;
+    enable_c6_patch: boolean;
+    coverage_targets: CoverageTag[];
+    score_map: Record<AJLabel, number>;
+  };
+  BANNED_TOKENS: string[];
+}
+
+// Type for data/probeLibrary.json
+export type ProbeLibrary = Record<ProbeIntent, string[]>;
+
+
 // The structured output from the Adaptive Judge
 export interface AJJudgment {
   labels: Record<AJLabel, number>; // Probabilities

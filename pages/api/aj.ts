@@ -94,7 +94,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             { role: "system", content: systemPrompt },
             { role: "user", content: JSON.stringify(userMsg) }
           ],
-          temperature: 0.1 // Lower temperature for measurement tasks
+          temperature: 1 
         });
         text = r?.choices?.[0]?.message?.content;
 

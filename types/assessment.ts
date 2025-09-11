@@ -125,15 +125,7 @@ export interface HistoryEntry {
   probe_label?: ProbeIntent;
 }
 
-// Helper for the temporary in-memory session in turn.ts (To be replaced by DB)
-export interface InMemorySession {
-  theta_mean: number;
-  theta_var: number;
-  asked: string[];
-  // Ensure coverage uses CoverageTag as keys where possible
-  coverage: Record<CoverageTag, number>;
-  usedGroups: Record<string, boolean>;
-}
+// InMemorySession is removed.
 
 export interface LogEntry {
   ts: string;

@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { AJJudgment, AJFeatures, ItemInstance } from '@/types/assessment';
 
-const MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
+const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
 // Define the expected request body structure
 interface AJRequest {
@@ -10,6 +10,51 @@ interface AJRequest {
     userResponse: string;
     features: AJFeatures;
 }
+
+// Base System Prompt (Static Part)
+const AJ_SYSTEM_BASE = `You are the Adaptive Judge.
+
+TASK 1 — MEASUREMENT:
+Return JSON with:
+- labels: probabilities over {"Correct&Complete","Correct_Missing","Correct_Flawed","Partial","Incorrect","Novel"}
+- pitfalls: object of probabilities (0–1), use concise keys (e.g., only_one_reason_given, linearity_bias, fixation_on_proximal_cause)
+- process_moves: object of probabilities (0–1)
+- calibrations: { p_correct: number, confidence: number }
+- extractions: { direction_word: "More"|"Less"|"Better"|"Worse"|null, key_phrases: string[] }
+
+TASK 2 — PROBE RECOMMENDATION:
+Also return a "probe" object with:
+- intent: one of {"None","Completion","Mechanism","Alternative","Clarify","Boundary"}
+- text: a single-sentence probe ≤ 20 words, plain language, no jargon
+- rationale: 1 short phrase explaining why this probe (for logs)
+- confidence: 0–1
+
+GENERAL POLICIES:
+- Do NOT use technical terms (e.g., "confounder","mediator","collider","selection bias","reverse causation").
+- Do NOT reveal or cue the target concept or answer.
+- Rely heavily on the Item-Specific Guidance provided below for evaluation criteria.
+- Only extract direction_word when features.expect_direction_word === true; otherwise set null.
+- If you are not confident a probe is needed, set intent="None" and empty text.
+`;
+
+// Function to construct the dynamic prompt
+function constructAJPrompt(guidance?: string): string {
+    let prompt = AJ_SYSTEM_BASE;
+
+    // Inject the dynamic guidance paragraph if provided
+    if (guidance && guidance.trim().length > 0) {
+        prompt += `
+---
+ITEM-SPECIFIC GUIDANCE (Prioritize these instructions):
+${guidance}
+---
+`;
+    }
+
+    prompt += "\nOutput strict JSON only.";
+    return prompt;
+}
+
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<AJJudgment | { error: string, details?: string, sample?: string }>) {
   try {
@@ -22,44 +67,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     const { item, userResponse, features } = req.body as Partial<AJRequest>;
 
-    if (!item?.text || typeof userResponse !== "string") {
-      return res.status(400).json({ error: "Bad request: missing item.text or userResponse" });
+    if (!item?.text || typeof userResponse !== "string" || !features) {
+      return res.status(400).json({ error: "Bad request: missing item.text, userResponse, or features" });
     }
 
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    // The System prompt defining the AJ's role, including probe generation constraints
-    const AJ_SYSTEM = `You are the Adaptive Judge.
+    // Construct the dynamic system prompt using the provided guidance
+    const systemPrompt = constructAJPrompt(features.aj_guidance);
 
-TASK 1 — MEASUREMENT:
-Return JSON with:
-- labels: probabilities over {"Correct&Complete","Correct_Missing","Correct_Flawed","Partial","Incorrect","Novel"}
-- pitfalls: object of probabilities (0–1), use concise keys (e.g., only_one_reason_given)
-- process_moves: object of probabilities (0–1)
-- calibrations: { p_correct: number, confidence: number }
-- extractions: { direction_word: "More"|"Less"|null, key_phrases: string[] }
-
-TASK 2 — PROBE RECOMMENDATION:
-Also return a "probe" object with:
-- intent: one of {"None","Completion","Mechanism","Alternative","Clarify","Boundary"}
-- text: a single-sentence probe ≤ 20 words, plain language, no jargon
-- rationale: 1 short phrase explaining why this probe (for logs)
-- confidence: 0–1
-
-GENERAL POLICIES:
-- Do NOT use technical terms (e.g., "confounder","mediator","collider","selection bias","reverse causation").
-- Do NOT reveal or cue the target concept or answer.
-- If features.expected_list_count = N and user provided fewer distinct items, set intent="Completion" and ask for “one more different reason.”
-- Only extract direction_word when features.expect_direction_word === true; otherwise set null.
-- If you are not confident a probe is needed, set intent="None" and empty text.
-
-Output strict JSON only.
-`;
 
     const userMsg = {
       stimulus: item.text,
       user_response: userResponse,
-      features: features || {}
+      // We pass the features to the AJ, excluding the guidance which is now in the system prompt
+      features: { ...features, aj_guidance: undefined }
     };
 
     // Use standard Chat Completions API as it reliably supports JSON mode
@@ -69,9 +91,10 @@ Output strict JSON only.
           model: MODEL,
           response_format: { type: "json_object" },
           messages: [
-            { role: "system", content: AJ_SYSTEM },
+            { role: "system", content: systemPrompt },
             { role: "user", content: JSON.stringify(userMsg) }
-          ]
+          ],
+          temperature: 0.1 // Lower temperature for measurement tasks
         });
         text = r?.choices?.[0]?.message?.content;
 
@@ -96,7 +119,7 @@ Output strict JSON only.
       });
     }
 
-    // Basic validation that the payload matches the AJJudgment structure
+    // Basic validation
     if (!payload.labels || !payload.calibrations || !payload.probe) {
       return res.status(502).json({
         error: "Model returned invalid JSON structure",

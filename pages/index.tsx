@@ -89,8 +89,14 @@ export default function Home() {
   }
 
   // --- API calls --------------------------------------------------------------
+
+  // CRITICAL UPDATE: This function now retrieves the aj_guidance and passes it to the API
   async function callAJ({ item, userResponse, twType = null }: { item: ItemInstance, userResponse: string, twType?: ProbeIntent | null }): Promise<AJJudgment> {
     try {
+      // Retrieve the guidance paragraph (New Requirement)
+      const schemaFeatures = bank.schema_features[item.schema_id] || {};
+      const ajGuidance = schemaFeatures.aj_guidance || undefined;
+
       const features: AJFeatures = {
         schema_id: item.schema_id,
         item_id: item.item_id,
@@ -98,9 +104,11 @@ export default function Home() {
         coverage_tag: item.coverage_tag,
         band: item.band,
         item_params: { a: item.a, b: item.b },
-        expect_direction_word: item.family.startsWith("C6"),
+        // Determine direction word expectation based on family codes
+        expect_direction_word: item.family.startsWith("C3") || item.family.startsWith("C6"),
         expected_list_count: item.family.startsWith("C1") ? 2 : undefined,
-        tw_type: twType
+        tw_type: twType,
+        aj_guidance: ajGuidance // Pass the guidance
       };
 
       const res = await fetch("/api/aj", {
@@ -190,7 +198,10 @@ export default function Home() {
     await logEvent("item_answered", {
       item_id: currentItem.item_id,
       label: turn.final_label,
-      probe_type: turn.probe_type
+      probe_type: turn.probe_type,
+      // Log the pitfalls/moves for interpretability
+      pitfalls: aj.pitfalls,
+      process_moves: aj.process_moves
     });
 
     // Determine if a probe is required
@@ -206,8 +217,8 @@ export default function Home() {
       });
     } else {
       // If no probe, move to the next item ID returned by the orchestrator
-      // Fallback to currentId if null (e.g., end of test)
-      setCurrentId(turn.next_item_id || currentItem.item_id);
+      // If next_item_id is null, it means the test is over.
+      setCurrentId(turn.next_item_id || "");
     }
 
     setInput("");
@@ -238,7 +249,7 @@ export default function Home() {
     setTheta({ mean: Number(merged.theta_mean.toFixed(2)), se: Number(Math.sqrt(merged.theta_var).toFixed(2)) });
 
     // The orchestrator returns the definitive next item after merging the evidence
-    setCurrentId(merged.next_item_id || currentItem.item_id);
+    setCurrentId(merged.next_item_id || "");
 
     setHistory((h) => {
       const last = h[h.length - 1];
@@ -259,6 +270,8 @@ export default function Home() {
   function endSession() {
     logEvent("session_end", { item_count: history.length });
     alert("Session ended. Visit /admin to view the log.");
+    // Force the UI to update to the end state
+     setCurrentId("");
   }
 
     // Helper function to reset the session for demo purposes
@@ -292,7 +305,23 @@ export default function Home() {
 
   // Handle cases where currentItem might be undefined (e.g., initialization or end of test)
   if (!currentItem) {
-    return <div className="wrap">Loading or Assessment Complete.</div>;
+    // Check if history has items, indicating the test is complete
+    if (history.length > 0 && !pending) {
+        return (
+            <div className="wrap">
+                <h1 className="headline">Assessment Complete</h1>
+                <p>Thank you for participating. Your session has ended.</p>
+                <p>Final Theta Estimate: {theta.mean} (SE: {theta.se})</p>
+                <button className="btn" onClick={resetSession}>Start New Session</button>
+                <a className="link" href="/admin" style={{ marginLeft: 12 }}>View Admin Logs</a>
+            </div>
+        );
+    }
+     // Handle empty item bank
+     if (!initialItemId) {
+        return <div className="wrap">Error: Item Bank is empty or failed to load. Check data/itemBank.json.</div>;
+    }
+    return <div className="wrap">Loading...</div>;
   }
 
   // --- render -----------------------------------------------------------------
@@ -366,6 +395,11 @@ export default function Home() {
         <section style={{ marginTop: 24 }}>
           <h3>Session Trace (debug)</h3>
           <div className="debug">{log.join("\n")}</div>
+          {/* Display the AJ Guidance for the current item */}
+          <h4>Current Item Guidance (AJ)</h4>
+          <div className="debug" style={{ background: '#1e293b', color: '#94a3b8', maxHeight: '150px'}}>
+            {bank.schema_features[currentItem.schema_id]?.aj_guidance || "No specific guidance."}
+          </div>
         </section>
       )}
 

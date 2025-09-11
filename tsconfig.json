@@ -17,7 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "@/types/*": ["types/*"],
-      "@/data/*": ["data/*"]
+      "@/data/*": ["data/*"],
+      "@/lib/*": ["lib/*"]
     },
     "plugins": [
       {

@@ -4,6 +4,8 @@
 
 export interface SchemaFeatures {
   required_moves?: string[];
+  // Natural language guidance for the AJ (New Requirement)
+  aj_guidance?: string;
 }
 
 export type CoverageTag = 'confounding' | 'temporality' | 'complexity' | string;
@@ -29,7 +31,7 @@ export interface ItemBank {
 export type AJLabel = 'Correct&Complete' | 'Correct_Missing' | 'Correct_Flawed' | 'Partial' | 'Incorrect' | 'Novel';
 export type ProbeIntent = 'None' | 'Completion' | 'Mechanism' | 'Alternative' | 'Clarify' | 'Boundary';
 
-// --- Configuration Structures (New) ---
+// --- Configuration Structures ---
 
 // Type for data/config.json
 export interface AssessmentConfig {
@@ -59,7 +61,7 @@ export interface AJJudgment {
     confidence: number;
   };
   extractions: {
-    direction_word: 'More' | 'Less' | null;
+    direction_word: 'More' | 'Less' | 'Better' | 'Worse' | null;
     key_phrases: string[];
   };
   // The AJ's generated probe recommendation
@@ -84,6 +86,8 @@ export interface AJFeatures {
   expect_direction_word: boolean;
   expected_list_count?: number;
   tw_type: ProbeIntent | null;
+  // The guidance paragraph passed dynamically (New Requirement)
+  aj_guidance?: string;
 }
 
 

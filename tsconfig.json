@@ -17,7 +17,6 @@
     "baseUrl": ".",
     "paths": {
       "@/types/*": ["types/*"],
-      // Update this line to point to the new data directory in the root
       "@/data/*": ["data/*"]
     },
     "plugins": [

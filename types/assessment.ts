@@ -3,7 +3,6 @@
 // --- Item Bank Structures ---
 
 export interface SchemaFeatures {
-  family: string;
   coverage_tag: CoverageTag;
   required_moves?: string[];
   // Natural language guidance for the AJ (New Requirement)
@@ -55,8 +54,8 @@ export type ProbeLibrary = Record<ProbeIntent, string[]>;
 export interface AJJudgment {
   score: number; // A single score from 0.0 to 1.0
   final_label: AJLabel; // The final categorical label  
-  pitfalls: string[]; // A list of observed pitfall tags
-  process_moves: string[]; // A list of observed process move tags
+  tags: string[]; // A single list of observed pitfall and process move tags
+
  
   // The AJ's generated probe recommendation
   probe: {
@@ -113,8 +112,7 @@ export interface HistoryEntry {
   probe_type: ProbeIntent;
   probe_text: string;
   trace: string[];
-  pitfalls?: Record<string, number>;
-  process_moves?: Record<string, number>;
+  tags?: string[];
   theta_mean?: number;
   theta_var?: number;
   probe_answer?: string;

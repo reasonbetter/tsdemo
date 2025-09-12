@@ -1,2 +1,2 @@
 # .env
-DATABASE_URL="your_connection_string_here"
+DATABASE_URL=postgresql://neondb_owner:npg_h9WUaQz6pkuH@ep-old-sea-adqeq0o9-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require

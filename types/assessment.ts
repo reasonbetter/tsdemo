@@ -61,10 +61,7 @@ export interface AJJudgment {
     p_correct: number;
     confidence: number;
   };
-  extractions: {
-    direction_word: 'More' | 'Less' | 'Better' | 'Worse' | null;
-    key_phrases: string[];
-  };
+ 
   // The AJ's generated probe recommendation
   probe: {
     intent: ProbeIntent;

@@ -19,7 +19,8 @@
       "@/types/*": ["types/*"],
       "@/data/*": ["data/*"],
       "@/lib/*": ["lib/*"],
-      "@/styles/*": ["styles/*"]
+      "@/styles/*": ["styles/*"],
+      "@/components/*": ["components/*"]
     },
     "plugins": [
       {

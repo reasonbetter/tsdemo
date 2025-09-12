@@ -1,0 +1,21 @@
+/* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import the Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Apply the base colors defined in tailwind.config.ts */
+body {
+  background-color: theme('colors.background');
+  color: theme('colors.foreground');
+  /* Ensure smooth font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure the application takes up the full height */
+html, body, #__next {
+  height: 100%;
+}

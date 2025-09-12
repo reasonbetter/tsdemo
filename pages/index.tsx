@@ -111,6 +111,7 @@ export default function Home() {
     async function callAJ({ item, userResponse, twType = null }: { item: ItemInstance, userResponse: string, twType?: ProbeIntent | null }): Promise<AJJudgment> {
         try {
             const schemaFeatures = bank.schema_features[item.schema_id] || {};
+            const family = schemaFeatures.family || "unknown";
             const ajGuidance = schemaFeatures.aj_guidance || undefined;
 
             const features: AJFeatures = {
@@ -118,8 +119,8 @@ export default function Home() {
                 item_id: item.item_id,
                 band: item.band,
                 item_params: { a: item.a, b: item.b },
-                expect_direction_word: item.family.startsWith("C3") || item.family.startsWith("C6"),
-                expected_list_count: item.family.startsWith("C1") ? 2 : undefined,
+                expect_direction_word: family.startsWith("C3") || family.startsWith("C6"),
+                expected_list_count: family.startsWith("C1") ? 2 : undefined,
                 tw_type: twType,
                 aj_guidance: ajGuidance
             };

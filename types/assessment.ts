@@ -121,8 +121,13 @@ export interface HistoryEntry {
   probe_type: ProbeIntent;
   probe_text: string;
   trace: string[];
+  pitfalls?: Record<string, number>;
+  process_moves?: Record<string, number>;
+  theta_mean?: number;
+  theta_var?: number;
   probe_answer?: string;
   probe_label?: ProbeIntent;
+  probe_theta_update?: { mean: number; var: number; };
 }
 
 // InMemorySession is removed.

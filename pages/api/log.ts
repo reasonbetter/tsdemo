@@ -58,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 // Only fetch sessions that have a transcript with at least one entry.
         where: {
           transcript: {
-            path: '$',
+            path: [],
             array_not_contains: []
           }
         }

@@ -5,20 +5,32 @@ interface CollapsibleSectionProps {
   children: React.ReactNode;
   defaultOpen?: boolean;
   className?: string;
+  // Allow customizing the title size for different contexts (sidebar vs main content)
+  titleSize?: 'sm' | 'lg';
 }
 
-export const CollapsibleSection = ({ title, children, defaultOpen = false, className = '' }: CollapsibleSectionProps) => {
+export const CollapsibleSection = ({
+    title,
+    children,
+    defaultOpen = false,
+    className = '',
+    titleSize = 'lg'
+}: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
+  const titleClass = titleSize === 'lg' ? 'text-xl font-semibold' : 'text-base font-semibold';
+  const paddingClass = titleSize === 'lg' ? 'p-6' : 'p-4';
+
   return (
-    <div className={`bg-card shadow-sm border border-border rounded-xl ${className}`}>
+    // Removed the shadow and background from the container here; we will apply it in the parent layout
+    <div className={`border border-border rounded-xl ${className}`}>
       {/* Header/Toggle Button */}
       <button
-        className="w-full flex justify-between items-center p-6 text-left focus:outline-none transition duration-150 hover:bg-gray-50 rounded-xl"
+        className={`w-full flex justify-between items-center ${paddingClass} text-left focus:outline-none transition duration-150 hover:bg-gray-50 rounded-xl`}
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
       >
-        <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+        <h2 className={`${titleClass} text-foreground`}>{title}</h2>
         {/* Simple Chevron Icon (SVG) */}
         <svg
           className={`w-5 h-5 text-muted-foreground transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
@@ -32,14 +44,13 @@ export const CollapsibleSection = ({ title, children, defaultOpen = false, class
       </button>
 
       {/* Content Area */}
-      {/* Note: This uses max-height transition for a functional collapse. */}
       <div
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
           isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
           {/* Add padding and a top border only when open */}
-        <div className="p-6 border-t border-border">
+        <div className={`${paddingClass} border-t border-border`}>
             {children}
         </div>
       </div>

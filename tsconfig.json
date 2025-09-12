@@ -18,7 +18,8 @@
     "paths": {
       "@/types/*": ["types/*"],
       "@/data/*": ["data/*"],
-      "@/lib/*": ["lib/*"]
+      "@/lib/*": ["lib/*"],
+      "@/styles/*": ["styles/*"]
     },
     "plugins": [
       {

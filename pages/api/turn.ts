@@ -309,7 +309,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             : {} as Record<CoverageTag, number>;
         
         const transcript = (session.transcript && Array.isArray(session.transcript))
-            ? session.transcript as HistoryEntry[]
+            ? (session.transcript as unknown) as HistoryEntry[]
             : [];
 
 

@@ -337,6 +337,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 lastEntry.probe_label = probeType;
                 // The final label might also be updated after a probe
                 lastEntry.label = finalLabel;
+                // Store the final theta state after the probe
+                lastEntry.probe_theta_update = {
+                    mean: thetaMeanNew,
+                    var: thetaVarNew
+                };
             }
         } else {
             // This is a new item answer, so we add a new entry
@@ -348,6 +353,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 probe_type: probe.intent,
                 probe_text: probe.text,
                 trace: t1,
+                pitfalls: ajUsed.pitfalls,
+                process_moves: ajUsed.process_moves,
+                theta_mean: thetaMeanNew,
+                theta_var: thetaVarNew,
             };
             transcript.push(newEntry);
         }

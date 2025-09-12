@@ -92,10 +92,6 @@ function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boole
     return bank.items.find((it) => it.item_id === id);
   }
 
-  function expectedScore(labels: Record<AJLabel, number> | undefined): number {
-    const m = CFG.score_map;
-    return Object.entries(labels || {}).reduce((acc, [k, v]) => acc + (m[k as AJLabel] || 0) * (v as number), 0);
-  }
 
   function labelArgmax(labels: Record<AJLabel, number> | undefined): [AJLabel, number] {
     let best: AJLabel = "Novel";
@@ -111,10 +107,9 @@ function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boole
 // (finalizeLabelAndProbe remains unchanged)
 function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeatures: SchemaFeatures | undefined) {
     const trace: string[] = [];
-    const labels = aj.labels || { Novel: 1.0 } as Record<AJLabel, number>;
-    const [finalLabel, pFinal] = labelArgmax(labels);
+    const finalLabel = aj.final_label;
     const conf = aj.calibrations?.confidence ?? 0.5;
-    trace.push(`Argmax label=${finalLabel} (${pFinal.toFixed(2)}); AJ confidence=${conf.toFixed(2)}`);
+    trace.push(`Final label=${finalLabel}; AJ confidence=${conf.toFixed(2)}`);
 
     // Pitfall and Move checks...
     const pit = aj.pitfalls || {};
@@ -130,15 +125,14 @@ function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeature
     if (req.length) trace.push(`Required moves present? ${moveOK} (need ≥${CFG.tau_required_move})`);
 
     // Evidence sufficiency → no probe
-    const pComplete = labels["Correct&Complete"] || 0;
     const anyHiPit = highPit.length > 0;
-    if (pComplete >= CFG.tau_complete && moveOK && !anyHiPit && conf >= CFG.tau_confidence) {
+    if (finalLabel === "Correct&Complete" && moveOK && !anyHiPit && conf >= CFG.tau_confidence) {
       trace.push("Evidence sufficient → skip probe.");
       return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
     }
 
     // Guard against AJ failure
-    const isFallbackNovel = (labels["Novel"] || 0) >= 0.99 && conf <= 0.25;
+    const isFallbackNovel = finalLabel === "Novel" && conf <= 0.25;
     if (isFallbackNovel) {
       trace.push("AJ looked like a fallback/failed call → no probe this turn.");
       return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
@@ -190,8 +184,7 @@ function fusePCorrect(theta: number, item: ItemInstance, aj: AJJudgment) {
 // Calculates the new theta state based on current state and the new evidence.
 // This function is pure (does not modify DB or global state).
 function calculateThetaUpdate(currentThetaMean: number, currentThetaVar: number, item: ItemInstance, aj: AJJudgment): { thetaMeanNew: number, thetaVarNew: number, trace: string[] } {
-    const labels = aj.labels || {};
-    const yhat = expectedScore(labels);
+    const yhat = aj.score;
     const { p, note } = fusePCorrect(currentThetaMean, item, aj);
     const info = (item.a ** 2) * p * (1 - p) + 1e-6;
     const thetaVarNew = 1.0 / (1.0 / currentThetaVar + info);
@@ -246,18 +239,8 @@ function selectNextItem(sessionState: SessionSelectionState) {
 
 function mergeTwIntoItem(ajItem: AJJudgment, tw: AJJudgment): AJJudgment {
     // (mergeTwIntoItem remains unchanged)
-    if (!tw?.tw_labels) return ajItem;
-    const twLab = tw.tw_labels;
-    const mechGood = (twLab.mech_present_correct || 0) >= 0.6;
-
-    if (mechGood) {
-        const labels = { ...(ajItem.labels || {}) };
-        labels["Correct&Complete"] = Math.max(labels["Correct&Complete"] || 0, 0.9);
-        labels["Correct_Missing"] = Math.min(labels["Correct_Missing"] || 0, 0.1);
-        const cal = { ...(ajItem.calibrations || {}) };
-        cal.p_correct = Math.max(cal.p_correct || 0, 0.85);
-        return { ...ajItem, labels, calibrations: cal };
-    }
+    // This function is now simpler as it just merges the final score and label
+    // For now, we'll just return the original judgment, but this could be enhanced.
     return ajItem;
 }
 

@@ -5,5 +5,5 @@
     "tau_pitfall_hi": 0.30,
     "tau_confidence": 0.75,
     "coverage_targets": [
-+      "confounding", "temporality", "complexity"
+    "confounding", "temporality", "complexity"
 }

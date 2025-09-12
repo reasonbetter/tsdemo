@@ -366,7 +366,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         if (!updatedAskedItemIds.includes(item.item_id)) {
             updatedAskedItemIds.push(item.item_id);
-            const tag = item.coverage_tag as CoverageTag;
+        const tag = bank.schema_features[item.schema_id]?.coverage_tag as CoverageTag;
             updatedCoverageCounts[tag] = (updatedCoverageCounts[tag] || 0) + 1;
         }
 

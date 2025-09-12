@@ -6,7 +6,7 @@ interface CollapsibleSectionProps {
   defaultOpen?: boolean;
   className?: string;
   // Allow customizing the title size for different contexts (sidebar vs main content)
-  titleSize?: 'sm' | 'lg';
+  titleSize?: 'xs' | 'sm' | 'lg';
 }
 
 export const CollapsibleSection = ({
@@ -14,12 +14,13 @@ export const CollapsibleSection = ({
     children,
     defaultOpen = false,
     className = '',
-    titleSize = 'lg'
+    titleSize = 'lg',
 }: CollapsibleSectionProps) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
-  const titleClass = titleSize === 'lg' ? 'text-xl font-semibold' : 'text-base font-semibold';
-  const paddingClass = titleSize === 'lg' ? 'p-6' : 'p-4';
+  const titleClass = titleSize === 'lg' ? 'text-xl font-semibold' : titleSize === 'sm' ? 'text-base font-semibold' : 'text-sm font-semibold';
+  const paddingClass = titleSize === 'lg' ? 'p-6' : titleSize === 'sm' ? 'p-4' : 'px-4 py-3';
+ 
 
   return (
     // Removed the shadow and background from the container here; we will apply it in the parent layout

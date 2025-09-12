@@ -35,7 +35,8 @@ export default function Home() {
   const [userIdInput, setUserIdInput] = useState("");
 
 
-  const initialItemId = bank.items[0]?.item_id;
+  const triageItems = bank.items.filter(it => it.band === 'Triage');
+  const initialItemId = triageItems[Math.floor(Math.random() * triageItems.length)]?.item_id;
   const [currentId, setCurrentId] = useState<string>(initialItemId);
 
   const [input, setInput] = useState("");

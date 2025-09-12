@@ -111,17 +111,16 @@ function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeature
     trace.push(`Final label=${finalLabel}`);
 
     // Pitfall and Move checks...
-    const pitfalls = aj.pitfalls || [];
-    if (pitfalls.length) trace.push(`Pitfalls: ${pitfalls.join(", ")}`);
   
     const req = (schemaFeatures?.required_moves) || [];
-    const moves = aj.process_moves || [];
-    const moveOK = req.every(requiredMove => moves.includes(requiredMove));
+    const tags = aj.tags || [];
+    const moveOK = req.every(requiredMove => tags.includes(requiredMove));
+    const pitfalls = tags.filter(tag => !req.includes(tag));
++    if (pitfalls.length) trace.push(`Pitfalls found: ${pitfalls.join(", ")}`);
     if (req.length) trace.push(`Required moves present? ${moveOK} (need ≥${CFG.tau_required_move})`);
 
     // Evidence sufficiency → no probe
-    const anyPitfalls = pitfalls.length > 0;
-    if (finalLabel === "Correct&Complete" && moveOK && !anyPitfalls) {
+    if (finalLabel === "Correct&Complete" && moveOK && pitfalls.length === 0) {
       trace.push("Evidence sufficient → skip probe.");
       return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
     }
@@ -322,8 +321,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 probe_type: probe.intent,
                 probe_text: probe.text,
                 trace: t1,
-                pitfalls: ajUsed.pitfalls,
-                process_moves: ajUsed.process_moves,
+                tags: ajUsed.tags,
                 theta_mean: thetaMeanNew,
                 theta_var: thetaVarNew,
             };

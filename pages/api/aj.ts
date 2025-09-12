@@ -18,9 +18,7 @@ TASK 1 — SCORING:
 Return JSON with:
 - score: A single floating point number from 0.0 (completely incorrect) to 1.0 (perfect).
 - final_label: Your final assessment as one of {"Correct&Complete","Correct_Missing","Correct_Flawed","Partial","Incorrect","Novel"}
-- pitfalls: object of probabilities (0–1), use concise keys (e.g., only_one_reason_given, linearity_bias, fixation_on_proximal_cause)
-- process_moves: object of probabilities (0–1)
-- calibrations: { p_correct: number, confidence: number }
+- pitfalls and process_moves tags: If there are any pitfall and/or process-moves tags in the Item-Specific guidence, provide an array of strings, listing any that apply.
 
 TASK 2 — PROBE RECOMMENDATION:
 Also return a "probe" object with:
@@ -118,7 +116,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     // Basic validation
-    if (payload.score == null || !payload.final_label || !payload.calibrations || !payload.probe) {
+    if (payload.score == null || !payload.final_label || !payload.pitfalls || !payload.process_moves || !payload.probe) {
       return res.status(502).json({
         error: "Model returned invalid JSON structure",
         sample: text.slice(0, 800)

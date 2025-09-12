@@ -3,9 +3,7 @@
      "C1_ConfounderGen": {
       "family": "C1",
       "coverage_tag": "confounding",
-       "required_moves": ["names_two_distinct"],
-       "potential_pitfalls": ["only_one_reason", "vague_mechanism"],
-       "aj_guidance": "Target: Generate TWO distinct confounders. Policy: Be strict about distinctness. 'Wealthy parents' and 'Parents have money' are NOT distinct. Accurately count distinct reasons even if presented in a single clause or sentence. If only one distinct reason is given, tag pitfall 'only_one_reason_given' and recommend 'Completion' probe."
+      "aj_guidance": "Target: Generate TWO distinct confounders. Policy: Be strict about distinctness. 'Wealthy parents' and 'Parents have money' are NOT distinct. Available tags for this item are: ['names_two_distinct', 'only_one_reason', 'not_distinct', 'vague_mechanism']."
      },
      "C2_Indication": {
       "family": "C2",
@@ -13,32 +11,26 @@
        "aj_guidance": "Target: Identify confounding by indication/severity. Policy: Look for recognition that the treatment group was higher risk or sicker *before* the intervention. If the answer is vague (e.g., 'they were different'), recommend 'Clarify' probe."
      },
      "C3_BiasDirection_Suppression": {
-      "family": "C3",
       "coverage_tag": "confounding",
        "aj_guidance": "Target: Identify the direction of bias as suppression (making the effect look weaker than it is). Policy: Requires recognizing that the intervention group was negatively selected. Ensure the user provides the correct direction word ('Better')."
      },
      "C4_ReciprocalCausation": {
-        "family": "C4",
         "coverage_tag": "temporality",
          "aj_guidance": "Target: Describe a feedback loop or vicious cycle. Policy: Look for dynamic language describing how A affects B AND B affects A over time, leading to escalation. If the user only describes one direction (A->B or B->A), recommend 'Mechanism' probe focusing on the interaction over time."
      },
      "C5_Temporality": {
-        "family": "C5",
         "coverage_tag": "temporality",
          "aj_guidance": "Target: Prioritize pre-treatment adjustment over post-treatment. Policy: User must select the correct option (Pre-treatment) and reject 'Both'. If they select 'Both', tag 'control_everything' pitfall. Justification should relate to timing (baseline balance). If justification is missing, recommend 'Mechanism' probe."
      },
      "C6_BiasDirection_Inflation": {
-        "family": "C6",
         "coverage_tag": "confounding",
          "aj_guidance": "Target: Identify the direction of bias as inflation (making the effect look stronger than it is). Policy: Requires recognizing that the intervention group was positively selected (e.g., via wealth/access). Ensure the user provides the correct direction word ('More' or 'Less')."
      },
      "C7_UpstreamIntervention": {
-        "family": "C7",
         "coverage_tag": "complexity",
          "aj_guidance": "Target: Identify the distal/root cause rather than the proximal trigger. Policy: Evaluate the proposed solution. Systemic solutions (e.g., 'electronic prescriptions') score high. Proximal fixes (e.g., 'tell doctors to write clearer') score low. If the solution is proximal, tag 'fixation_on_proximal_cause' and consider 'Alternative' probe looking for a systemic fix."
      },
      "C8_NonLinearity": {
-        "family": "C8",
         "coverage_tag": "complexity",
          "aj_guidance": "Target: Recognize non-linearity and reject extrapolation. Policy: Look for recognition of diminishing returns, plateaus, or danger outside the observed range. If the user extrapolates linearly, tag pitfall 'linearity_bias'."
      }

@@ -108,31 +108,26 @@ function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boole
 function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeatures: SchemaFeatures | undefined) {
     const trace: string[] = [];
     const finalLabel = aj.final_label;
-    const conf = aj.calibrations?.confidence ?? 0.5;
-    trace.push(`Final label=${finalLabel}; AJ confidence=${conf.toFixed(2)}`);
+    trace.push(`Final label=${finalLabel}`);
 
     // Pitfall and Move checks...
-    const pit = aj.pitfalls || {};
-    const highPit = Object.entries(pit).filter(([_, v]) => v >= CFG.tau_pitfall_hi).map(([k]) => k);
-    if (highPit.length) trace.push(`High pitfalls: ${highPit.join(", ")}`);
-
+    const pitfalls = aj.pitfalls || [];
+    if (pitfalls.length) trace.push(`Pitfalls: ${pitfalls.join(", ")}`);
+  
     const req = (schemaFeatures?.required_moves) || [];
-    const pm = aj.process_moves || {};
-    let moveOK = true;
-    for (const mv of req) {
-      if ((pm[mv] || 0) < CFG.tau_required_move) moveOK = false;
-    }
+    const moves = aj.process_moves || [];
+    const moveOK = req.every(requiredMove => moves.includes(requiredMove));
     if (req.length) trace.push(`Required moves present? ${moveOK} (need ≥${CFG.tau_required_move})`);
 
     // Evidence sufficiency → no probe
-    const anyHiPit = highPit.length > 0;
-    if (finalLabel === "Correct&Complete" && moveOK && !anyHiPit && conf >= CFG.tau_confidence) {
+    const anyPitfalls = pitfalls.length > 0;
+    if (finalLabel === "Correct&Complete" && moveOK && !anyPitfalls) {
       trace.push("Evidence sufficient → skip probe.");
       return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
     }
 
     // Guard against AJ failure
-    const isFallbackNovel = finalLabel === "Novel" && conf <= 0.25;
+    const isFallbackNovel = finalLabel === "Novel";
     if (isFallbackNovel) {
       trace.push("AJ looked like a fallback/failed call → no probe this turn.");
       return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
@@ -172,20 +167,12 @@ function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeature
 
 
 // --- Theta Update and Next Item Selection ---
-
-function fusePCorrect(theta: number, item: ItemInstance, aj: AJJudgment) {
-    const pBase = sigmoid(item.a * (theta - item.b));
-    const pAj = aj.calibrations?.p_correct;
-    if (pAj == null) return { p: pBase, note: `p_base=${pBase.toFixed(3)}; no p_correct_AJ` };
-    const p = 0.5 * pBase + 0.5 * pAj;
-    return { p, note: `p_base=${pBase.toFixed(3)}; p_correct_AJ=${pAj.toFixed(3)}; p_fused=${p.toFixed(3)}` };
-}
-
 // Calculates the new theta state based on current state and the new evidence.
 // This function is pure (does not modify DB or global state).
 function calculateThetaUpdate(currentThetaMean: number, currentThetaVar: number, item: ItemInstance, aj: AJJudgment): { thetaMeanNew: number, thetaVarNew: number, trace: string[] } {
     const yhat = aj.score;
-    const { p, note } = fusePCorrect(currentThetaMean, item, aj);
+    const p = sigmoid(item.a * (currentThetaMean - item.b));
+    const note = `p_base=${p.toFixed(3)}`;
     const info = (item.a ** 2) * p * (1 - p) + 1e-6;
     const thetaVarNew = 1.0 / (1.0 / currentThetaVar + info);
     const thetaMeanNew = currentThetaMean + thetaVarNew * item.a * (yhat - p);

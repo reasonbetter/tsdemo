@@ -5,14 +5,12 @@ import ReactMarkdown from 'react-markdown';
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
 // Helper component to display the new metadata
-const MetadataDisplay = ({ pitfalls, process_moves }: { pitfalls?: string[], process_moves?: string[] }) => {
-    const p1 = (pitfalls || []).join(', ');
-    const p2 = (process_moves || []).join(', ');
-
+const MetadataDisplay = ({ tags }: { tags?: string[] }) => {
+    const tagString = (tags || []).join(', ');
+    if (!tagString) return null;
     return (
-       <p className="text-xs text-muted-foreground font-mono">
-+            {p1 && `Pitfalls: ${p1}`} {p2 && `Moves: ${p2}`}
-+        </p>
+         <p className="text-xs text-muted-foreground font-mono">Tags: {tagString}</p>
+
     );
 };
 
@@ -157,7 +155,7 @@ export default function Admin() {
                                       <p className="text-xs text-muted-foreground">
                                         Label: <strong className="text-foreground">{entry.label}</strong>, Probe: <strong>{entry.probe_type}</strong>, θ: {Number(entry.theta_mean).toFixed(2)} (var: {Number(entry.theta_var).toFixed(2)})
                                       </p>
-+                                      <MetadataDisplay pitfalls={entry.pitfalls as any} process_moves={entry.process_moves as any} />
+                                      <MetadataDisplay tags={entry.tags as any} />
                                     </div>
                                 </div>
                                 

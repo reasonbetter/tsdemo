@@ -5,18 +5,14 @@ import ReactMarkdown from 'react-markdown';
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
 // Helper component to display the new metadata
-const MetadataDisplay = ({ data }: { data: Record<string, number | undefined | null> }) => {
-    const entries = Object.entries(data).filter(([, value]) => value != null && value > 0.1);
-    if (entries.length === 0) return null;
+const MetadataDisplay = ({ pitfalls, process_moves }: { pitfalls?: string[], process_moves?: string[] }) => {
+    const p1 = (pitfalls || []).join(', ');
+    const p2 = (process_moves || []).join(', ');
 
     return (
-        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
-            {entries.map(([key, value]) => (
-                <span key={key} className="text-xs text-muted-foreground font-mono">
-                    {key}: {Number(value).toFixed(2)}
-                </span>
-            ))}
-        </div>
+       <p className="text-xs text-muted-foreground font-mono">
++            {p1 && `Pitfalls: ${p1}`} {p2 && `Moves: ${p2}`}
++        </p>
     );
 };
 
@@ -161,7 +157,7 @@ export default function Admin() {
                                       <p className="text-xs text-muted-foreground">
                                         Label: <strong className="text-foreground">{entry.label}</strong>, Probe: <strong>{entry.probe_type}</strong>, θ: {Number(entry.theta_mean).toFixed(2)} (var: {Number(entry.theta_var).toFixed(2)})
                                       </p>
-                                      <MetadataDisplay data={{ ...entry.pitfalls, ...entry.process_moves }} />
++                                      <MetadataDisplay pitfalls={entry.pitfalls as any} process_moves={entry.process_moves as any} />
                                     </div>
                                 </div>
                                 

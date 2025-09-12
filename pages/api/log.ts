@@ -56,7 +56,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         orderBy: { updatedAt: 'desc' }, // Newest first
         take: take,
 // Only fetch sessions that have a transcript with at least one entry.
-        w// This is correct
 where: {
   NOT: {
     transcript: {

@@ -20,7 +20,6 @@ Return JSON with:
 - pitfalls: object of probabilities (0–1), use concise keys (e.g., only_one_reason_given, linearity_bias, fixation_on_proximal_cause)
 - process_moves: object of probabilities (0–1)
 - calibrations: { p_correct: number, confidence: number }
-- extractions: { direction_word: "More"|"Less"|"Better"|"Worse"|null, key_phrases: string[] }
 
 TASK 2 — PROBE RECOMMENDATION:
 Also return a "probe" object with:
@@ -33,7 +32,6 @@ GENERAL POLICIES:
 - Do NOT use technical terms (e.g., "confounder","mediator","collider","selection bias","reverse causation").
 - Do NOT reveal or cue the target concept or answer.
 - Rely heavily on the Item-Specific Guidance provided below for evaluation criteria.
-- Only extract direction_word when features.expect_direction_word === true; otherwise set null.
 - If you are not confident a probe is needed, set intent="None" and empty text.
 `;
 

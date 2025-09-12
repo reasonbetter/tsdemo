@@ -53,7 +53,8 @@ export type ProbeLibrary = Record<ProbeIntent, string[]>;
 
 // The structured output from the Adaptive Judge
 export interface AJJudgment {
-  labels: Record<AJLabel, number>; // Probabilities
+  score: number; // A single score from 0.0 to 1.0
+  final_label: AJLabel; // The final categorical label  
   pitfalls: Record<string, number>;
   process_moves: Record<string, number>;
   calibrations: {

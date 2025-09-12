@@ -553,7 +553,7 @@ export default function Home() {
                             <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full"><strong>θ</strong> {theta.mean}</span>
                             <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full"><strong>SE</strong> {theta.se}</span>
                             <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full">Item: {currentItem.item_id}</span>
-                            <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full">Tag: {currentItem.coverage_tag}</span>
+                            <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full">Tag: {bank.schema_features[currentItem.schema_id]?.coverage_tag}</span>
                         </div>
                          <p className="text-xs text-muted-foreground mt-3">Session ID: {sessionId}</p>
                     </CollapsibleSection>

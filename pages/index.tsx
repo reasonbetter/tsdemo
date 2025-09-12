@@ -146,12 +146,12 @@ export default function Home() {
         }
     }
 
-    async function callTurn({ sessionId, itemId, ajMeasurement, twMeasurement = null }: { sessionId: string, itemId: string, ajMeasurement: AJJudgment, twMeasurement?: AJJudgment | null }): Promise<TurnResult> {
+    async function callTurn({ sessionId, itemId, ajMeasurement, twMeasurement = null, userResponse, probeResponse, probeType }: { sessionId: string, itemId: string, ajMeasurement: AJJudgment, twMeasurement?: AJJudgment | null, userResponse: string, probeResponse?: string, probeType?: ProbeIntent }): Promise<TurnResult> {
         try {
             const res = await fetch("/api/turn", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sessionId, itemId, ajMeasurement, twMeasurement })
+                body: JSON.stringify({ sessionId, itemId, ajMeasurement, twMeasurement, userResponse, probeResponse, probeType })
             });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
@@ -181,7 +181,8 @@ export default function Home() {
         setPending(true);
 
         const aj = await callAJ({ item: currentItem, userResponse: input });
-        const turn = await callTurn({ sessionId, itemId: currentItem.item_id, ajMeasurement: aj });
+        const turn = await callTurn({ sessionId, itemId: currentItem.item_id, ajMeasurement: aj, userResponse: input });
+
 
         setHistory((h) => [
             ...h,
@@ -228,6 +229,9 @@ export default function Home() {
         if (!awaitingProbe || !probeInput.trim() || pending || !currentItem || !sessionId) return;
         setPending(true);
 
+        const lastHistory = history[history.length - 1];
+        if (!lastHistory) return; 
+      
         const tw = await callAJ({
             item: currentItem,
             userResponse: probeInput,
@@ -239,6 +243,9 @@ export default function Home() {
             itemId: currentItem.item_id,
             ajMeasurement: awaitingProbe.pending.aj,
             twMeasurement: tw
+            userResponse: lastHistory.answer,
+            probeResponse: probeInput,
+            probeType: awaitingProbe.probeType,
         });
 
         setLog((lines) => [...lines, ...merged.trace, "—"]);

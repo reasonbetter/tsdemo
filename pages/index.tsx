@@ -137,12 +137,12 @@ export default function Home() {
             return await res.json();
         } catch (e) {
             alert(`AJ error: ${(e as Error).message}`);
-            return {
-                labels: { Novel: 1.0 } as Record<AJLabel, number>,
+             return {
+                score: 0.0,
+                final_label: "Novel",
                 pitfalls: {},
                 process_moves: {},
                 calibrations: { p_correct: 0.0, confidence: 0.2 },
-                extractions: { direction_word: null, key_phrases: [] },
                 probe: { intent: "None", text: "", rationale: "", confidence: 0.0 }
             };
         }

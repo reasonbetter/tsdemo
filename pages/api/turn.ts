@@ -381,7 +381,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 coverageCounts: updatedCoverageCounts as Prisma.JsonObject,
                 // If no next item, mark session as completed
                 status: next ? 'ACTIVE' : 'COMPLETED',
-                transcript: transcript as Prisma.JsonArray,
+                transcript: transcript as unknown as Prisma.JsonArray,
             },
         });
 

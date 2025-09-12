@@ -242,7 +242,7 @@ export default function Home() {
             sessionId,
             itemId: currentItem.item_id,
             ajMeasurement: awaitingProbe.pending.aj,
-            twMeasurement: tw
+            twMeasurement: tw,
             userResponse: lastHistory.answer,
             probeResponse: probeInput,
             probeType: awaitingProbe.probeType,

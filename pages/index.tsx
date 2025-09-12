@@ -116,8 +116,6 @@ export default function Home() {
             const features: AJFeatures = {
                 schema_id: item.schema_id,
                 item_id: item.item_id,
-                family: item.family,
-                coverage_tag: item.coverage_tag,
                 band: item.band,
                 item_params: { a: item.a, b: item.b },
                 expect_direction_word: item.family.startsWith("C3") || item.family.startsWith("C6"),

@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { AJJudgment, AJFeatures, ItemInstance } from '@/types/assessment';
+import { AJJudgment, AJFeatures, ItemInstance, AJLabel } from '@/types/assessment';
 
-const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
 
 // Define the expected request body structure
 interface AJRequest {

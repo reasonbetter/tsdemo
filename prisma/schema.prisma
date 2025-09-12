@@ -27,6 +27,7 @@ model Session {
   askedItemIds   String[]
   // We store coverage counts as JSONB for flexibility with dynamic tags
   coverageCounts Json     @default("{}")
+  transcript     Json     @default("[]")
 
   status         String   @default("ACTIVE") // ACTIVE, COMPLETED
 

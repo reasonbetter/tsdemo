@@ -56,12 +56,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         orderBy: { updatedAt: 'desc' }, // Newest first
         take: take,
 // Only fetch sessions that have a transcript with at least one entry.
-        where: {
-          transcript: {
-            path: [],
-            array_not_contains: []
-          }
-        }
+        w// This is correct
+where: {
+  NOT: {
+    transcript: {
+      equals: []
+    }
+  }
+}
       });
 
       // Return the sessions; the frontend will format them.

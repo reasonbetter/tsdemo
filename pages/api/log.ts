@@ -55,6 +55,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const sessions = await prisma.session.findMany({
         orderBy: { updatedAt: 'desc' }, // Newest first
         take: take,
+// Only fetch sessions that have a transcript with at least one entry.
+        where: {
+          transcript: {
+            path: '$',
+            array_not_contains: []
+          }
+        }
       });
 
       // Return the sessions; the frontend will format them.

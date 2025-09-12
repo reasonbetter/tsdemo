@@ -33,7 +33,6 @@ GENERAL POLICIES:
 - Do NOT use technical terms (e.g., "confounder","mediator","collider","selection bias","reverse causation").
 - Do NOT reveal or cue the target concept or answer.
 - Rely heavily on the Item-Specific Guidance provided below for evaluation criteria.
-- If you are not confident a probe is needed, set intent="None" and empty text.
 `;
 
 // Function to construct the dynamic prompt

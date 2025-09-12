@@ -52,17 +52,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // !! SECURITY NOTE: This route must be protected by authentication (Phase 3.1)
 
       // Basic filtering/pagination
-      const { sessionId, limit = '500' } = req.query;
+      const { limit = '50' } = req.query;
       const take = parseInt(limit as string, 10);
 
-      const whereClause: Prisma.LogEntryWhereInput = {};
-      if (sessionId && typeof sessionId === 'string') {
-        whereClause.sessionId = sessionId;
-      }
-
-      const logs = await prisma.logEntry.findMany({
-        where: whereClause,
-        orderBy: { timestamp: 'desc' }, // Newest first
+      const sessions = await prisma.session.findMany({
+        orderBy: { updatedAt: 'desc' }, // Newest first
         take: take,
         // Include session details for display (e.g., userTag)
         include: {
@@ -74,8 +68,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       });
 
-      // Return the structured logs directly; the frontend will format them.
-      return res.status(200).json({ logs });
+      // Return the sessions; the frontend will format them.
+      return res.status(200).json({ sessions });
     }
 
     // --- DELETE: Clear logs (Admin action) ---

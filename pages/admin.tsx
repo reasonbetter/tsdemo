@@ -127,7 +127,7 @@ export default function Admin() {
                     <div className="mt-4 border-t border-border pt-4">
                         <h5 className="font-semibold mb-2">Transcript</h5>
                         <div className="space-y-4 text-sm">
-                        {(session.transcript as HistoryEntry[] || []).map((entry, idx) => (
+                        {((session.transcript as unknown) as HistoryEntry[] || []).map((entry, idx) => (
                             <div key={idx} className="p-3 bg-background rounded-lg">
                                 <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
                                 <div className="prose prose-sm max-w-none mt-1"><ReactMarkdown>{entry.text}</ReactMarkdown></div>

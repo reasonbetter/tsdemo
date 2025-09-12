@@ -4,6 +4,7 @@
       "family": "C1",
       "coverage_tag": "confounding",
        "required_moves": ["names_two_distinct"],
+       "potential_pitfalls": ["only_one_reason", "vague_mechanism"],
        "aj_guidance": "Target: Generate TWO distinct confounders. Policy: Be strict about distinctness. 'Wealthy parents' and 'Parents have money' are NOT distinct. Accurately count distinct reasons even if presented in a single clause or sentence. If only one distinct reason is given, tag pitfall 'only_one_reason_given' and recommend 'Completion' probe."
      },
      "C2_Indication": {

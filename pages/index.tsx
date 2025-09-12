@@ -29,6 +29,8 @@ export default function Home() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionInitialized, setSessionInitialized] = useState(false);
   const [userTag, setUserTag] = useState("");
+// New state to track if the session has been saved to the DB
+  const [isSessionLive, setIsSessionLive] = useState(false);
   // State for the User ID input field itself
   const [userIdInput, setUserIdInput] = useState("");
 
@@ -180,6 +182,25 @@ export default function Home() {
         if (!input.trim() || pending || !currentItem || !sessionId) return;
         setPending(true);
 
+// If this is the first submission, create the session in the DB first
+        if (!isSessionLive) {
+            try {
+                const res = await fetch('/api/create_session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, userTag: userTag || null })
+                });
+                if (!res.ok) {
+                    throw new Error("Failed to create session in database before first turn.");
+                }
+                setIsSessionLive(true); // Mark session as live
+            } catch (e) {
+                alert(`Error creating session: ${(e as Error).message}`);
+                setPending(false);
+                return;
+            }
+        }
+
         const aj = await callAJ({ item: currentItem, userResponse: input });
         const turn = await callTurn({ sessionId, itemId: currentItem.item_id, ajMeasurement: aj, userResponse: input });
 
@@ -301,7 +322,6 @@ export default function Home() {
 
     async function initializeSession() {
         setSessionInitialized(false);
-
         const id = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
 
         setSessionId(id);
@@ -311,49 +331,15 @@ export default function Home() {
         setAwaitingProbe(null);
         setInput("");
         setProbeInput("");
+        setIsSessionLive(false); // Reset the session live status
 
         // Use the current value of the input field when resetting
         const currentUserTag = userIdInput.trim() === '' ? null : userIdInput.trim();
         setUserTag(currentUserTag || "");
 
+  setTheta({ mean: 0, se: Math.sqrt(1.5) });
+   setSessionInitialized(true);
 
-        try {
-            const res = await fetch('/api/create_session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // Use the value determined right before the call
-                body: JSON.stringify({ sessionId: id, userTag: currentUserTag })
-            });
-
-            if (!res.ok) {
-                throw new Error("Failed to initialize session in database.");
-            }
-
-            const sessionData = await res.json();
-
-            setTheta({
-                mean: Number(sessionData.thetaMean.toFixed(2)),
-                se: Number(Math.sqrt(sessionData.thetaVar).toFixed(2))
-            });
-
-            setSessionInitialized(true);
-
-            if (initialItemId) {
-                const startEvent = {
-                    ts: new Date().toISOString(),
-                    session_id: id,
-                    user_tag: currentUserTag,
-                    type: "session_start",
-                    item_id: initialItemId
-                };
-                await fetch("/api/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(startEvent) });
-            }
-        } catch (e) {
-            console.error("Session initialization failed:", e);
-            alert("Error initializing session. Please check the database connection.");
-            setSessionId(null);
-            setSessionInitialized(true);
-        }
     }
 
     async function endSession() {

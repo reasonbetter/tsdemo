@@ -220,7 +220,7 @@ function applyCoverage(cands: ItemInstance[], coverageCounts: Record<CoverageTag
     const counts = coverageCounts || {};
     const need = CFG.coverage_targets.filter((tag) => (counts[tag] || 0) === 0);
     if (need.length === 0) return cands;
-    const prior = cands.filter((it) => need.includes(it.coverage_tag));
+    const prior = cands.filter((it) => need.includes(bank.schema_features[it.schema_id]?.coverage_tag));
     return prior.length ? prior : cands;
 }
 

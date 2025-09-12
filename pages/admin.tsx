@@ -26,6 +26,17 @@ export default function Admin() {
   const [localLogs, setLocalLogs] = useState<ClientLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === "cognition") {
+      setIsAuthenticated(true);
+    } else {
+      alert("Incorrect password");
+    }
+  };
 
   async function refresh() {
     setLoading(true);
@@ -79,12 +90,33 @@ export default function Admin() {
     }
   }
 
-  function clearLocal() {
-    localStorage.removeItem("rb_local_logs");
-    refresh();
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+        refresh();
+    }
+  }, [isAuthenticated]);
 
-  useEffect(() => { refresh(); }, []);
+  if (!isAuthenticated) {
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+            <div className="w-full max-w-sm p-8 space-y-6 bg-card border border-border rounded-xl shadow-lg">
+                <h1 className="text-2xl font-bold text-center text-foreground">Admin Access</h1>
+                <form onSubmit={handlePasswordSubmit}>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-4 py-2 text-base border border-input-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150"
+                        placeholder="Password"
+                    />
+                    <button type="submit" className="w-full mt-4 px-6 py-2 text-base font-semibold rounded-lg shadow-sm bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition duration-150">
+                        Enter
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -105,11 +137,10 @@ export default function Admin() {
             {loading ? "Loading..." : "Refresh"}
         </button>
         <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150" onClick={() => downloadJSON(sessions, 'server-sessions')}>Download Sessions JSON</button>
-        <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition duration-150" onClick={clearServer}>Clear Database (All Data)</button>
       </div>
 
-      <section className="space-y-4">
-            <h3 className="text-xl font-semibold">Session Transcripts (latest {sessions.length})</h3>
+      <section className="space-y-2">
+            <h3 className="text-xl font-semibold px-2">Session Transcripts (latest {sessions.length})</h3>
             {sessions.length === 0 && !loading && <p className="text-muted-foreground">No sessions found in the database.</p>}
 
             {sessions.map(session => {
@@ -117,7 +148,7 @@ export default function Admin() {
                 const transcript = (session.transcript as unknown as HistoryEntry[]) || [];
 
                 return (
-                    <CollapsibleSection key={session.id} title={title} className="bg-card shadow-sm">
+                    <CollapsibleSection key={session.id} title={title} className="bg-card shadow-sm" titleSize="xs">
                         <div className="space-y-4 text-sm">
                         {transcript.map((entry, idx) => (
                             <div key={idx} className="p-3 bg-background rounded-lg border border-border">
@@ -152,14 +183,12 @@ export default function Admin() {
                 )
             })}
         </section>
-
-      {localLogs.length > 0 && (
-        <CollapsibleSection title="Local Logs (Legacy)" className="bg-card shadow-sm mt-6 opacity-75">
-            <div className="font-mono text-sm bg-gray-900 text-gray-400 rounded-lg p-4 whitespace-pre-wrap overflow-auto max-h-72 shadow-inner">
-                {JSON.stringify(localLogs.slice(0, 500), null, 2)}
-            </div>
-        </CollapsibleSection>
-      )}
+      
+      <div className="mt-12 border-t border-border pt-6">
+        <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition duration-150" onClick={clearServer}>
+            Clear Database (All Data)
+        </button>
+      </div>
     </div>
   );
 }

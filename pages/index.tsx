@@ -140,8 +140,8 @@ export default function Home() {
              return {
                 score: 0.0,
                 final_label: "Novel",
-                pitfalls: {},
-                process_moves: {},
+                pitfalls: [],
+                process_moves: [],
                 calibrations: { p_correct: 0.0, confidence: 0.2 },
                 probe: { intent: "None", text: "", rationale: "", confidence: 0.0 }
             };

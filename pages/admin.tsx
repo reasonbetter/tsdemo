@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
 // Import the Prisma type definition for the database model
-import { LogEntry as DBLogEntry, Session } from "@prisma/client";
+import { Session } from "@prisma/client";
 import { LogEntry as ClientLogEntry } from "@/types/assessment"; // Used only for local logs
-
-// Define a helper type for the frontend display
-type DisplayLogEntry = Omit<DBLogEntry, 'payload'> & {
-    payload: Record<string, any>;
-    session: Pick<Session, 'userTag'> | null;
-};
+import { HistoryEntry } from "@/types/assessment";
+import ReactMarkdown from 'react-markdown';
 
 export default function Admin() {
-  // Use the database DisplayLogEntry type
-  const [serverLogs, setServerLogs] = useState<DisplayLogEntry[]>([]);
-  // Keep local logs for comparison/backup during transition
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [localLogs, setLocalLogs] = useState<ClientLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,23 +16,19 @@ export default function Admin() {
     setLoading(true);
     setError(null);
 
-    // 1. Fetch Server Logs
+    // 1. Fetch Sessions from Server
     try {
       const res = await fetch("/api/log");
       if (res.ok) {
         const data = await res.json();
-        const logs = (data.logs || []).map((log: DBLogEntry & { session: Pick<Session, 'userTag'> | null }) => ({
-            ...log,
-            payload: (log.payload && typeof log.payload === 'object' && !Array.isArray(log.payload)) ? log.payload : {}
-        }));
-        setServerLogs(logs);
+        setSessions(data.sessions || []);
       } else {
         throw new Error(`HTTP ${res.status}`);
       }
     } catch (e) {
       console.error("Error fetching server logs:", e);
-      setError(`Failed to load server logs: ${(e as Error).message}`);
-      setServerLogs([]);
+      setError(`Failed to load sessions: ${(e as Error).message}`);
+      setSessions([]);
     }
 
     // 2. Fetch Local Logs
@@ -110,7 +100,7 @@ export default function Admin() {
             {loading ? "Loading..." : "Refresh"}
         </button>
         {/* Secondary Button Styling */}
-        <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150" onClick={() => downloadJSON(serverLogs, 'server')}>Download Server JSON</button>
+        <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150" onClick={() => downloadJSON(sessions, 'server-sessions')}>Download Sessions JSON</button>
         <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150" onClick={() => downloadJSON(localLogs, 'local')}>Download Local JSON</button>
         {/* Danger Button Styling */}
         <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition duration-150" onClick={clearServer}>Clear Database (All Data)</button>
@@ -118,36 +108,43 @@ export default function Admin() {
       </div>
 
       {/* Database Logs Section */}
-      <section className="bg-card shadow-sm border border-border rounded-xl p-6 mt-6">
-        <h3 className="text-xl font-semibold mb-4">Database Logs (latest {serverLogs.length})</h3>
-        {/* Dark background log viewer */}
-        <div className="font-mono text-sm bg-gray-900 rounded-lg p-4 overflow-auto max-h-[600px] shadow-inner">
-            {serverLogs.length === 0 && !loading && <p className="text-gray-500">No logs found.</p>}
-            {serverLogs.map(log => (
-                <div key={log.id} className="mb-5 pb-4 border-b border-gray-700 last:border-b-0">
-                    <div className="flex justify-between items-center text-gray-300">
+        <section className="space-y-6">
+            <h3 className="text-xl font-semibold">Session Transcripts (latest {sessions.length})</h3>
+            {sessions.length === 0 && !loading && <p className="text-muted-foreground">No sessions found in the database.</p>}
+            {sessions.map(session => (
+                <div key={session.id} className="bg-card shadow-sm border border-border rounded-xl p-6">
+                    <div className="flex justify-between items-center mb-4">
                         <div>
-                            <strong>Session:</strong> {log.sessionId.slice(0,8)} {log.session?.userTag ? <span className="text-xs text-gray-400">({log.session.userTag})</span> : ''}
+                            <h4 className="font-semibold text-lg">Session: {session.id.slice(0,8)}</h4>
+                            {session.userTag && <p className="text-sm text-muted-foreground">User ID: {session.userTag}</p>}
                         </div>
-                        <div className="text-xs text-gray-500">
-                            <strong>TS:</strong> {new Date(log.timestamp).toLocaleString()}
+                        <div className="text-right text-sm text-muted-foreground">
+                            <p>Status: <span className="font-medium text-foreground">{session.status}</span></p>
+                            <p>Last Updated: {new Date(session.updatedAt).toLocaleString()}</p>
                         </div>
                     </div>
-                    <div className="mt-1">
-                        <strong>Type:</strong> <span className="text-blue-400">{log.type}</span>
+                    
+                    <div className="mt-4 border-t border-border pt-4">
+                        <h5 className="font-semibold mb-2">Transcript</h5>
+                        <div className="space-y-4 text-sm">
+                        {(session.transcript as HistoryEntry[] || []).map((entry, idx) => (
+                            <div key={idx} className="p-3 bg-background rounded-lg">
+                                <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
+                                <div className="prose prose-sm max-w-none mt-1"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
+                                <p className="mt-2 p-2 bg-white border rounded-md"><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
+                                {entry.probe_answer && (
+                                     <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
+                                        <p className="font-semibold">Probe: {entry.probe_text}</p>
+                                        <p><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
+                                     </div>
+                                )}
+                            </div>
+                        ))}
+                        </div>
                     </div>
-                    {log.itemId && <div className="mt-1 text-gray-400"><strong>Item ID:</strong> {log.itemId}</div>}
-
-                    {/* Display payload only if it has content */}
-                    {Object.keys(log.payload).length > 0 && (
-                        <pre className="mt-2 text-gray-400 whitespace-pre-wrap bg-gray-800 p-3 rounded">
-                            {JSON.stringify(log.payload, null, 2)}
-                        </pre>
-                    )}
                 </div>
             ))}
-        </div>
-      </section>
+        </section>
 
       {/* Local Logs Section (Legacy) */}
       {localLogs.length > 0 && (

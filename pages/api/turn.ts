@@ -20,6 +20,7 @@ import {
   CoverageTag,
   AssessmentConfig,
   ProbeLibrary
+  HistoryEntry
 } from '@/types/assessment';
 
 // Type assertion for the imported JSON data
@@ -267,13 +268,16 @@ interface TurnRequest {
   itemId: string;
   ajMeasurement: AJJudgment;
   twMeasurement?: AJJudgment;
+  userResponse: string;
+  probeResponse?: string;
+  probeType?: ProbeIntent;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TurnResult | { error: string, details?: string }>) {
   try {
     // The "reset" mechanism is removed. Sessions are created via /api/create_session.
 
-    const { sessionId, itemId, ajMeasurement, twMeasurement } = req.body as TurnRequest;
+    const { sessionId, itemId, ajMeasurement, twMeasurement, userResponse, probeResponse, probeType } = req.body as TurnRequest;
 
     if (!sessionId) {
         return res.status(400).json({ error: "sessionId is required" });
@@ -303,7 +307,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const coverageCounts = (session.coverageCounts && typeof session.coverageCounts === 'object' && !Array.isArray(session.coverageCounts))
             ? session.coverageCounts as Record<CoverageTag, number>
             : {} as Record<CoverageTag, number>;
-
+   
+        const transcript = (session.transcript && Array.isArray(session.transcript))
+            ? session.transcript as HistoryEntry[]
+            : [];
 
         // 2. Process the Turn Logic (Policy, Theta Calculation, Selection)
         const schemaFeat = bank.schema_features[item.schema_id] || {};
@@ -319,7 +326,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         // Theta update calculation
         const { thetaMeanNew, thetaVarNew, trace: t2 } = calculateThetaUpdate(session.thetaMean, session.thetaVar, item, ajUsed);
         trace.push(...t2);
-
+      
+// Update Transcript
+        if (twMeasurement) {
+           // This is a probe answer, so we update the last transcript entry
+            const lastEntry = transcript[transcript.length - 1];
+            if (lastEntry) {
+              lastEntry.probe_answer = probeResponse;
+                lastEntry.probe_label = probeType;
+               // The final label might also be updated after a probe
+                lastEntry.label = finalLabel;
+            }
+        } else {
+            // This is a new item answer, so we add a new entry
+            const newEntry: HistoryEntry = {
+               item_id: itemId,
+                text: item.text,
+                answer: userResponse,
+                label: finalLabel,
+                probe_type: probe.intent,
+                probe_text: probe.text,
+               trace: t1,
+           };
+            transcript.push(newEntry);
+        }
         // Update coverage & asked lists (in memory)
         const updatedAskedItemIds = [...session.askedItemIds];
         const updatedCoverageCounts = { ...coverageCounts };
@@ -349,6 +379,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 coverageCounts: updatedCoverageCounts as Prisma.JsonObject,
                 // If no next item, mark session as completed
                 status: next ? 'ACTIVE' : 'COMPLETED'
+                transcript: transcript as Prisma.JsonArray,
             },
         });
 

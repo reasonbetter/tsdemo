@@ -55,12 +55,8 @@ export type ProbeLibrary = Record<ProbeIntent, string[]>;
 export interface AJJudgment {
   score: number; // A single score from 0.0 to 1.0
   final_label: AJLabel; // The final categorical label  
-  pitfalls: Record<string, number>;
-  process_moves: Record<string, number>;
-  calibrations: {
-    p_correct: number;
-    confidence: number;
-  };
+  pitfalls: string[]; // A list of observed pitfall tags
+  process_moves: string[]; // A list of observed process move tags
  
   // The AJ's generated probe recommendation
   probe: {

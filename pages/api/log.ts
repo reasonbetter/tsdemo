@@ -47,25 +47,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(201).json({ ok: true });
     }
 
-    // --- GET: Retrieve logs (for Admin Dashboard) ---
+    // --- GET: Retrieve SESSIONS (for Admin Dashboard) ---
     if (req.method === "GET") {
-      // !! SECURITY NOTE: This route must be protected by authentication (Phase 3.1)
-
-      // Basic filtering/pagination
       const { limit = '50' } = req.query;
       const take = parseInt(limit as string, 10);
 
       const sessions = await prisma.session.findMany({
         orderBy: { updatedAt: 'desc' }, // Newest first
         take: take,
-        // Include session details for display (e.g., userTag)
-        include: {
-            session: {
-                select: {
-                    userTag: true
-                }
-            }
-        }
       });
 
       // Return the sessions; the frontend will format them.

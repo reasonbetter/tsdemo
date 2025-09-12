@@ -140,8 +140,7 @@ export default function Home() {
              return {
                 score: 0.0,
                 final_label: "Novel",
-                pitfalls: [],
-                process_moves: [],
+                tags: [],
                 calibrations: { p_correct: 0.0, confidence: 0.2 },
                 probe: { intent: "None", text: "", rationale: "", confidence: 0.0 }
             };
@@ -209,7 +208,6 @@ export default function Home() {
             ...h,
             {
                 item_id: currentItem.item_id,
-                text: currentItem.text,
                 answer: input,
                 label: turn.final_label,
                 probe_type: turn.probe_type,

@@ -3,6 +3,8 @@
 // --- Item Bank Structures ---
 
 export interface SchemaFeatures {
+  family: string;
+  coverage_tag: CoverageTag;
   required_moves?: string[];
   // Natural language guidance for the AJ (New Requirement)
   aj_guidance?: string;
@@ -13,8 +15,6 @@ export type CoverageTag = 'confounding' | 'temporality' | 'complexity' | string;
 export interface ItemInstance {
   item_id: string;
   schema_id: string;
-  family: string;
-  coverage_tag: CoverageTag;
   a: number; // Discrimination (IRT parameter)
   b: number; // Difficulty (IRT parameter)
   band: string;
@@ -79,8 +79,6 @@ export interface AJJudgment {
 export interface AJFeatures {
   schema_id: string;
   item_id: string;
-  family: string;
-  coverage_tag: CoverageTag;
   band: string;
   item_params: { a: number; b: number };
   expect_direction_word: boolean;

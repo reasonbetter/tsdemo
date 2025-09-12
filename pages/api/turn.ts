@@ -241,8 +241,7 @@ function selectNextItem(sessionState: SessionSelectionState) {
         return { next: null, trace };
     }
     const [score, best] = scored[0];
-    trace.push(`Next=${best.item_id} (EIG≈${score.toFixed(3)}, tag=${best.coverage_tag}, fam=${best.family})`);
-    return { next: best, trace };
+    trace.push(`Next=${best.item_id} (EIG≈${score.toFixed(3)}, tag=${bank.schema_features[best.schema_id]?.coverage_tag}, fam=${bank.schema_features[best.schema_id]?.family})`);    return { next: best, trace };
 }
 
 function mergeTwIntoItem(ajItem: AJJudgment, tw: AJJudgment): AJJudgment {

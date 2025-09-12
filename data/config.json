@@ -6,4 +6,6 @@
     "tau_confidence": 0.75,
     "coverage_targets": [
     "confounding", "temporality", "complexity"
+ ]
+  }
 }

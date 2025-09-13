@@ -2,40 +2,58 @@ import OpenAI from "openai";
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { AJJudgment, AJFeatures, ItemInstance, AJLabel } from '@/types/assessment';
 
-const MODEL = process.env.OPENAI_MODEL || "gpt-5-mini";
+const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
-// Define the expected request body structure
+// Define the expected request body structures
 interface AJRequest {
     item: ItemInstance;
     userResponse: string;
     features: AJFeatures;
+    full_transcript?: any;
 }
 
 // Base System Prompt (Static Part)
-const AJ_SYSTEM_BASE = `You are the Adaptive Judge.
-
-TASK 1 — SCORING:
-Return JSON with:
-- score: A single floating point number from 0.0 (completely incorrect) to 1.0 (perfect).
-- final_label: Your final assessment as one of {"Correct&Complete","Correct_Missing","Correct_Flawed","Partial","Incorrect","Novel"}
-- tags: An array of strings listing any applicable pitfall or process move tags. ONLY use tags provided in the Item-Specific Guidance.
-
-TASK 2 — PROBE RECOMMENDATION:
-Also return a "probe" object with:
-- intent: one of {"None","Completion","Mechanism","Alternative","Clarify","Boundary"}
-- text: a single-sentence probe ≤ 20 words, plain language, no jargon
-- rationale: 1 short phrase explaining why this probe (for logs)
-- confidence: 0–1
+const AJ_SYSTEM_BASE = `You are the Adaptive Judge, a fair and insightful evaluator of reasoning.
 
 GENERAL POLICIES:
-- Do NOT use technical terms (e.g., "confounder","mediator","collider","selection bias","reverse causation").
-- Do NOT reveal or cue the target concept or answer.
-- Rely heavily on the Item-Specific Guidance provided below for evaluation criteria.
+- Do NOT use technical terms.
+- Rely heavily on the Item-Specific Guidance provided below.
+`;
+
+const FIRST_PASS_PROMPT = `
+TASK: Evaluate the user's initial answer.
+
+Return JSON with only these two fields:
+- score: A single float from 0.0 (completely incorrect) to 1.0 (perfect).
+- label: Your categorical assessment, chosen from ONE of the following:
+    - "Correct": The answer is sufficient and well-reasoned.
+    - "Incomplete": The answer is on the right track but misses a key component.
+    - "Flawed": The core idea is present, but some aspect of the answer is incorrect.
+    - "Incorrect": The answer is relevant but wrong.
+    - "Ambiguous": The answer is unclear, vague, or hard to interpret.
+    - "Off_Topic": The answer is irrelevant, nonsensical, or incoherent.
+`;
+
+const SECOND_PASS_PROMPT = `
+TASK: Evaluate the user's entire exchange, including their initial answer and their follow-up answer to your probe.
+
+Return JSON with only these three fields:
+- score: Your FINAL float score from 0.0 to 1.0 for the entire interaction.
+- label: Your FINAL categorical assessment, chosen from ONE of the following:
+    - "Correct"
+    - "Incomplete"
+    - "Flawed"
+    - "Incorrect"
+    - "Ambiguous"
+    - "Off_Topic"
+- rationale: A brief, one-sentence explanation for your final score, written in simple, encouraging language.
 `;
 
 // Function to construct the dynamic prompt
-function constructAJPrompt(guidance?: string): string {
+function constructAJPrompt(guidance?: string, isSecondPass: boolean = false): string {
     let prompt = AJ_SYSTEM_BASE;
+
+    prompt += isSecondPass ? SECOND_PASS_PROMPT : FIRST_PASS_PROMPT;
 
     // Inject the dynamic guidance paragraph if provided
     if (guidance && guidance.trim().length > 0) {
@@ -61,23 +79,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       return res.status(405).json({ error: "Method not allowed" });
     }
 
-    const { item, userResponse, features } = req.body as Partial<AJRequest>;
+    const { item, userResponse, features, full_transcript } = req.body as AJRequest;
 
     if (!item?.text || typeof userResponse !== "string" || !features) {
       return res.status(400).json({ error: "Bad request: missing item.text, userResponse, or features" });
     }
 
+    const isSecondPass = !!full_transcript;
+
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     // Construct the dynamic system prompt using the provided guidance
-    const systemPrompt = constructAJPrompt(features.aj_guidance);
+    const systemPrompt = constructAJPrompt(features.aj_guidance, isSecondPass);
 
 
     const userMsg = {
-      stimulus: item.text,
-      user_response: userResponse,
-      // We pass the features to the AJ, excluding the guidance which is now in the system prompt
-      features: { ...features, aj_guidance: undefined }
+      // On the second pass, we send the whole transcript. Otherwise, just the stimulus and response.
+      ...(isSecondPass
+        ? { transcript: full_transcript }
+        : { stimulus: item.text, user_response: userResponse }
+      ),
+      // Pass the features to the AJ, excluding the guidance which is now in the system prompt
+      features: { ...features, aj_guidance: undefined },
     };
 
     // Use standard Chat Completions API as it reliably supports JSON mode
@@ -90,7 +113,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             { role: "system", content: systemPrompt },
             { role: "user", content: JSON.stringify(userMsg) }
           ],
-          temperature: 1 
+          temperature: 0.2,
         });
         text = r?.choices?.[0]?.message?.content;
 
@@ -116,7 +139,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     }
 
     // Basic validation
-    if (payload.score == null || !payload.final_label || !payload.tags || !payload.probe) {
+    if (payload.score == null || !payload.label) {
       return res.status(502).json({
         error: "Model returned invalid JSON structure",
         sample: text.slice(0, 800)

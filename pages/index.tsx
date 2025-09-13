@@ -291,30 +291,35 @@ export default function Home() {
   // --- Session Management -----------------------------------------------------
 
     // Function to update User ID in the database (called on input blur)
-    const updateUserId = useCallback(async (newUserId: string) => {
-        if (!sessionId || newUserId === userTag) return;
+const updateUserId = useCallback(async (newUserId: string) => {
+        const trimmedId = newUserId.trim();
+        if (!sessionId || trimmedId === userTag) return;
 
-        setUserTag(newUserId); // Update the local state optimistically
+        // Always update the local state optimistically.
+        // This ensures the ID is ready for the session creation on first submit.
+        setUserTag(trimmedId);
 
-        try {
-            const res = await fetch('/api/update_session', {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId, userTag: newUserId })
-            });
+        // Only attempt to save to the DB if the session has already been created.
+        if (isSessionLive) {
+            try {
+                const res = await fetch('/api/update_session', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, userTag: trimmedId })
+                });
 
-            if (!res.ok) {
-                throw new Error("Failed to update User ID in database.");
+                if (!res.ok) {
+                    throw new Error("Failed to update User ID in database.");
+                }
+            } catch (e) {
+                console.error("User ID update failed:", e);
+                // If update fails, revert the local state
+                setUserTag(userTag);
+                setUserIdInput(userTag);
+                alert("Error updating User ID.");
             }
-            // Confirmation handled visually in the render block
-        } catch (e) {
-            console.error("User ID update failed:", e);
-            // If update fails, revert the local state
-            setUserTag(userTag);
-            setUserIdInput(userTag);
-            alert("Error updating User ID.");
         }
-    }, [sessionId, userTag]);
+    }, [sessionId, userTag, isSessionLive]);
 
 
     async function initializeSession() {

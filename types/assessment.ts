@@ -53,6 +53,10 @@ export interface AJJudgment {
   score: number; // A single score from 0.0 to 1.0
   label: AJLabel; // The final categorical label
   rationale?: string; // A short explanation for the score/label
+  probe?: { // Optional probe object from the first pass
+    intent: ProbeIntent;
+    text: string;
+  };
 }
 
 // --- Orchestrator (Turn) Structures ---

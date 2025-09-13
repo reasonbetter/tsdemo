@@ -4,17 +4,6 @@ import { LogEntry as ClientLogEntry, HistoryEntry } from "@/types/assessment";
 import ReactMarkdown from 'react-markdown';
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
-// Helper component to display the new metadata
-const MetadataDisplay = ({ tags }: { tags?: string[] }) => {
-    const tagString = (tags || []).join(', ');
-    if (!tagString) return null;
-    return (
-         <p className="text-xs text-muted-foreground font-mono">Tags: {tagString}</p>
-
-    );
-};
-
-
 export default function Admin() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [localLogs, setLocalLogs] = useState<ClientLogEntry[]>([]);
@@ -151,38 +140,18 @@ export default function Admin() {
                                 
                                 <div className="mt-2 p-2 bg-white border rounded-md">
                                     <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
-                                    <div className="mt-1 pl-1 border-l-2 border-gray-200">
-                                      <p className="text-xs text-muted-foreground">
-                                        Label: <strong className="text-foreground">{entry.label}</strong>, Probe: <strong>{entry.probe_type}</strong>, θ: {Number(entry.theta_mean).toFixed(2)} (var: {Number(entry.theta_var).toFixed(2)})
-                                      </p>
-                                      <MetadataDisplay tags={entry.tags as any} />
-                                    </div>
                                 </div>
                                 
-                                {entry.probe_answer && (
+                                {entry.probe_answer ? (
                                      <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
                                         <p className="font-semibold">Probe: {entry.probe_text}</p>
                                         <p><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
-                                        <div className="mt-1 pl-1 border-l-2 border-blue-200">
-                                            <p className="text-xs">
-                                                Final Label: <strong>{entry.label}</strong>, Final θ: {Number(entry.probe_theta_update?.mean).toFixed(2)} (var: {Number(entry.probe_theta_update?.var).toFixed(2)})
-                                            </p>
-                                        </div>
                                      </div>
+                                ) : (
+                                    <div className="mt-2 italic text-muted-foreground text-xs">
+                                        <p>No probe was issued for this question.</p>
+                                    </div>
                                 )}
-                            </div>
-                        ))}
-                        </div>
-                    </CollapsibleSection>
-                )
-            })}
-        </section>
-      
-      <div className="mt-12 border-t border-border pt-6">
-        <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition duration-150" onClick={clearServer}>
-            Clear Database (All Data)
-        </button>
-      </div>
-    </div>
-  );
-}
+
+                                {entry.final_score !== undefined && (
+                                    <div className="mt-2 p-2 bg-gray-100 border rounded-md">

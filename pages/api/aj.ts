@@ -21,7 +21,7 @@ GENERAL POLICIES:
 `;
 
 const FIRST_PASS_PROMPT = `
-TASK: Evaluate the interviewee's initial answer and decide if a follow-up probe is needed.
+TASK: Evaluate the user's initial answer and decide if a follow-up probe is needed.
 
 Return JSON with four items:
 
@@ -32,33 +32,30 @@ Return JSON with four items:
     - 0.4-0.6: Contains a mix of correct and incorrect elements.
     - 0.1-0.3: Fundamentally incorrect, but shows some understanding of the question.
     - 0.0: Completely incorrect or off-topic.
-    - Base your score entirely on your judgment of the interviewee's reasoning ability applied to this question.
+    - Base your score entirely on your judgment of the user's reasoning ability applied to this question.
     - Do not base your score on style, grammar, or writing ability: use SUBSTANCE not SUPERFICIAL PRESENTATION. 
 
 - 2. label: Your categorical assessment, chosen from ONE of the following:
     - "Correct": The answer is sufficient and well-reasoned.
     - "Incomplete": The answer is on the right track but misses a key component.
-    - "Flawed": The core idea is present, but some aspect of the answer is incorrect.
-    - "Incorrect": The answer is relevant but wrong.
-    - "Unclear": The answer is ambiguous, vague, or hard to interpret.
+    - "Flawed": The answer contains a correct element but also a clear conceptual error.
+    - "Incorrect": The answer is relevant to the question but is conceptually wrong.
+    - "Unclear": The answer is too vague or ambiguous to be judged as correct or incorrect.
     - "Off_Topic": The answer is irrelevant, nonsensical, or incoherent.
 
 - 3. probe: An object for your follow-up question.
     - If no probe is needed, return: {"intent": "None", "text": ""}
-    - If a probe is needed, return an object with two items:
+    - If a probe is needed, return an object with:
       - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Clarification", "Alternative"}.
-      - "text": A very brief custom, one-sentence probe you write yourself. 
-      PROBE TEXT GUIDANCE:
-        - A good probe asks the interviewee in a GENERIC WAY to reflect on and complete, improve, clarify, or provide an alternative answer. 
-        - It does NOT provide any hints. It does not even reveal that the user's initial answer was incorrect.
-        - It does NOT contrast the interviewee's answer with the correct one.
-        - To illustrate what a GENERIC probe looks like, here are examples of acceptable probes (but do not use these verbatim):
-            - Answer asked for two reasons, user only gave one: "Thanks—please briefly add one more different reason.",
-            - Answer doesn't provide a rationale or explanation when asked for one: "Could you explain why?", "Please provide a reason for your answer."
-            - Answer was unclear: "Could you be more specific?", "Could you please explain what you meant by [ambiguous phrase]?" 
-            - Answer is flawed, incorrect, or off-topic: "Could you refine that answer a little?", "Could you tell me more about why you answered that way?"
+      - "text": A brief, generic, one-sentence probe.
+        PROBE TEXT GUIDANCE:
+        - Your probe MUST NOT hint at the correct answer or reveal any flaw in the user's answer. 
+        - It should only ask the user to reflect on their own answer (e.g., "Could you explain why?", "Could you be more specific?").
+        - If the question asked for more than one thing and the user only provided one, the probe can say what is missing (e.g. "Please briefly add one more different reason".) It must not contrast the user's answer with the correct one.
+        - If something about the answer's language was unclear, you can specify which part was unclear (e.g. "Can you explain what you meant by X".)
+        - If you initially assessed a question as flawed, incorrect, or off-topic, do not reveal this but probe for more context (e.g. "Could you elaborate on that answer a little?", "Could you tell me more about why you answered that way?"
 
-- 4. "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to interviewee).
+- 4. "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to user).
 `;     
 
 

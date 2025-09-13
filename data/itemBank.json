@@ -41,7 +41,7 @@
       "a": 1.1,
       "b": 0.2,
       "band": "Triage",
-      "text": "A study found that children who take music lessons have higher math scores, on average, than children who do not.\n\nGive two *different* reasons (other than music helping math) why this link might be true.\n\n(Keep each reason to a sentence or two)."
+      "text": "A study found that children who take music lessons have higher math scores, on average, than children who do not.\n\nGive two *different* reasons (other than music helping math) why this link might be true.\n\n(Keep each reason to a sentence or two.)"
     },
     {
         "item_id": "P2_M1_T2_HeartMedication",
@@ -49,7 +49,7 @@
         "a": 1.3,
         "b": 0.8,
         "band": "Triage",
-        "text": "A large hospital reviews its records and finds that patients who receive a new, expensive heart medication have *worse* survival rates than those who receive the old, standard medication.\n\nName one reason why the patients getting the new medication might have been different from the start, which could explain this result.\n\n(Answer in a sentence or two)."
+        "text": "A large hospital reviews its records and finds that patients who receive a new, expensive heart medication have *worse* survival rates than those who receive the old, standard medication.\n\nName one reason why the patients getting the new medication might have been different from the start, which could explain this result.\n\n(Answer in a sentence or two.)"
     },
     {
         "item_id": "P2_M1_T3_MentorshipSuppression",
@@ -65,7 +65,7 @@
         "a": 1.2,
         "b": 0.5,
         "band": "Triage",
-        "text": "We observe that students who are highly anxious often procrastinate (delay starting work).\n\nImagine a student is anxious and starts procrastinating on an important assignment. If their anxiety and their procrastination both get worse over time, how would you describe the cause? \n\n(Answer in one or two sentences)."
+        "text": "We observe that students who are highly anxious often procrastinate (delay starting work).\n\nImagine a student is anxious and starts procrastinating on an important assignment. If their anxiety and their procrastination both get worse over time, how would you describe the cause? \n\n(Answer in one or two sentences.)"
     },
     {
         "item_id": "P2_M1_T5_JobTraining",
@@ -73,7 +73,7 @@
         "a": 1.5,
         "b": 0.1,
         "band": "Triage",
-        "text": "We are comparing a new job training program (Group A) to an old one (Group B). People chose which one to join. We want to know which program leads to a better employment rate one year later.\n\nTo make the comparison fair, which of these is important to make the same between the groups?\n1. The participants' years of experience **before** the program started.\n2. The number of job applications participants sent out **during** the program.\n3. Both 1 and 2.\n\n(Answer 1, 2, or 3, and explain why in a sentence or two)."
+        "text": "We are comparing a new job training program (Group A) to an old one (Group B). People chose which one to join. We want to know which program leads to a better employment rate one year later.\n\nTo make the comparison fair, which of these is important to make the same between the groups?\n1. The participants' years of experience **before** the program started.\n2. The number of job applications participants sent out **during** the program.\n3. Both 1 and 2.\n\n(Answer 1, 2, or 3, and explain why in a sentence or two.)"
     },
     {
         "item_id": "P2_M1_T6_SATPrep",
@@ -81,7 +81,7 @@
         "a": 1.0,
         "b": -0.5,
         "band": "Triage",
-        "text": "A high school offers an optional SAT prep course. Students who take it score much higher on the SAT than those who don't.\n\nWe learn that the course costs $500.\n\nDoes this cost suggest the study is making the course look more effective or less effective than it truly is?\n\n(Answer and briefly explain in a sentence or two)."
+        "text": "A high school offers an optional SAT prep course. Students who take it score much higher on the SAT than those who don't.\n\nWe learn that the course costs $500.\n\nDoes this cost suggest the study is making the course look more effective or less effective than it truly is?\n\n(Answer and briefly explain in a sentence or two.)"
     },
     {
         "item_id": "P2_M1_T7_HospitalError",

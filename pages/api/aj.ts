@@ -49,12 +49,14 @@ Return JSON with four items:
       - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Clarification", "Alternative"}.
       - "text": A brief, generic, one-sentence probe.
         PROBE TEXT GUIDANCE:
-        - Your probe MUST NOT hint at the correct answer or reveal any flaw in the user's answer. 
-        - It should only ask the user to reflect on their own answer (e.g., "Could you explain why?", "Could you be more specific?").
-        - If the question asked for more than one thing and the user only provided one, the probe can say what is missing (e.g. "Please briefly add one more different reason".) It must not contrast the user's answer with the correct one.
-        - If something about the answer's language was unclear, you can specify which part was unclear (e.g. "Can you explain what you meant by X".)
-        - If you initially assessed a question as flawed, incorrect, or off-topic, do not reveal this but probe for more context (e.g. "Could you elaborate on that answer a little?", "Could you tell me more about why you answered that way?"
-
+        - Your probe MUST NOT hint at the correct answer or reveal any flaw.
+        - It must be a GENERIC request for the user to reflect on their own answer.
+        - For specific cases:
+          - If the answer was incomplete or unclear, you can ask for completion or specificity (e.g., "Could you explain why?", "Could you be more specific?").
+          - If a list was required, you can ask for the missing item (e.g., "Please add one more reason or explain how your answer gives two reasons").
+          - If a phrase was unclear, you can ask for clarification on that phrase (e.g., "Can you explain what you meant by 'X'?").
+          - If the answer was flawed or incorrect, ask for elaboration in a neutral way (e.g., "Could you elaborate on that?").
+        
 - 4. "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to user).
 `;     
 

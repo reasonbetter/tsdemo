@@ -6,44 +6,26 @@ import { Prisma } from '@prisma/client'; // Import Prisma types for JSON handlin
 // Import data files
 import bankData from "@/data/itemBank.json";
 import configData from "@/data/config.json";
-import probeLibraryData from "@/data/probeLibrary.json";
 
 import {
   ItemBank,
   ItemInstance,
   AJJudgment,
   AJLabel,
-  ProbeIntent,
   SchemaFeatures,
   TurnResult,
   CoverageTag,
   AssessmentConfig,
-  ProbeLibrary,
   HistoryEntry
 } from '@/types/assessment';
 
 // Type assertion for the imported JSON data
 const bank: ItemBank = bankData as ItemBank;
 const CONFIG: AssessmentConfig = configData as AssessmentConfig;
-const PROBE_LIBRARY: ProbeLibrary = probeLibraryData as ProbeLibrary;
 
 const { CFG } = CONFIG;
 
-interface Probe {
-  intent: ProbeIntent;
-  text: string;
-  rationale?: string;
-  confidence?: number;
-  source: 'policy' | 'AJ' | 'library';
-}
-
-// --- Helper Functions (Validation, Fallback, IRT Math) ---
-
-  function fallbackProbe(intent: ProbeIntent): Probe {
-    const arr = PROBE_LIBRARY[intent] || [];
-    const text = arr[Math.floor(Math.random() * arr.length)] || "";
-    return { intent, text, rationale: "library_fallback", confidence: 0.6, source: "library" };
-  }
+// --- Helper Functions ---
 
   function sigmoid(x: number): number {
     if (x >= 0) {
@@ -59,46 +41,9 @@ interface Probe {
     return bank.items.find((it) => it.item_id === id);
   }
 
-// The core logic implementing the Middle Path strategy
-function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeatures: SchemaFeatures | undefined) {
-    const trace: string[] = [];
-    const finalLabel = aj.label;
-    trace.push(`Initial label=${finalLabel}`);
-
-    let probe: Probe;
-
-    // HYBRID MODEL LOGIC
-    // 1. Prioritize the AI-authored probe if it's valid.
-    if (aj.probe && aj.probe.intent !== 'None' && aj.probe.text && aj.probe.text.trim().length > 0) {
-        trace.push(`Using AI-authored probe with intent: ${aj.probe.intent}`);
-        probe = { ...aj.probe, source: 'AJ' };
-    } else {
-        // 2. Fallback to the library method if AI provides no probe.
-        trace.push("AI did not provide a valid probe. Falling back to library.");
-        let probeIntent: ProbeIntent = 'None';
-        if (finalLabel === 'Incomplete') probeIntent = 'Completion';
-        if (finalLabel === 'Flawed') probeIntent = 'Improvement';
-        if (finalLabel === 'Incorrect') probeIntent = 'Alternative';
-        if (finalLabel === 'Ambiguous' || finalLabel === 'Off_Topic') probeIntent = 'Clarify';
-        
-        probe = fallbackProbe(probeIntent);
-        trace.push(`Mapped label '${finalLabel}' to probe intent '${probeIntent}'.`);
-    }
-
-    // If the score is high enough, we override and don't probe.
-    if (aj.score >= (CONFIG.CFG.score_correct_threshold || 0.9)) {
-        probe.intent = 'None';
-        probe.text = '';
-        trace.push(`Score ${aj.score} is above threshold, skipping probe.`);
-    }
-
-    return { finalLabel, probe, trace };
-  }
-
 
 // --- Theta Update and Next Item Selection ---
 
-// Calculates the new theta state based on current state and the new evidence.
 function calculateThetaUpdate(currentThetaMean: number, currentThetaVar: number, item: ItemInstance, finalScore: number): { thetaMeanNew: number, thetaVarNew: number, trace: string[] } {
     const yhat = finalScore;
     const p = sigmoid(item.a * (currentThetaMean - item.b));
@@ -113,7 +58,6 @@ function calculateThetaUpdate(currentThetaMean: number, currentThetaVar: number,
     return { thetaMeanNew, thetaVarNew, trace };
 }
 
-// Helper type for session state needed by selection functions
 interface SessionSelectionState {
     askedItemIds: string[];
 }
@@ -134,7 +78,6 @@ function selectNextItem(sessionState: SessionSelectionState): { next: ItemInstan
 
     const candidates = eligibleCandidates(askedItemIds);
 
-    // Fisher-Yates shuffle to randomize selection
     const shuffle = (array: ItemInstance[]) => {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -191,7 +134,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const schemaFeat = bank.schema_features[item.schema_id] || {};
 
         let finalLabel: AJLabel;
-        let probe: Probe;
+        let probeText = "";
         let thetaMeanNew = session.thetaMean;
         let thetaVarNew = session.thetaVar;
         let nextItemId: string | null = item.item_id;
@@ -203,14 +146,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             const finalAj = twMeasurement;
             const thetaStateBefore = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
             finalLabel = finalAj.label;
-            probe = { intent: 'None', text: '', source: 'policy' };
 
             const { thetaMeanNew: tm, thetaVarNew: tv, trace: t2 } = calculateThetaUpdate(session.thetaMean, session.thetaVar, item, finalAj.score);
             thetaMeanNew = tm;
             thetaVarNew = tv;
             trace.push(...t2);
 
-            // Mark item as asked and select the NEXT item
             if (!updatedAskedItemIds.includes(item.item_id)) {
                 updatedAskedItemIds.push(item.item_id);
             }
@@ -231,15 +172,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         } else {
             // FIRST PASS (initial answer)
             trace.push("This is a first pass on an initial answer.");
-            const { finalLabel: initialLabel, probe: p, trace: t1 } = finalizeLabelAndProbe(item, ajMeasurement, schemaFeat);
-            finalLabel = initialLabel;
-            probe = p;
-            trace.push(...t1);
-
-            // DO NOT update theta yet.
-            if (probe.intent === 'None') {
-                const thetaStateBefore = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
+            finalLabel = ajMeasurement.label;
+            
+            // Determine if we should probe
+            const shouldProbe = ajMeasurement.score < (CONFIG.CFG.score_correct_threshold || 0.9) && ajMeasurement.label !== 'Incorrect' && ajMeasurement.probe && ajMeasurement.probe.text.trim().length > 0;
+            
+            if (shouldProbe) {
+                probeText = ajMeasurement.probe!.text;
+                trace.push(`AI recommended a probe: ${probeText}`);
+                nextItemId = item.item_id; // Stay on the same item
+            } else {
                 // No probe, so this turn is over. Update theta and select next item.
+                trace.push("No probe needed. Finalizing turn.");
+                const thetaStateBefore = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
                 const { thetaMeanNew: tm, thetaVarNew: tv, trace: t2 } = calculateThetaUpdate(session.thetaMean, session.thetaVar, item, ajMeasurement.score);
                 thetaMeanNew = tm;
                 thetaVarNew = tv;
@@ -251,15 +196,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 const { next, trace: t3 } = selectNextItem({ askedItemIds: updatedAskedItemIds });
                 nextItemId = next ? next.item_id : null;
                 trace.push(...t3);
- // Since this turn is over, we can record the theta change in the transcript
-                const lastEntry = transcript[transcript.length - 1];
-                if (lastEntry) {
-                    lastEntry.theta_state_before = thetaStateBefore;
-                    lastEntry.final_score = ajMeasurement.score;
-                    lastEntry.final_rationale = ajMeasurement.rationale;
-                }
-            } else {
-                nextItemId = item.item_id; // Stay on the same item to await probe response.
             }
 
             // Add new entry to Transcript
@@ -268,14 +204,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 text: item.text,
                 answer: userResponse,
                 label: finalLabel,
-                probe_type: probe.intent,
-                probe_text: probe.text,
+                probe_text: probeText,
                 trace: trace,
                 probe_rationale: ajMeasurement.probe?.rationale,
                 initial_score: ajMeasurement.score,
-                initial_tags: (ajMeasurement as any).tags, // Capture initial tags
-                final_score: probe.intent === 'None' ? ajMeasurement.score : undefined,
-                final_rationale: probe.intent === 'None' ? ajMeasurement.rationale : undefined,
+                initial_tags: (ajMeasurement as any).tags,
+                final_score: !shouldProbe ? ajMeasurement.score : undefined,
+                final_rationale: !shouldProbe ? ajMeasurement.rationale : undefined,
             };
             transcript.push(newEntry);
         }
@@ -293,12 +228,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         const responsePayload: TurnResult = {
             final_label: finalLabel,
-            probe_type: probe.intent,
-            probe_text: probe.text,
+            probe_text: probeText,
             next_item_id: nextItemId,
             theta_mean: thetaMeanNew,
             theta_var: thetaVarNew,
-            coverage_counts: {}, // This is no longer used but required by type
+            coverage_counts: {},
             trace
         };
 

@@ -46,9 +46,10 @@ SCORING GUIDANCE:
     - If no probe is needed, return: {"intent": "None", "text": ""}
     - If a probe is needed, return an object with:
         - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Alternative", "Clarify", "Boundary"}.
-        - "text": A custom, one-sentence probe you write yourself that is contextually relevant to the user's specific answer. IMPORTANT: Do NOT reveal the correct answer or provide direct hints in your probe.
+        - "text": A custom, one-sentence probe you write yourself that is contextually relevant to the user's specific answer. IMPORTANT: Do NOT reveal the correct answer or provide direct hints in your probe. A good probe asks the user to reflect on their own answer; it does not contrast their answer with the correct one. DO NOT GIVE HINTS OF ANY KIND! 
         - "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to interviewee).
-`;
+`;+     
+
 
 const SECOND_PASS_PROMPT = `
 TASK: Evaluate the user's entire exchange, including their initial answer and their follow-up answer to your probe.
@@ -56,9 +57,8 @@ TASK: Evaluate the user's entire exchange, including their initial answer and th
 Return JSON with only these three fields:
 - score: Your FINAL float score from 0.0 to 1.0 for the entire interaction.
     SCORING GUIDANCE FOR FOLLOW-UP:
-     - A user can achieve a high score (e.g., 0.8-0.9) if their follow-up answer is excellent, even if their initial answer was unclear. 
-     - If the user required a probe to understand the concept (as opposed to explaining an unclear initial answer), that is a cost to the final score. Do not give a perfect 1.0 if the user required a probe to clarify or complete their answer, unless the need for a probe did not indicate any flaw in the initial reasoning.
-     - Base your score on your judgment of the user's reasoning ability applied to the question and followup, not on style, grammar, or writing ability. 
+     - The final score can be much higher than the initial score, but only if the initial answer was simply unclear or ambiguous, without strong evidence of a conceptual flaw, and the probe offered NO HINT OF ANY KIND 
+     - If the user required a probe to grasp the relevant concept, apply the relevant process move, or complete their answer, that indicates a flaw in the initial reasoning and significantly reduces their final score. If the probe gave a hint and the user simply agreed, there should be NO IMPROVEMENT in their initial score. 
 - label: Your FINAL categorical assessment, chosen from ONE of the following:
     - "Correct"
     - "Incomplete"

@@ -221,8 +221,7 @@ export default function Home() {
             item_id: currentItem.item_id,
             label: turn.final_label,
             probe_type: turn.probe_type,
-            pitfalls: aj.pitfalls,
-            process_moves: aj.process_moves
+            tags: aj.tags
         });
 
         const prompt = probeTextFromServer(turn);

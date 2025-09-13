@@ -235,7 +235,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 lastEntry.probe_answer = probeResponse;
                 lastEntry.label = finalLabel;
                 lastEntry.final_score = finalAj.score;
-                lastEntry.final_rationale = finalAj.rationale;
+                lastEntry.final_rationale = finalAj.rationale || "";
             }
 
         } else {

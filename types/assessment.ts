@@ -40,11 +40,8 @@ export interface AssessmentConfig {
     tau_required_move: number;
     tau_pitfall_hi: number;
     tau_confidence: number;
-    enable_c6_patch: boolean;
     coverage_targets: CoverageTag[];
-    score_map: Record<AJLabel, number>;
   };
-  BANNED_TOKENS: string[];
 }
 
 // Type for data/probeLibrary.json
@@ -54,26 +51,9 @@ export type ProbeLibrary = Record<ProbeIntent, string[]>;
 // The structured output from the Adaptive Judge
 export interface AJJudgment {
   score: number; // A single score from 0.0 to 1.0
-label: AJLabel; // The final categorical label
-+  rationale?: string; // A short explanation for the score/label
-  
-  // Specific to Transcript Windows (TW) - used in the orchestrator merge logic
-  tw_labels?: Record<string, number>;
+  label: AJLabel; // The final categorical label
+  rationale?: string; // A short explanation for the score/label
 }
-
-// Input features provided to the AJ
-export interface AJFeatures {
-  schema_id: string;
-  item_id: string;
-  band: string;
-  item_params: { a: number; b: number };
-  expect_direction_word: boolean;
-  expected_list_count?: number;
-  tw_type: ProbeIntent | null;
-  // The guidance paragraph passed dynamically (New Requirement)
-  aj_guidance?: string;
-}
-
 
 // --- Orchestrator (Turn) Structures ---
 
@@ -104,7 +84,6 @@ export interface HistoryEntry {
   probe_type: ProbeIntent;
   probe_text: string;
   trace: string[];
-  tags?: string[];
   probe_answer?: string;
   final_score?: number;
   final_rationale?: string;

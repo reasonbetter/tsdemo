@@ -28,7 +28,6 @@ export interface ItemBank {
 // --- Adaptive Judge (AJ) Structures ---
 
 export type AJLabel = 'Correct' | 'Incomplete' | 'Flawed' | 'Incorrect' | 'Ambiguous' | 'Off_Topic' | 'None';
-export type ProbeIntent = 'None' | 'Completion' | 'Improvement' | 'Alternative' | 'Clarify';
 
 // --- Configuration Structures ---
 
@@ -54,7 +53,6 @@ export interface AJJudgment {
   label: AJLabel; // The final categorical label
   rationale?: string; // A short explanation for the score/label
   probe?: { // Optional probe object from the first pass
-    intent: ProbeIntent;
     text: string;
     rationale?: string;
   };
@@ -66,7 +64,6 @@ export interface AJJudgment {
 // The response sent back to the client after a turn
 export interface TurnResult {
   final_label: AJLabel;
-  probe_type: ProbeIntent;
   probe_text: string; // The text of the probe to ask the user
   next_item_id: string | null;
   theta_mean: number;
@@ -87,7 +84,6 @@ export interface HistoryEntry {
   text: string;
   answer: string;
   label: AJLabel;
-  probe_type: ProbeIntent;
   probe_text: string;
   trace: string[];
   probe_rationale?: string;

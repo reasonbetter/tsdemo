@@ -3,13 +3,12 @@ import ReactMarkdown from 'react-markdown';
 import bankData from "@/data/itemBank.json";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
-  ItemBank, ItemInstance, AJJudgment, ProbeIntent, TurnResult, ThetaState, HistoryEntry, AJLabel
+  ItemBank, ItemInstance, AJJudgment, TurnResult, ThetaState, HistoryEntry, AJLabel
 } from '@/types/assessment';
 
 const bank: ItemBank = bankData as ItemBank;
 
 interface AwaitingProbeState {
-  probeType: ProbeIntent;
   prompt: string;
   pending: {
     aj: AJJudgment;
@@ -29,11 +28,8 @@ export default function Home() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionInitialized, setSessionInitialized] = useState(false);
   const [userTag, setUserTag] = useState("");
-  // New state to track if the session has been saved to the DB
   const [isSessionLive, setIsSessionLive] = useState(false);
-  // State for the User ID input field itself
   const [userIdInput, setUserIdInput] = useState("");
-
 
   const triageItems = bank.items.filter(it => it.band === 'Triage');
   const initialItemId = triageItems[Math.floor(Math.random() * triageItems.length)]?.item_id;
@@ -47,14 +43,11 @@ export default function Home() {
   const [theta, setTheta] = useState<ThetaState>({ mean: 0, se: Math.sqrt(1.5) });
   const [pending, setPending] = useState(false);
 
-  // State for sidebar visibility
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
-  // Refs for dynamic autofocus
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const probeInputRef = useRef<HTMLInputElement>(null);
 
-  // Autofocus implementation
   useEffect(() => {
       if (!pending) {
         if (awaitingProbe) {
@@ -72,18 +65,6 @@ export default function Home() {
   );
 
   // --- helpers, API calls, submit handlers ----------------------------------------------------------------
-    function probePromptFor(type: ProbeIntent): string {
-        if (type === "Improvement") return "Could you refine that answer a little?";
-        if (type === "Completion") return "Can you give one more different reason?";
-        if (type === "Clarify") return "In one sentence: clarify what you meant.";
-        if (type === "Alternative") return "In a few words: give one different explanation.";
-        return "";
-    }
-
-    function probeTextFromServer(turnPayload: TurnResult | undefined): string {
-        const t = (turnPayload?.probe_text || "").trim();
-        return t.length > 0 ? t : probePromptFor(turnPayload?.probe_type || 'None');
-    }
 
     async function logEvent(type: string, payload: Record<string, any>, specificSessionId?: string): Promise<void> {
         const sid = specificSessionId || sessionId;
@@ -149,7 +130,6 @@ export default function Home() {
                 bank.items.find((it) => it.item_id !== itemId)?.item_id || itemId;
             return {
                 final_label: "Off_Topic",
-                probe_type: "None",
                 probe_text: "",
                 next_item_id: nextSafe,
                 theta_mean: 0,
@@ -186,7 +166,6 @@ export default function Home() {
         const aj = await callAJ({ item: currentItem, userResponse: input });
         const turn = await callTurn({ sessionId, itemId: currentItem.item_id, ajMeasurement: aj, userResponse: input });
 
-
         setHistory((h) => [
             ...h,
             {
@@ -194,13 +173,12 @@ export default function Home() {
                 text: currentItem.text,
                 answer: input,
                 label: turn.final_label,
-                probe_type: turn.probe_type,
-                probe_text: (turn.probe_text || ""),
+                probe_text: turn.probe_text,
                 trace: turn.trace,
                 probe_rationale: aj.probe?.rationale,
                 initial_score: aj.score,
-                final_score: turn.probe_type === 'None' ? aj.score : undefined,
-                final_rationale: turn.probe_type === 'None' ? aj.rationale : undefined,
+                final_score: turn.probe_text.trim().length === 0 ? aj.score : undefined,
+                final_rationale: turn.probe_text.trim().length === 0 ? aj.rationale : undefined,
             }
         ]);
         setLog((lines) => [...lines, ...turn.trace, "—"]);
@@ -209,17 +187,14 @@ export default function Home() {
         await logEvent("item_answered", {
             item_id: currentItem.item_id,
             label: turn.final_label,
-            probe_type: turn.probe_type,
             tags: aj.tags
         });
-
-        const prompt = probeTextFromServer(turn);
-        const hasProbe = !!(turn.probe_type && turn.probe_type !== "None" && prompt);
+        
+        const hasProbe = turn.probe_text && turn.probe_text.trim().length > 0;
 
         if (hasProbe) {
             setAwaitingProbe({
-                probeType: turn.probe_type,
-                prompt,
+                prompt: turn.probe_text,
                 pending: { aj, next_item_id: turn.next_item_id }
             });
         } else {
@@ -278,8 +253,7 @@ export default function Home() {
         });
 
         await logEvent("probe_answered", {
-            item_id: currentItem.item_id,
-            probe_type: awaitingProbe.probeType
+            item_id: currentItem.item_id
         });
 
         setAwaitingProbe(null);
@@ -288,7 +262,7 @@ export default function Home() {
     }
 
 
-  // --- Session Management -----------------------------------------------------
+  // --- Session Management ---
 
     const updateUserId = useCallback(async (newUserId: string) => {
         const trimmedId = newUserId.trim();
@@ -347,7 +321,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- Loading/Error States ---------------------------------------------------
+  // --- Loading/Error States ---
    if (!sessionInitialized) {
     return <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-muted-foreground">Initializing session...</div>;
   }
@@ -379,7 +353,7 @@ export default function Home() {
   }
 
 
-  // --- render (The Focused Interview Layout) -----------------------------------------------------------------
+  // --- render ---
   return (
     <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
 
@@ -473,7 +447,7 @@ export default function Home() {
 
                                     {entry.probe_answer ? (
                                         <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
-                                            <p className="font-semibold">Probe ({entry.probe_type}): <span className="italic">{entry.probe_text}</span></p>
+                                            <p className="font-semibold">Probe: <span className="italic">{entry.probe_text}</span></p>
                                             {entry.probe_rationale && <p className="text-xs mt-1">Rationale: {entry.probe_rationale}</p>}
                                             <p className="mt-2"><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
                                         </div>
@@ -516,7 +490,7 @@ export default function Home() {
                             />
                             {userIdInput === userTag && userTag !== "" && (
                                 <>
-                                    <svg className="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <svg className="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0" 0 20 20" fill="currentColor">
                                         <title>ID Saved</title>
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>

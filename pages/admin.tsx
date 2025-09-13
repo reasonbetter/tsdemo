@@ -155,3 +155,24 @@ export default function Admin() {
 
                                 {entry.final_score !== undefined && (
                                     <div className="mt-2 p-2 bg-gray-100 border rounded-md">
+                                        <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
+                                        <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
+                                        {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                        </div>
+                    </CollapsibleSection>
+                )
+            })}
+        </section>
+      
+      <div className="mt-12 border-t border-border pt-6">
+        <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition duration-150" onClick={clearServer}>
+            Clear Database (All Data)
+        </button>
+      </div>
+    </div>
+  );
+}

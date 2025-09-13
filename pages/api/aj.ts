@@ -69,9 +69,9 @@ Return JSON with only these three fields:
 
 - 1. score: Your FINAL float score from 0.0 to 1.0 for the entire interaction.
         SCORE GUIDANCE FOR FOLLOW-UP:
-        - The final score can be much higher than the initial score, but only if the initial answer was simply unclear or ambiguous, without strong evidence of a conceptual flaw, and the probe offered NO HINT OF ANY KIND 
-        - If the user required a probe to grasp the relevant concept, apply the relevant process move, or complete their answer, that indicates a flaw in the initial reasoning and significantly reduces their final score. 
-        - If the probe gave a hint and the user simply agreed, there should be NO IMPROVEMENT in their initial score. 
+        - Reward genuine improvement. A user can earn a high final score if their follow-up is excellent and their initial error was minor (e.g., ambiguity or not noticing that two things were asked for and only providing one).
+        - Do not reward agreement with hints. If the probe guided the user to the answer, the final score should not be higher than the initial score.
+        - Penalize the need for a second try. If the initial answer contained a fundamental flaw in reasoning that they improved in the follow-up, split the difference for the final score. 
 
 - 2. label: Your FINAL categorical assessment, chosen from ONE of the following:
         - "Correct"

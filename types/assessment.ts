@@ -89,6 +89,7 @@ export interface HistoryEntry {
   probe_type: ProbeIntent;
   probe_text: string;
   trace: string[];
+  initial_score?: number;
   initial_tags?: string[];
   theta_state_before?: ThetaState;
   probe_answer?: string;

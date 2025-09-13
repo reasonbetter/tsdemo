@@ -15,7 +15,6 @@ import {
   AJLabel,
   ProbeIntent,
   SchemaFeatures,
-  // InMemorySession is removed
   TurnResult,
   CoverageTag,
   AssessmentConfig,
@@ -30,8 +29,6 @@ const PROBE_LIBRARY: ProbeLibrary = probeLibraryData as ProbeLibrary;
 
 const { CFG } = CONFIG;
 
-// The global SESSION variable is removed.
-
 interface Probe {
   intent: ProbeIntent;
   text: string;
@@ -42,21 +39,10 @@ interface Probe {
 
 // --- Helper Functions (Validation, Fallback, IRT Math) ---
 
-function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boolean {
-    if (!probe || probe.intent === "None") return false;
-    const t = (probe.text || "").toLowerCase();
-
-    // length & punctuation sanity
-    if (t.length === 0 || t.length > 200) return false;
-    if (!/[?.!]$/.test(t.trim())) return false;
-
-    return true;
-  }
-
   function fallbackProbe(intent: ProbeIntent): Probe {
     const arr = PROBE_LIBRARY[intent] || [];
     const text = arr[Math.floor(Math.random() * arr.length)] || "";
-    return { intent, text, rationale: "library_fallback", confidence: 0.6, source: "library" };
+    return { intent, text, rationale: "library_fallback", confidence: 0.6, source: "policy" };
   }
 
   function sigmoid(x: number): number {
@@ -73,82 +59,36 @@ function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boole
     return bank.items.find((it) => it.item_id === id);
   }
 
-  function labelArgmax(labels: Record<AJLabel, number> | undefined): [AJLabel, number] {
-    let best: AJLabel = "Novel";
-    let bestp = -1;
-    for (const [k, v] of Object.entries(labels || {})) {
-      if ((v as number) > bestp) { bestp = v as number; best = k as AJLabel; }
-    }
-    return [best, bestp];
-  }
-
-
 // The core logic implementing the Middle Path strategy
 function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeatures: SchemaFeatures | undefined) {
     const trace: string[] = [];
-    const finalLabel = aj.final_label;
-    trace.push(`Final label=${finalLabel}`);
+    const finalLabel = aj.label;
+    trace.push(`Initial label=${finalLabel}`);
 
-    // Pitfall and Move checks...
-    const req = (schemaFeatures?.required_moves) || [];
-    const tags = aj.tags || [];
-    const moveOK = req.every(requiredMove => tags.includes(requiredMove));
-    const pitfalls = tags.filter(tag => !req.includes(tag));
-    if (pitfalls.length) trace.push(`Pitfalls found: ${pitfalls.join(", ")}`);
-    if (req.length) trace.push(`Required moves present? ${moveOK}`);
+    // Map the AI's label to a probe intent
+    let probeIntent: ProbeIntent = 'None';
+    if (finalLabel === 'Incomplete') probeIntent = 'Completion';
+    if (finalLabel === 'Flawed') probeIntent = 'Improvement';
+    if (finalLabel === 'Incorrect') probeIntent = 'Alternative';
+    if (finalLabel === 'Ambiguous' || finalLabel === 'Off_Topic') probeIntent = 'Clarify';
 
-    // Evidence sufficiency → no probe
-    if (finalLabel === "Correct&Complete" && moveOK && pitfalls.length === 0) {
-      trace.push("Evidence sufficient → skip probe.");
-      return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
+    // If the score is high enough, we don't probe, regardless of the label.
+    if (aj.score >= (CONFIG.CFG.score_correct_threshold || 0.9)) {
+        probeIntent = 'None';
+        trace.push(`Score ${aj.score} is above threshold, skipping probe.`);
     }
 
-    // Guard against AJ failure
-    const isFallbackNovel = finalLabel === "Novel";
-    if (isFallbackNovel) {
-      trace.push("AJ looked like a fallback/failed call → no probe this turn.");
-      return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
-    }
-
-    // 1) Prefer AJ-authored probe if present & safe (The Middle Path)
-    const ajProbe = aj.probe || { intent: "None", text: "" };
-    if (ajProbe.intent !== "None") {
-      if (passesProbeGuard(item, ajProbe)) {
-          trace.push(`Using AJ probe intent=${ajProbe.intent} (guard passed). Rationale: ${ajProbe.rationale}`);
-          return { finalLabel, probe: { ...ajProbe, source: "AJ" } as Probe, trace };
-      } else {
-          trace.push(`AJ probe intent=${ajProbe.intent} failed guard. Falling back.`);
-          // If AJ probe failed guard, use the fallback for that specific intent
-          const p = fallbackProbe(ajProbe.intent);
-          trace.push(`Using fallback for AJ intent=${ajProbe.intent} (after guard failure).`);
-          return { finalLabel, probe: p, trace };
-      }
-    }
-
-    // 2) Fallback: minimal label-aware fallback (if AJ recommended "None")
-
-    let intent: ProbeIntent = "None";
-    if (finalLabel === "Correct_Missing" || finalLabel === "Correct_Flawed") intent = "Mechanism";
-    else if ((["Partial", "Incorrect", "Novel"] as AJLabel[]).includes(finalLabel)) intent = "Alternative";
-
-    // Avoid probing if the determined intent is None
-    if (intent === "None") {
-      trace.push("No suitable probe intent determined (fallback).");
-      return { finalLabel, probe: { intent: "None", text: "", source: "policy" } as Probe, trace };
-    }
-
-    const p = fallbackProbe(intent);
-    trace.push(`Fallback intent=${intent} (minimal policy).`);
-    return { finalLabel, probe: p, trace };
+    const probe = fallbackProbe(probeIntent);
+    trace.push(`Mapped label '${finalLabel}' to probe intent '${probeIntent}'.`);
+    return { finalLabel, probe, trace };
   }
 
 
 // --- Theta Update and Next Item Selection ---
 
 // Calculates the new theta state based on current state and the new evidence.
-// This function is pure (does not modify DB or global state).
-function calculateThetaUpdate(currentThetaMean: number, currentThetaVar: number, item: ItemInstance, aj: AJJudgment): { thetaMeanNew: number, thetaVarNew: number, trace: string[] } {
-    const yhat = aj.score;
+function calculateThetaUpdate(currentThetaMean: number, currentThetaVar: number, item: ItemInstance, finalScore: number): { thetaMeanNew: number, thetaVarNew: number, trace: string[] } {
+    const yhat = finalScore;
     const p = sigmoid(item.a * (currentThetaMean - item.b));
     const note = `p_base=${p.toFixed(3)}`;
     const info = (item.a ** 2) * p * (1 - p) + 1e-6;
@@ -156,37 +96,20 @@ function calculateThetaUpdate(currentThetaMean: number, currentThetaVar: number,
     const thetaMeanNew = currentThetaMean + thetaVarNew * item.a * (yhat - p);
     const trace = [
         note,
-        `y_hat=${yhat.toFixed(3)}; info=${info.toFixed(3)}; θ: ${currentThetaMean.toFixed(2)}→${thetaMeanNew.toFixed(2)}; var: ${currentThetaVar.toFixed(2)}→${thetaVarNew.toFixed(2)}`
+        `y_hat=${yhat.toFixed(3)}; info=${info.toFixed(3)}; θ: ${currentThetaMean.toFixed(2)}→${thetaMeanNew.toFixed(2)}; var: ${currentThetaVar.toFixed(2)}→${thetaVarNew.toFixed(2)}`,
     ];
     return { thetaMeanNew, thetaVarNew, trace };
 }
 
 // Helper type for session state needed by selection functions
 interface SessionSelectionState {
-    thetaMean: number;
     askedItemIds: string[];
-    coverageCounts: Record<CoverageTag, number>;
 }
 
 function eligibleCandidates(askedItemIds: string[]): ItemInstance[] {
     const askedSet = new Set(askedItemIds);
     return bank.items.filter((it) => !askedSet.has(it.item_id));
 }
-
-function applyCoverage(cands: ItemInstance[], coverageCounts: Record<CoverageTag, number>): ItemInstance[] {
-    // Ensure coverageCounts is treated as an object even if DB returns null/undefined
-    const counts = coverageCounts || {};
-    const need = CFG.coverage_targets.filter((tag) => (counts[tag] || 0) === 0);
-    if (need.length === 0) return cands;
-    const prior = cands.filter((it) => need.includes(bank.schema_features[it.schema_id]?.coverage_tag));
-    return prior.length ? prior : cands;
-}
-
-function eigProxy(theta: number, it: ItemInstance): number {
-    const p = sigmoid(it.a * (theta - it.b));
-    return (it.a ** 2) * p * (1 - p);
-}
-
 
 function selectNextItem(sessionState: SessionSelectionState): { next: ItemInstance | null; trace: string[] } {
     const trace: string[] = [];
@@ -236,33 +159,24 @@ function selectNextItem(sessionState: SessionSelectionState): { next: ItemInstan
         return { next: null, trace };
     }
 
-    const best = next; // Use 'best' to match the original return structure.
+    const best = next;
     trace.push(`Next (random) =${best.item_id} (schema=${best.schema_id})`);
     return { next: best, trace };
 }
 
-function mergeTwIntoItem(ajItem: AJJudgment, tw: AJJudgment): AJJudgment {
-    // This function is now simpler as it just merges the final score and label
-    // For now, we'll just return the original judgment, but this could be enhanced.
-    return ajItem;
-}
-
 // Define the expected structure of the request body
 interface TurnRequest {
-  sessionId: string; // Session ID is now required
+  sessionId: string;
   itemId: string;
-  ajMeasurement: AJJudgment;
-  twMeasurement?: AJJudgment;
+  ajMeasurement: AJJudgment; // This is the first-pass judgment
+  twMeasurement?: AJJudgment; // This is the second-pass judgment
   userResponse: string;
   probeResponse?: string;
-  probeType?: ProbeIntent;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TurnResult | { error: string, details?: string }>) {
   try {
-    // The "reset" mechanism is removed. Sessions are created via /api/create_session.
-
-    const { sessionId, itemId, ajMeasurement, twMeasurement, userResponse, probeResponse, probeType } = req.body as TurnRequest;
+    const { sessionId, itemId, ajMeasurement, twMeasurement, userResponse, probeResponse } = req.body as TurnRequest;
 
     if (!sessionId) {
         return res.status(400).json({ error: "sessionId is required" });
@@ -271,12 +185,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const item = itemById(itemId);
     if (!item) return res.status(400).json({ error: "Unknown itemId" });
 
-    // --- Database Transaction ---
-    // We wrap the entire turn logic in a transaction to ensure atomicity (read-modify-write safety).
     const result = await prisma.$transaction(async (tx) => {
         const trace: string[] = [];
 
-        // 1. Load Session State
         const session = await tx.session.findUnique({
             where: { id: sessionId },
         });
@@ -284,49 +195,76 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (!session || session.status !== 'ACTIVE') {
             throw new Error("Session not found or inactive");
         }
-
-        // Safely parse the coverageCounts and transcript JSONB fields
-        const coverageCounts = (session.coverageCounts && typeof session.coverageCounts === 'object' && !Array.isArray(session.coverageCounts))
-            ? session.coverageCounts as Record<CoverageTag, number>
-            : {} as Record<CoverageTag, number>;
         
         const transcript = (session.transcript && Array.isArray(session.transcript))
             ? (session.transcript as unknown) as HistoryEntry[]
             : [];
 
-
-        // 2. Process the Turn Logic (Policy, Theta Calculation, Selection)
         const schemaFeat = bank.schema_features[item.schema_id] || {};
 
-        // Merge TW if present
-        const ajUsed = twMeasurement ? mergeTwIntoItem(ajMeasurement, twMeasurement) : ajMeasurement;
-        if (twMeasurement) trace.push("Merged transcript-window evidence into item measurement.");
+        let finalLabel: AJLabel;
+        let probe: Probe;
+        let thetaMeanNew = session.thetaMean;
+        let thetaVarNew = session.thetaVar;
+        let nextItemId: string | null = item.item_id;
+        const updatedAskedItemIds = [...session.askedItemIds];
 
-        // Policy & probe decision
-        const { finalLabel, probe, trace: t1 } = finalizeLabelAndProbe(item, ajUsed, schemaFeat);
-        trace.push(...t1);
-
-        // Theta update calculation
-        const { thetaMeanNew, thetaVarNew, trace: t2 } = calculateThetaUpdate(session.thetaMean, session.thetaVar, item, ajUsed);
-        trace.push(...t2);
-
-        // Update Transcript
         if (twMeasurement) {
-            // This is a probe answer, so we update the last transcript entry
+            // SECOND PASS (after a probe)
+            trace.push("This is a second pass after a probe answer.");
+            const finalAj = twMeasurement;
+            finalLabel = finalAj.label;
+            probe = { intent: 'None', text: '', source: 'policy' };
+
+            const { thetaMeanNew: tm, thetaVarNew: tv, trace: t2 } = calculateThetaUpdate(session.thetaMean, session.thetaVar, item, finalAj.score);
+            thetaMeanNew = tm;
+            thetaVarNew = tv;
+            trace.push(...t2);
+
+            // Mark item as asked and select the NEXT item
+            if (!updatedAskedItemIds.includes(item.item_id)) {
+                updatedAskedItemIds.push(item.item_id);
+            }
+            const { next, trace: t3 } = selectNextItem({ askedItemIds: updatedAskedItemIds });
+            nextItemId = next ? next.item_id : null;
+            trace.push(...t3);
+
+            // Update Transcript
             const lastEntry = transcript[transcript.length - 1];
             if (lastEntry) {
                 lastEntry.probe_answer = probeResponse;
-                lastEntry.probe_label = probeType;
-                // The final label might also be updated after a probe
                 lastEntry.label = finalLabel;
-                // Store the final theta state after the probe
-                lastEntry.probe_theta_update = {
-                    mean: thetaMeanNew,
-                    var: thetaVarNew
-                };
+                lastEntry.final_score = finalAj.score;
+                lastEntry.final_rationale = finalAj.rationale;
             }
+
         } else {
-            // This is a new item answer, so we add a new entry
+            // FIRST PASS (initial answer)
+            trace.push("This is a first pass on an initial answer.");
+            const { finalLabel: initialLabel, probe: p, trace: t1 } = finalizeLabelAndProbe(item, ajMeasurement, schemaFeat);
+            finalLabel = initialLabel;
+            probe = p;
+            trace.push(...t1);
+
+            // DO NOT update theta yet.
+            if (probe.intent === 'None') {
+                // No probe, so this turn is over. Update theta and select next item.
+                const { thetaMeanNew: tm, thetaVarNew: tv, trace: t2 } = calculateThetaUpdate(session.thetaMean, session.thetaVar, item, ajMeasurement.score);
+                thetaMeanNew = tm;
+                thetaVarNew = tv;
+                trace.push(...t2);
+                
+                if (!updatedAskedItemIds.includes(item.item_id)) {
+                    updatedAskedItemIds.push(item.item_id);
+                }
+                const { next, trace: t3 } = selectNextItem({ askedItemIds: updatedAskedItemIds });
+                nextItemId = next ? next.item_id : null;
+                trace.push(...t3);
+            } else {
+                nextItemId = item.item_id; // Stay on the same item to await probe response.
+            }
+
+            // Add new entry to Transcript
             const newEntry: HistoryEntry = {
                 item_id: itemId,
                 text: item.text,
@@ -334,71 +272,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 label: finalLabel,
                 probe_type: probe.intent,
                 probe_text: probe.text,
-                trace: t1,
-                tags: ajUsed.tags,
-                theta_mean: thetaMeanNew,
-                theta_var: thetaVarNew,
+                trace: trace,
+                final_score: probe.intent === 'None' ? ajMeasurement.score : undefined,
+                final_rationale: probe.intent === 'None' ? ajMeasurement.rationale : undefined,
             };
             transcript.push(newEntry);
         }
 
-        // Update coverage & asked lists (in memory)
-        const updatedAskedItemIds = [...session.askedItemIds];
-        const updatedCoverageCounts = { ...coverageCounts };
-
-        if (!updatedAskedItemIds.includes(item.item_id)) {
-            updatedAskedItemIds.push(item.item_id);
-            const tag = bank.schema_features[item.schema_id]?.coverage_tag as CoverageTag;
-            updatedCoverageCounts[tag] = (updatedCoverageCounts[tag] || 0) + 1;
-        }
-
-        // Select next item based on the *new* state
-        const { next, trace: t3 } = selectNextItem({
-            thetaMean: thetaMeanNew,
-            askedItemIds: updatedAskedItemIds,
-            coverageCounts: updatedCoverageCounts
-        });
-        trace.push(...t3);
-
-        // 3. Save Updated Session State (The critical write operation)
         await tx.session.update({
             where: { id: sessionId },
             data: {
                 thetaMean: thetaMeanNew,
                 thetaVar: thetaVarNew,
                 askedItemIds: updatedAskedItemIds,
-                coverageCounts: updatedCoverageCounts as Prisma.JsonObject,
-                status: next ? 'ACTIVE' : 'COMPLETED',
+                status: nextItemId ? 'ACTIVE' : 'COMPLETED',
                 transcript: transcript as unknown as Prisma.JsonArray,
             },
         });
 
-        // 4. Construct Response
         const responsePayload: TurnResult = {
             final_label: finalLabel,
             probe_type: probe.intent,
             probe_text: probe.text,
-            probe_source: probe.source || "unknown",
-            next_item_id: next ? next.item_id : null,
+            next_item_id: nextItemId,
             theta_mean: thetaMeanNew,
             theta_var: thetaVarNew,
-            coverage_counts: updatedCoverageCounts,
+            coverage_counts: {}, // This is no longer used but required by type
             trace
         };
 
         return responsePayload;
     });
-    // --- End of Transaction ---
 
     return res.status(200).json(result);
 
   } catch (err) {
     console.error("Turn error:", err);
-    // Handle potential database errors
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
         return res.status(503).json({ error: "Database transaction error", details: err.message });
     }
-     // Return a specific error if the session was not found or inactive
      if ((err as Error).message.includes("Session not found or inactive")) {
         return res.status(404).json({ error: (err as Error).message });
     }

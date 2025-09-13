@@ -7,12 +7,13 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 // Helper component for displaying Theta change
 const ThetaChangeDisplay = ({ before, after }: { before?: ThetaState, after: ThetaState }) => {
     if (!before) return null;
+    
     const change = after.mean - before.mean;
-    const color = change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500';
+    const color = change > 0.005 ? 'text-green-600' : change < -0.005 ? 'text-red-600' : 'text-gray-500';
 
     return (
-        <span className={`font-mono text-xs ${color}`}>
-            (Δθ: {change.toFixed(2)})
+        <span className={`font-mono text-sm font-semibold ${color}`}>
+            θ: {before.mean.toFixed(2)} → {after.mean.toFixed(2)}
         </span>
     );
 };
@@ -129,45 +130,59 @@ export default function Admin() {
             <h3 className="text-xl font-semibold px-2">Session Transcripts (latest {sessions.length})</h3>
             {sessions.length === 0 && !loading && <p className="text-muted-foreground">No sessions found in the database.</p>}
 
-            {sessions.map(session => {
+            {sessions.map((session, sessionIndex) => {
+                let thetaBefore = { mean: 0.0, se: Math.sqrt(1.5) }; // Initial state for the first question
                 const title = `${new Date(session.updatedAt).toLocaleString()} ${session.userTag ? `(User: ${session.userTag})` : ''}`;
                 const transcript = (session.transcript as unknown as HistoryEntry[]) || [];
-                const finalThetaState = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
 
                 return (
                     <CollapsibleSection key={session.id} title={title} className="bg-card shadow-sm" titleSize="xs">
                         <div className="space-y-4 text-sm">
-                        {transcript.map((entry, idx) => (
-                            <div key={idx} className="p-3 bg-background rounded-lg border border-border">
-                                <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
-                                <div className="prose prose-sm max-w-none mt-1"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
-                                
-                                <div className="mt-2 p-2 bg-white border rounded-md">
-                                    <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
-                                    {entry.initial_tags && entry.initial_tags.length > 0 && (
-                                        <p className="text-xs text-muted-foreground mt-1 font-mono">Initial Tags: {entry.initial_tags.join(', ')}</p>
+                        {transcript.map((entry, idx) => {
+                            const currentThetaState = (idx < transcript.length - 1) 
+                                ? transcript[idx+1].theta_state_before || thetaBefore
+                                : { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
+
+                            const displayThetaBefore = entry.theta_state_before || thetaBefore;
+                            
+                            // Update thetaBefore for the next iteration
+                            thetaBefore = currentThetaState;
+
+                            return (
+                                <div key={idx} className="p-3 bg-background rounded-lg border border-border">
+                                    <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
+                                    <div className="prose prose-sm max-w-none mt-1"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
+                                    
+                                    <div className="mt-2 p-2 bg-white border rounded-md">
+                                        <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
+                                        <div className="text-xs text-muted-foreground mt-1 pl-1">
+                                            <p>Initial Score: {Number(entry.initial_score).toFixed(2)}</p>
+                                            {entry.initial_tags && entry.initial_tags.length > 0 && (
+                                                <p className="font-mono">Initial Tags: {entry.initial_tags.join(', ')}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    {entry.probe_answer ? (
+                                        <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
+                                            <p className="font-semibold">Probe ({entry.probe_type}): {entry.probe_text}</p>
+                                            <p><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
+                                        </div>
+                                    ) : null}
+
+                                    {entry.final_score !== undefined && (
+                                        <div className="mt-2 p-2 bg-gray-100 border rounded-md">
+                                            <div className="flex justify-between items-center">
+                                                <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
+                                                <ThetaChangeDisplay before={displayThetaBefore} after={currentThetaState} />
+                                            </div>
+                                            <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
+                                            {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}
+                                        </div>
                                     )}
                                 </div>
-                                
-                                {entry.probe_answer ? (
-                                     <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
-                                        <p className="font-semibold">Probe: {entry.probe_text}</p>
-                                        <p><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
-                                     </div>
-                                ) : null}
-
-                                {entry.final_score !== undefined && (
-                                    <div className="mt-2 p-2 bg-gray-100 border rounded-md">
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
-                                            <ThetaChangeDisplay before={entry.theta_state_before} after={finalThetaState} />
-                                        </div>
-                                        <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
-                                        {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                            )
+                        })}
                         </div>
                     </CollapsibleSection>
                 )

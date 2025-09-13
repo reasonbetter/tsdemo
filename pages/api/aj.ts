@@ -21,17 +21,22 @@ GENERAL POLICIES:
 `;
 
 const FIRST_PASS_PROMPT = `
-TASK: Evaluate the user's initial answer.
+TASK: Evaluate the user's initial answer and decide if a follow-up probe is needed.
 
-Return JSON with only these two fields:
+Return JSON with the following structure:
 - score: A single float from 0.0 (completely incorrect) to 1.0 (perfect).
 - label: Your categorical assessment, chosen from ONE of the following:
-    - "Correct": The answer is sufficient and well-reasoned.
-    - "Incomplete": The answer is on the right track but misses a key component.
-    - "Flawed": The core idea is present, but some aspect of the answer is incorrect.
-    - "Incorrect": The answer is relevant but wrong.
-    - "Ambiguous": The answer is unclear, vague, or hard to interpret.
-    - "Off_Topic": The answer is irrelevant, nonsensical, or incoherent.
+    - "Correct"
+    - "Incomplete"
+    - "Flawed"
+    - "Incorrect"
+    - "Ambiguous"
+    - "Off_Topic"
+- probe: An object for your follow-up question.
+    - If no probe is needed, return: {"intent": "None", "text": ""}
+    - If a probe is needed, return an object with:
+        - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Alternative", "Clarify", "Boundary"}.
+        - "text": A custom, one-sentence probe you write yourself that is contextually relevant to the user's specific answer.
 `;
 
 const SECOND_PASS_PROMPT = `

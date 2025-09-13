@@ -57,6 +57,7 @@ export interface AJJudgment {
     intent: ProbeIntent;
     text: string;
   };
+  tags?: string[]; // Optional tags from the first pass
 }
 
 // --- Orchestrator (Turn) Structures ---
@@ -88,6 +89,8 @@ export interface HistoryEntry {
   probe_type: ProbeIntent;
   probe_text: string;
   trace: string[];
+  initial_tags?: string[];
+  theta_state_before?: ThetaState;
   probe_answer?: string;
   final_score?: number;
   final_rationale?: string;

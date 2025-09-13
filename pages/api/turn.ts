@@ -42,7 +42,7 @@ interface Probe {
   function fallbackProbe(intent: ProbeIntent): Probe {
     const arr = PROBE_LIBRARY[intent] || [];
     const text = arr[Math.floor(Math.random() * arr.length)] || "";
-    return { intent, text, rationale: "library_fallback", confidence: 0.6, source: "policy" };
+    return { intent, text, rationale: "library_fallback", confidence: 0.6, source: "library" };
   }
 
   function sigmoid(x: number): number {
@@ -65,21 +65,33 @@ function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeature
     const finalLabel = aj.label;
     trace.push(`Initial label=${finalLabel}`);
 
-    // Map the AI's label to a probe intent
-    let probeIntent: ProbeIntent = 'None';
-    if (finalLabel === 'Incomplete') probeIntent = 'Completion';
-    if (finalLabel === 'Flawed') probeIntent = 'Improvement';
-    if (finalLabel === 'Incorrect') probeIntent = 'Alternative';
-    if (finalLabel === 'Ambiguous' || finalLabel === 'Off_Topic') probeIntent = 'Clarify';
+    let probe: Probe;
 
-    // If the score is high enough, we don't probe, regardless of the label.
+    // HYBRID MODEL LOGIC
+    // 1. Prioritize the AI-authored probe if it's valid.
+    if (aj.probe && aj.probe.intent !== 'None' && aj.probe.text && aj.probe.text.trim().length > 0) {
+        trace.push(`Using AI-authored probe with intent: ${aj.probe.intent}`);
+        probe = { ...aj.probe, source: 'AJ' };
+    } else {
+        // 2. Fallback to the library method if AI provides no probe.
+        trace.push("AI did not provide a valid probe. Falling back to library.");
+        let probeIntent: ProbeIntent = 'None';
+        if (finalLabel === 'Incomplete') probeIntent = 'Completion';
+        if (finalLabel === 'Flawed') probeIntent = 'Improvement';
+        if (finalLabel === 'Incorrect') probeIntent = 'Alternative';
+        if (finalLabel === 'Ambiguous' || finalLabel === 'Off_Topic') probeIntent = 'Clarify';
+        
+        probe = fallbackProbe(probeIntent);
+        trace.push(`Mapped label '${finalLabel}' to probe intent '${probeIntent}'.`);
+    }
+
+    // If the score is high enough, we override and don't probe.
     if (aj.score >= (CONFIG.CFG.score_correct_threshold || 0.9)) {
-        probeIntent = 'None';
+        probe.intent = 'None';
+        probe.text = '';
         trace.push(`Score ${aj.score} is above threshold, skipping probe.`);
     }
 
-    const probe = fallbackProbe(probeIntent);
-    trace.push(`Mapped label '${finalLabel}' to probe intent '${probeIntent}'.`);
     return { finalLabel, probe, trace };
   }
 

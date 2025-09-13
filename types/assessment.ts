@@ -28,7 +28,6 @@ export interface ItemBank {
 // --- Adaptive Judge (AJ) Structures ---
 
 export type AJLabel = 'Correct' | 'Incomplete' | 'Flawed' | 'Incorrect' | 'Ambiguous' | 'Off_Topic' | 'None';
-export type ProbeIntent = 'None' | 'Completion' | 'Improvement' | 'Alternative' | 'Clarify';
 
 // --- Configuration Structures ---
 
@@ -43,10 +42,6 @@ export interface AssessmentConfig {
     coverage_targets: CoverageTag[];
   };
 }
-
-// Type for data/probeLibrary.json
-export type ProbeLibrary = Record<ProbeIntent, string[]>;
-
 
 // The structured output from the Adaptive Judge
 export interface AJJudgment {

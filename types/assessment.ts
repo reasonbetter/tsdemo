@@ -28,7 +28,7 @@ export interface ItemBank {
 // --- Adaptive Judge (AJ) Structures ---
 
 export type AJLabel = 'Correct' | 'Incomplete' | 'Flawed' | 'Incorrect' | 'Ambiguous' | 'Off_Topic' | 'None';
-export type ProbeIntent = 'None' | 'Completion' | 'Improvement' | 'Alternative' | 'Clarify' | 'Boundary';
+export type ProbeIntent = 'None' | 'Completion' | 'Improvement' | 'Alternative' | 'Clarify';
 
 // --- Configuration Structures ---
 

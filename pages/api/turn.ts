@@ -24,11 +24,11 @@ import {
 } from '@/types/assessment';
 
 // Type assertion for the imported JSON data
-const bank: ItemBank = bankData as ItemBank;
+const bank: ItemBank = bankData as Item-bank;
 const CONFIG: AssessmentConfig = configData as AssessmentConfig;
 const PROBE_LIBRARY: ProbeLibrary = probeLibraryData as ProbeLibrary;
 
-const { CFG, BANNED_TOKENS } = CONFIG;
+const { CFG } = CONFIG;
 
 // The global SESSION variable is removed.
 
@@ -41,7 +41,6 @@ interface Probe {
 }
 
 // --- Helper Functions (Validation, Fallback, IRT Math) ---
-// (These functions remain unchanged from Step 1.2 implementation)
 
 function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boolean {
     if (!probe || probe.intent === "None") return false;
@@ -50,24 +49,6 @@ function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boole
     // length & punctuation sanity
     if (t.length === 0 || t.length > 200) return false;
     if (!/[?.!]$/.test(t.trim())) return false;
-
-    // jargon / cueing (The Banned List)
-    if (BANNED_TOKENS.some(tok => t.includes(tok))) return false;
-
-    // (optional) avoid over-quoting the stem
-    const stem = (item.text || "").toLowerCase();
-    const tokenize = (text: string) => new Set(text.replace(/[.,!?]/g, '').split(/\s+/).filter(w => w.length > 3));
-
-    const probeTokens = Array.from(tokenize(t));
-    const stemTokens = tokenize(stem);
-
-    if (probeTokens.length === 0) return true;
-
-    const overlapCount = probeTokens.filter(w => stemTokens.has(w)).length;
-
-    if (overlapCount > 10 || (overlapCount / probeTokens.length) > 0.7) {
-      return false;
-    }
 
     return true;
   }
@@ -92,7 +73,6 @@ function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boole
     return bank.items.find((it) => it.item_id === id);
   }
 
-
   function labelArgmax(labels: Record<AJLabel, number> | undefined): [AJLabel, number] {
     let best: AJLabel = "Novel";
     let bestp = -1;
@@ -104,20 +84,18 @@ function passesProbeGuard(item: ItemInstance, probe: AJJudgment['probe']): boole
 
 
 // The core logic implementing the Middle Path strategy
-// (finalizeLabelAndProbe remains unchanged)
 function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeatures: SchemaFeatures | undefined) {
     const trace: string[] = [];
     const finalLabel = aj.final_label;
     trace.push(`Final label=${finalLabel}`);
 
     // Pitfall and Move checks...
-  
     const req = (schemaFeatures?.required_moves) || [];
     const tags = aj.tags || [];
     const moveOK = req.every(requiredMove => tags.includes(requiredMove));
     const pitfalls = tags.filter(tag => !req.includes(tag));
     if (pitfalls.length) trace.push(`Pitfalls found: ${pitfalls.join(", ")}`);
-    if (req.length) trace.push(`Required moves present? ${moveOK} (need ≥${CFG.tau_required_move})`);
+    if (req.length) trace.push(`Required moves present? ${moveOK}`);
 
     // Evidence sufficiency → no probe
     if (finalLabel === "Correct&Complete" && moveOK && pitfalls.length === 0) {
@@ -166,6 +144,7 @@ function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeature
 
 
 // --- Theta Update and Next Item Selection ---
+
 // Calculates the new theta state based on current state and the new evidence.
 // This function is pure (does not modify DB or global state).
 function calculateThetaUpdate(currentThetaMean: number, currentThetaVar: number, item: ItemInstance, aj: AJJudgment): { thetaMeanNew: number, thetaVarNew: number, trace: string[] } {
@@ -209,22 +188,60 @@ function eigProxy(theta: number, it: ItemInstance): number {
 }
 
 
-function selectNextItem(sessionState: SessionSelectionState) {
+function selectNextItem(sessionState: SessionSelectionState): { next: ItemInstance | null; trace: string[] } {
     const trace: string[] = [];
-    let cands = eligibleCandidates(sessionState.askedItemIds);
-    cands = applyCoverage(cands, sessionState.coverageCounts);
-    const scored = cands.map((it) => [eigProxy(sessionState.thetaMean, it), it] as [number, ItemInstance]);
-    scored.sort((a, b) => b[0] - a[0]);
-    if (scored.length === 0) {
-        trace.push("No candidates left.");
+    const { askedItemIds } = sessionState;
+
+    if (askedItemIds.length >= 4) {
+        trace.push("Session complete: 4 items have been answered.");
         return { next: null, trace };
     }
-    const [score, best] = scored[0];
-    trace.push(`Next=${best.item_id} (EIG≈${score.toFixed(3)}, tag=${bank.schema_features[best.schema_id]?.coverage_tag}, fam=${bank.schema_features[best.schema_id]?.family})`);    return { next: best, trace };
+
+    const suiteASchemas = ["P2_M1_S1", "P2_M1_S2", "P2_M1_S3", "P2_M1_S4", "P2_M1_S5", "P2_M1_S6"];
+
+    const askedItems = askedItemIds.map(id => itemById(id)).filter(Boolean) as ItemInstance[];
+    const suiteACount = askedItems.filter(item => {
+        // Check if the start of the schema_id matches any of the suite A schemas
+        return suiteASchemas.some(s => item.schema_id.startsWith(s));
+    }).length;
+    const suiteBCount = askedItems.length - suiteACount;
+
+    trace.push(`Current counts - Suite A: ${suiteACount}, Suite B: ${suiteBCount}`);
+
+    const candidates = eligibleCandidates(askedItemIds);
+    const suiteACandidates = candidates.filter(item => suiteASchemas.some(s => item.schema_id.startsWith(s)));
+    const suiteBCandidates = candidates.filter(item => !suiteASchemas.some(s => item.schema_id.startsWith(s)));
+
+    let next: ItemInstance | null = null;
+
+    // Fisher-Yates shuffle to randomize selection
+    const shuffle = (array: ItemInstance[]) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    if (suiteACount < 3 && suiteACandidates.length > 0) {
+        trace.push(`Selecting from ${suiteACandidates.length} Suite A candidates.`);
+        next = shuffle(suiteACandidates)[0];
+    } else if (suiteBCount < 1 && suiteBCandidates.length > 0) {
+        trace.push(`Selecting from ${suiteBCandidates.length} Suite B candidates.`);
+        next = shuffle(suiteBCandidates)[0];
+    }
+
+    if (!next) {
+        trace.push("No eligible candidates found for the required suites. Ending session.");
+        return { next: null, trace };
+    }
+
+    const best = next; // Use 'best' to match the original return structure.
+    trace.push(`Next (random) =${best.item_id} (schema=${best.schema_id})`);
+    return { next: best, trace };
 }
 
 function mergeTwIntoItem(ajItem: AJJudgment, tw: AJJudgment): AJJudgment {
-    // (mergeTwIntoItem remains unchanged)
     // This function is now simpler as it just merges the final score and label
     // For now, we'll just return the original judgment, but this could be enhanced.
     return ajItem;
@@ -260,18 +277,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const trace: string[] = [];
 
         // 1. Load Session State
-        // Note: In a high-concurrency production environment, we might explicitly lock the row (e.g., using SELECT ... FOR UPDATE via raw SQL in Prisma),
-        // but for this scale, Prisma's default transaction handling is sufficient.
         const session = await tx.session.findUnique({
             where: { id: sessionId },
         });
 
         if (!session || session.status !== 'ACTIVE') {
-            // This error will be caught by the catch block below
             throw new Error("Session not found or inactive");
         }
 
-        // Safely parse the coverageCounts JSONB field
+        // Safely parse the coverageCounts and transcript JSONB fields
         const coverageCounts = (session.coverageCounts && typeof session.coverageCounts === 'object' && !Array.isArray(session.coverageCounts))
             ? session.coverageCounts as Record<CoverageTag, number>
             : {} as Record<CoverageTag, number>;
@@ -334,7 +348,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         if (!updatedAskedItemIds.includes(item.item_id)) {
             updatedAskedItemIds.push(item.item_id);
-        const tag = bank.schema_features[item.schema_id]?.coverage_tag as CoverageTag;
+            const tag = bank.schema_features[item.schema_id]?.coverage_tag as CoverageTag;
             updatedCoverageCounts[tag] = (updatedCoverageCounts[tag] || 0) + 1;
         }
 
@@ -353,9 +367,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 thetaMean: thetaMeanNew,
                 thetaVar: thetaVarNew,
                 askedItemIds: updatedAskedItemIds,
-                // Ensure JSONB compatibility for Prisma
                 coverageCounts: updatedCoverageCounts as Prisma.JsonObject,
-                // If no next item, mark session as completed
                 status: next ? 'ACTIVE' : 'COMPLETED',
                 transcript: transcript as unknown as Prisma.JsonArray,
             },

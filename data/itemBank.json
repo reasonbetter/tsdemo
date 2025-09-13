@@ -73,7 +73,7 @@
         "a": 1.5,
         "b": 0.1,
         "band": "Triage",
-        "text": "We are comparing a new job training program (Group A) to an old one (Group B). People chose which one to join. We want to know which program leads to a better employment rate one year later.\n\nTo make the comparison fair, which of these is important to make the same between the groups?\n1. The participants' years of experience **before** the program started.\n2. The number of job applications participants sent out **during** the program.\n3. Both 1 and 2.\n\n(Answer 1, 2, or 3, and explain why in a sentence or two.)"
+        "text": "We are comparing a new job training program (Group A) to an old one (Group B). People chose which one to join. We want to know which program leads to a better employment rate one year later.\n\nTo make the comparison fair, which of these is important to make the same between the groups?\n1. 1.The participants' years of experience **before** the program started.\n2. 2.The number of job applications participants sent out **during** the program.\n3. Or both? \n\n(Answer and briefly explain why in a sentence or two.)"
     },
     {
         "item_id": "P2_M1_T6_SATPrep",

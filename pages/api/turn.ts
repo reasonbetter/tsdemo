@@ -24,7 +24,7 @@ import {
 } from '@/types/assessment';
 
 // Type assertion for the imported JSON data
-const bank: ItemBank = bankData as Item-bank;
+const bank: ItemBank = bankData as ItemBank;
 const CONFIG: AssessmentConfig = configData as AssessmentConfig;
 const PROBE_LIBRARY: ProbeLibrary = probeLibraryData as ProbeLibrary;
 

@@ -77,7 +77,6 @@ export default function Home() {
         if (type === "Completion") return "Can you give one more different reason?";
         if (type === "Clarify") return "In one sentence: clarify what you meant.";
         if (type === "Alternative") return "In a few words: give one different explanation.";
-        if (type === "Boundary") return "One sentence: name a condition where your conclusion would fail.";
         return "";
     }
 

@@ -59,7 +59,7 @@ Return JSON with four items:
             - Answer is flawed, incorrect, or off-topic: "Could you refine that answer a little?", "Could you tell me more about why you answered that way?"
 
 - 4. "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to interviewee).
-`;+     
+`;     
 
 
 const SECOND_PASS_PROMPT = `

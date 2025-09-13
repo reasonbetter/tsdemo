@@ -165,7 +165,7 @@ export default function Admin() {
                                     
                                     {entry.probe_answer ? (
                                         <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
-                                            <p className="font-semibold">Probe ({entry.probe_type}): <span className="italic">{entry.probe_text}</span></p>
+                                            <p className="font-semibold">Probe: <span className="italic">{entry.probe_text}</span></p>
                                             {entry.probe_rationale && <p className="text-xs mt-1">Rationale: {entry.probe_rationale}</p>}
                                             <p className="mt-2"><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
                                         </div>

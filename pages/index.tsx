@@ -543,7 +543,7 @@ export default function Home() {
                         </div>
                     </CollapsibleSection>
 
-                    <CollapsibleSection title="Session Trace (Debug)" titleSize="sm" className="bg-card shadow-sm">
+                    <CollapsibleSection title="Session Trace" titleSize="sm" className="bg-card shadow-sm">
                         <div className="font-mono text-sm bg-gray-900 text-blue-200 rounded-lg p-4 whitespace-pre-wrap overflow-auto max-h-80 shadow-inner">
                             {log.length === 0 ? "Trace log is empty." : log.join("\n")}
                         </div>

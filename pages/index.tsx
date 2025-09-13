@@ -529,20 +529,32 @@ const updateUserId = useCallback(async (newUserId: string) => {
                         <label className="text-base font-medium text-foreground block mb-2">User ID (optional)</label>
                         <div className="flex items-center gap-3">
                             <input
-                                className="flex-grow px-3 py-2 text-base border border-input-border rounded-lg focus:ring-primary focus:border-primary transition duration-150"
+                                className={`flex-grow px-3 py-2 text-base border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                                 value={userIdInput}
                                 onChange={(e) => setUserIdInput(e.target.value)}
+// Also update when the user presses Enter
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault(); // prevent form submission
+                                        updateUserId((e.target as HTMLInputElement).value);
+                                        (e.target as HTMLInputElement).blur(); // remove focus
+                                    }
+                                }}
                                 // Update the database when the user stops typing and leaves the field (onBlur)
                                 onBlur={(e) => updateUserId(e.target.value)}
                                 placeholder="Enter ID"
+                                readOnly={userIdInput === userTag && userTag !== ""}
+
                             />
                             {/* Visual confirmation when saved (input value matches the saved userTag) */}
                             {userIdInput === userTag && userTag !== "" && (
-                              <svg className="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <title>ID Saved</title>
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
+                             <>
+                                    <svg className="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <title>ID Saved</title>
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                    <button onClick={() => setUserTag("")} className="text-xs text-muted-foreground hover:text-foreground">Edit</button>
+                                </>
                         </div>
                     </div>
 

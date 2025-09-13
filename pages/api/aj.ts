@@ -23,15 +23,25 @@ GENERAL POLICIES:
 const FIRST_PASS_PROMPT = `
 TASK: Evaluate the user's initial answer and decide if a follow-up probe is needed.
 
-Return JSON with the following structure:
+Return JSON with three items:
 - score: A single float from 0.0 (completely incorrect) to 1.0 (perfect).
+
+SCORING GUIDANCE:
+- 1.0: Perfect, concise, and requires no follow-up.
+- 0.7-0.9: Mostly correct, but could be clearer or more detailed.
+- 0.4-0.6: Contains a mix of correct and incorrect elements.
+- 0.1-0.3: Fundamentally incorrect, but shows some understanding of the question.
+- 0.0: Completely incorrect or off-topic.
+- Base your score entirely on your judgment of the user's reasoning ability applied to this question, not on style, grammar, or writing ability. 
+
 - label: Your categorical assessment, chosen from ONE of the following:
-    - "Correct"
-    - "Incomplete"
-    - "Flawed"
-    - "Incorrect"
-    - "Ambiguous"
-    - "Off_Topic"
+    - "Correct": The answer is sufficient and well-reasoned.
+    - "Incomplete": The answer is on the right track but misses a key component.
+    - "Flawed": The core idea is present, but some aspect of the answer is incorrect.
+    - "Incorrect": The answer is relevant but wrong.
+    - "Ambiguous": The answer is unclear, vague, or hard to interpret.
+    - "Off_Topic": The answer is irrelevant, nonsensical, or incoherent.
+
 - probe: An object for your follow-up question.
     - If no probe is needed, return: {"intent": "None", "text": ""}
     - If a probe is needed, return an object with:
@@ -44,6 +54,10 @@ TASK: Evaluate the user's entire exchange, including their initial answer and th
 
 Return JSON with only these three fields:
 - score: Your FINAL float score from 0.0 to 1.0 for the entire interaction.
+    SCORING GUIDANCE FOR FOLLOW-UP:
+     - A user can achieve a high score (e.g., 0.8-0.9) if their follow-up answer is excellent, even if their initial answer was unclear. 
+     - If the user required a probe to understand the concept (as opposed to explaining an unclear initial answer), that is a cost to the final score. Do not give a perfect 1.0 if the user required a probe to clarify or complete their answer, unless the need for a probe did not indicate any flaw in the initial reasoning.
+     - Base your score on your judgment of the user's reasoning ability applied to the question and followup, not on style, grammar, or writing ability. 
 - label: Your FINAL categorical assessment, chosen from ONE of the following:
     - "Correct"
     - "Incomplete"

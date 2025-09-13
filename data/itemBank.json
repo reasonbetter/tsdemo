@@ -89,7 +89,7 @@
         "a": 1.3,
         "b": 0.6,
         "band": "Triage",
-        "text": "A patient received the wrong medication because the nurse misread the doctor's bad handwriting.\n\nWhat is the most effective way for the hospital to prevent this type of error in the future?\n\n(Answer in a sentence or two)."
+        "text": "A patient received the wrong medication because the nurse misread the doctor's bad handwriting.\n\nWhat is the most effective way for the hospital to prevent this type of error in the future?\n\n(Answer in a sentence or two.)"
     },
     {
         "item_id": "P2_M1_T8_MedicationDose",

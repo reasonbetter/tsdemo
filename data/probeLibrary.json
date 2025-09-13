@@ -7,9 +7,9 @@
     "Please make that more concrete (a few words).",
     "Could you be more specific (a few words)?"
   ],
-  "Mechanism": [
-    "In one sentence, briefly explain the path from cause to result.",
-    "One sentence: how would this lead to that?"
+  "Improvement": [
+    "Could you refine that answer a little?",
++   "Please try to improve that answer."
   ],
   "Alternative": [
     "Give one fundamentally different explanation (a few words).",

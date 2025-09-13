@@ -52,8 +52,7 @@ export default function Home() {
 
   // Refs for dynamic autofocus
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const probeInputRef = useRef<HTMLInputElement>(null);
-
+  const probeInputRef = useRef<HTMLTextAreaElement>(null);
   // Autofocus implementation
   useEffect(() => {
       if (!pending) {
@@ -428,8 +427,19 @@ const updateUserId = useCallback(async (newUserId: string) => {
                     <Prose>{currentItem.text}</Prose>
 
                     {!awaitingProbe && (
-                    <form onSubmit={onSubmit}>
-                        <textarea
+ <form
+                      onSubmit={onSubmit}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const el = e.target as HTMLElement | null;
+                          const tag = el?.tagName;
+                          const isTextarea = tag === 'TEXTAREA';
+                          const isButton = tag === 'BUTTON';
+                          // Allow newlines in textareas and allow keyboard activation on the submit button.
+                          if (!isTextarea && !isButton) e.preventDefault();
+                        }
+                      }}
+                    >                        <textarea
                         ref={inputRef}
                         className="w-full px-4 py-3 text-base border border-input-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 ease-in-out resize-vertical"
                         value={input}
@@ -452,17 +462,30 @@ const updateUserId = useCallback(async (newUserId: string) => {
                     )}
 
                     {awaitingProbe && (
-                    <form onSubmit={onSubmitProbe}>
+ <form
+                     onSubmit={onSubmitProbe}
+                     onKeyDown={(e) => {
+                       if (e.key === 'Enter') {
+                         const el = e.target as HTMLElement | null;
+                         const tag = el?.tagName;
+                         const isTextarea = tag === 'TEXTAREA';
+                         const isButton = tag === 'BUTTON';
+                         if (!isTextarea && !isButton) e.preventDefault();
+                       }
+                     }}
+                   >
                         {/* Probe Styling (Blue highlight) */}
                         <div className="bg-primary-light border border-primary-border text-primary-text p-4 rounded-lg italic mb-4">
                             {awaitingProbe.prompt}
                         </div>
-                        <input
+                        <textarea
                         ref={probeInputRef}
                         className="w-full px-4 py-3 text-base border border-input-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 ease-in-out"
                         value={probeInput}
-                        onChange={(e) => setProbeInput(e.target.value)}
-                        placeholder="One sentence"
+                         onChange={(e) => setProbeInput(e.target.value)}
+                       placeholder="Your follow-up (multi-line OK)"
+                       rows={3}
+
                         />
                         <div className="flex flex-wrap gap-3 mt-4">
                         <button type="submit" className="px-6 py-2 text-base font-semibold rounded-lg shadow-sm bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition duration-150" disabled={pending}>

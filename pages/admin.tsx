@@ -1,12 +1,24 @@
 import { useEffect, useState } from "react";
 import { Session } from "@prisma/client";
-import { LogEntry as ClientLogEntry, HistoryEntry } from "@/types/assessment";
+import { LogEntry as ClientLogEntry, HistoryEntry, ThetaState } from "@/types/assessment";
 import ReactMarkdown from 'react-markdown';
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
+// Helper component for displaying Theta change
+const ThetaChangeDisplay = ({ before, after }: { before?: ThetaState, after: ThetaState }) => {
+    if (!before) return null;
+    const change = after.mean - before.mean;
+    const color = change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500';
+
+    return (
+        <span className={`font-mono text-xs ${color}`}>
+            (Δθ: {change.toFixed(2)})
+        </span>
+    );
+};
+
 export default function Admin() {
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [localLogs, setLocalLogs] = useState<ClientLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
@@ -38,15 +50,6 @@ export default function Admin() {
       setError(`Failed to load sessions: ${(e as Error).message}`);
       setSessions([]);
     }
-
-    try {
-      const arr = JSON.parse(localStorage.getItem("rb_local_logs") || "[]") as ClientLogEntry[];
-      arr.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
-      setLocalLogs(arr);
-    } catch {
-      setLocalLogs([]);
-    }
-    setLoading(false);
   }
 
   function downloadJSON(data: any[], source: string) {
@@ -54,7 +57,7 @@ export default function Admin() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `rb-${source}-logs-${Date.now()}.json`;
+    a.download = `rb-server-logs-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -127,8 +130,9 @@ export default function Admin() {
             {sessions.length === 0 && !loading && <p className="text-muted-foreground">No sessions found in the database.</p>}
 
             {sessions.map(session => {
-                const title = `${new Date(session.updatedAt).toLocaleString()} ${session.userTag ? `(${session.userTag})` : ''}`;
+                const title = `${new Date(session.updatedAt).toLocaleString()} ${session.userTag ? `(User: ${session.userTag})` : ''}`;
                 const transcript = (session.transcript as unknown as HistoryEntry[]) || [];
+                const finalThetaState = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
 
                 return (
                     <CollapsibleSection key={session.id} title={title} className="bg-card shadow-sm" titleSize="xs">
@@ -140,6 +144,9 @@ export default function Admin() {
                                 
                                 <div className="mt-2 p-2 bg-white border rounded-md">
                                     <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
+                                    {entry.initial_tags && entry.initial_tags.length > 0 && (
+                                        <p className="text-xs text-muted-foreground mt-1 font-mono">Initial Tags: {entry.initial_tags.join(', ')}</p>
+                                    )}
                                 </div>
                                 
                                 {entry.probe_answer ? (
@@ -147,15 +154,14 @@ export default function Admin() {
                                         <p className="font-semibold">Probe: {entry.probe_text}</p>
                                         <p><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
                                      </div>
-                                ) : (
-                                    <div className="mt-2 italic text-muted-foreground text-xs">
-                                        <p>No probe was issued for this question.</p>
-                                    </div>
-                                )}
+                                ) : null}
 
                                 {entry.final_score !== undefined && (
                                     <div className="mt-2 p-2 bg-gray-100 border rounded-md">
-                                        <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
+                                        <div className="flex justify-between items-center">
+                                            <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
+                                            <ThetaChangeDisplay before={entry.theta_state_before} after={finalThetaState} />
+                                        </div>
                                         <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
                                         {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}
                                     </div>

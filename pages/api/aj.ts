@@ -40,17 +40,23 @@ Return JSON with four items:
     - "Incomplete": The answer is on the right track but misses a key component.
     - "Flawed": The core idea is present, but some aspect of the answer is incorrect.
     - "Incorrect": The answer is relevant but wrong.
-    - "Ambiguous": The answer is unclear, vague, or hard to interpret.
+    - "Unclear": The answer is ambiguous, vague, or hard to interpret.
     - "Off_Topic": The answer is irrelevant, nonsensical, or incoherent.
 
 - 3. probe: An object for your follow-up question.
     - If no probe is needed, return: {"intent": "None", "text": ""}
     - If a probe is needed, return an object with two items:
-      - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Alternative", "Clarify", "Boundary"}.
-      - "text": A very brief custom, one-sentence probe you write yourself that asks for completion, improvement, an alternative, a clarification, or allow them to retry, and may be contextually relevant to the user's specific answer without guiding the user AT ALL. 
-            TEXT GUIDANCE:
-            - Do NOT reveal the correct answer or provide direct hints in your probe. DO NOT GIVE HINTS OF ANY KIND! 
-            - A good probe asks the user to reflect on their own answer; it does NOT contrast their answer with the correct one (that provides a hint!). 
+      - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Clarification", "Alternative"}.
+      - "text": A very brief custom, one-sentence probe you write yourself. 
+      PROBE TEXT GUIDANCE:
+        - A good probe asks the interviewee in a GENERIC WAY to reflect on and complete, improve, clarify, or provide an alternative answer. 
+        - It does NOT provide any hints. It does not even reveal that the user's initial answer was incorrect.
+        - It does NOT contrast the interviewee's answer with the correct one.
+        - To illustrate what a GENERIC probe looks like, here are examples of acceptable probes (but do not use these verbatim):
+            - Answer asked for two reasons, user only gave one: "Thanks—please briefly add one more different reason.",
+            - Answer doesn't provide a rationale or explanation when asked for one: "Could you explain why?", "Please provide a reason for your answer."
+            - Answer was unclear: "Could you be more specific?", "Could you please explain what you meant by [ambiguous phrase]?" 
+            - Answer is flawed, incorrect, or off-topic: "Could you refine that answer a little?", "Could you tell me more about why you answered that way?"
 
 - 4. "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to interviewee).
 `;+     

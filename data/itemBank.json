@@ -81,7 +81,7 @@
         "a": 1.0,
         "b": -0.5,
         "band": "Triage",
-        "text": "A high school offers an optional SAT prep course. Students who take it score much higher on the SAT than those who don't.\n\nWe learn that the course costs $500.\n\nDoes this cost suggest the study is making the course look more effective or less effective than it truly is?\n\n(Answer with one word: More or Less)."
+        "text": "A high school offers an optional SAT prep course. Students who take it score much higher on the SAT than those who don't.\n\nWe learn that the course costs $500.\n\nDoes this cost suggest the study is making the course look more effective or less effective than it truly is?\n\n(Answer and briefly explain in a sentence or two)."
     },
     {
         "item_id": "P2_M1_T7_HospitalError",

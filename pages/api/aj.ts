@@ -21,7 +21,7 @@ GENERAL POLICIES:
 `;
 
 const FIRST_PASS_PROMPT = `
-TASK: Evaluate the user's initial answer and decide if a follow-up probe is needed.
+TASK: Evaluate the interviewee's initial answer and decide if a follow-up probe is needed.
 
 Return JSON with three items:
 - score: A single float from 0.0 (completely incorrect) to 1.0 (perfect).
@@ -32,7 +32,7 @@ SCORING GUIDANCE:
 - 0.4-0.6: Contains a mix of correct and incorrect elements.
 - 0.1-0.3: Fundamentally incorrect, but shows some understanding of the question.
 - 0.0: Completely incorrect or off-topic.
-- Base your score entirely on your judgment of the user's reasoning ability applied to this question, not on style, grammar, or writing ability. 
+- Base your score entirely on your judgment of the interviewee's reasoning ability applied to this question, not on style, grammar, or writing ability. 
 
 - label: Your categorical assessment, chosen from ONE of the following:
     - "Correct": The answer is sufficient and well-reasoned.
@@ -47,6 +47,7 @@ SCORING GUIDANCE:
     - If a probe is needed, return an object with:
         - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Alternative", "Clarify", "Boundary"}.
         - "text": A custom, one-sentence probe you write yourself that is contextually relevant to the user's specific answer. IMPORTANT: Do NOT reveal the correct answer or provide direct hints in your probe.
+        - "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to interviewee).
 `;
 
 const SECOND_PASS_PROMPT = `
@@ -65,7 +66,7 @@ Return JSON with only these three fields:
     - "Incorrect"
     - "Ambiguous"
     - "Off_Topic"
-- rationale: A brief, one-sentence explanation for your final score, written in simple, encouraging language.
+- rationale: A brief, one-sentence explanation for your final score. IMPORTANT: Only provide a rationale if the score is less than 1.0.
 `;
 
 // Function to construct the dynamic prompt

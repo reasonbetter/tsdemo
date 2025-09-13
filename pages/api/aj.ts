@@ -36,7 +36,7 @@ Return JSON with the following structure:
     - If no probe is needed, return: {"intent": "None", "text": ""}
     - If a probe is needed, return an object with:
         - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Alternative", "Clarify", "Boundary"}.
-        - "text": A custom, one-sentence probe you write yourself that is contextually relevant to the user's specific answer.
+        - "text": A custom, one-sentence probe you write yourself that is contextually relevant to the user's specific answer. IMPORTANT: Do NOT reveal the correct answer or provide direct hints in your probe.
 `;
 
 const SECOND_PASS_PROMPT = `

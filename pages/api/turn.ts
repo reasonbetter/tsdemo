@@ -295,6 +295,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 probe_type: probe.intent,
                 probe_text: probe.text,
                 trace: trace,
+                initial_score: ajMeasurement.score,
                 initial_tags: (ajMeasurement as any).tags, // Capture initial tags
                 final_score: probe.intent === 'None' ? ajMeasurement.score : undefined,
                 final_rationale: probe.intent === 'None' ? ajMeasurement.rationale : undefined,

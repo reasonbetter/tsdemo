@@ -1,100 +1,99 @@
- {
-   "schema_features": {
-     "C1_ConfounderGen": {
-      "family": "C1",
+{
+  "schema_features": {
+    "P2_M1_S1_ConfounderGen": {
       "coverage_tag": "confounding",
+      "required_moves": ["names_two_distinct"],
       "aj_guidance": "Target: Generate TWO distinct confounders. Policy: Be strict about distinctness. 'Wealthy parents' and 'Parents have money' are NOT distinct. Available tags for this item are: ['names_two_distinct', 'only_one_reason', 'not_distinct', 'vague_mechanism']."
-     },
-     "C2_Indication": {
-      "family": "C2",
+    },
+    "P2_M1_S2_Indication": {
       "coverage_tag": "confounding",
-       "aj_guidance": "Target: Identify confounding by indication/severity. Policy: Look for recognition that the treatment group was higher risk or sicker *before* the intervention. If the answer is vague (e.g., 'they were different'), recommend 'Clarify' probe."
-     },
-     "C3_BiasDirection_Suppression": {
+      "aj_guidance": "Target: Identify confounding by indication/severity. Policy: Look for recognition that the treatment group was higher risk or sicker *before* the intervention. If the answer is vague (e.g., 'they were different'), recommend 'Clarify' probe."
+    },
+    "P2_M1_S3_BiasDirection_Suppression": {
       "coverage_tag": "confounding",
-       "aj_guidance": "Target: Identify the direction of bias as suppression (making the effect look weaker than it is). Policy: Requires recognizing that the intervention group was negatively selected. Ensure the user provides the correct direction word ('Better')."
-     },
-     "C4_ReciprocalCausation": {
+      "aj_guidance": "Target: Identify the direction of bias as suppression (making the effect look weaker than it is). Policy: Requires recognizing that the intervention group was negatively selected. Ensure the user provides the correct direction word ('Better')."
+    },
+    "P2_M1_S4_ReciprocalCausation": {
         "coverage_tag": "temporality",
-         "aj_guidance": "Target: Describe a feedback loop or vicious cycle. Policy: Look for dynamic language describing how A affects B AND B affects A over time, leading to escalation. If the user only describes one direction (A->B or B->A), recommend 'Mechanism' probe focusing on the interaction over time."
-     },
-     "C5_Temporality": {
+        "aj_guidance": "Target: Describe a feedback loop or vicious cycle. Policy: Look for dynamic language describing how A affects B AND B affects A over time, leading to escalation. If the user only describes one direction (A->B or B->A), recommend 'Mechanism' probe focusing on the interaction over time."
+    },
+    "P2_M1_S5_Temporality": {
         "coverage_tag": "temporality",
-         "aj_guidance": "Target: Prioritize pre-treatment adjustment over post-treatment. Policy: User must select the correct option (Pre-treatment) and reject 'Both'. If they select 'Both', tag 'control_everything' pitfall. Justification should relate to timing (baseline balance). If justification is missing, recommend 'Mechanism' probe."
-     },
-     "C6_BiasDirection_Inflation": {
+        "aj_guidance": "Target: Prioritize pre-treatment adjustment over post-treatment. Policy: User must select the correct option (Pre-treatment) and reject 'Both'. If they select 'Both', tag 'control_everything' pitfall. Justification should relate to timing (baseline balance). If justification is missing, recommend 'Mechanism' probe."
+    },
+    "P2_M1_S6_BiasDirection_Inflation": {
         "coverage_tag": "confounding",
-         "aj_guidance": "Target: Identify the direction of bias as inflation (making the effect look stronger than it is). Policy: Requires recognizing that the intervention group was positively selected (e.g., via wealth/access). Ensure the user provides the correct direction word ('More' or 'Less')."
-     },
-     "C7_UpstreamIntervention": {
+        "aj_guidance": "Target: Identify the direction of bias as inflation (making the effect look stronger than it is). Policy: Requires recognizing that the intervention group was positively selected (e.g., via wealth/access). Ensure the user provides the correct direction word ('More' or 'Less')."
+    },
+    "P2_M1_S7_UpstreamIntervention": {
         "coverage_tag": "complexity",
-         "aj_guidance": "Target: Identify the distal/root cause rather than the proximal trigger. Policy: Evaluate the proposed solution. Systemic solutions (e.g., 'electronic prescriptions') score high. Proximal fixes (e.g., 'tell doctors to write clearer') score low. If the solution is proximal, tag 'fixation_on_proximal_cause' and consider 'Alternative' probe looking for a systemic fix."
-     },
-     "C8_NonLinearity": {
+        "aj_guidance": "Target: Identify the distal/root cause rather than the proximal trigger. Policy: Evaluate the proposed solution. Systemic solutions (e.g., 'electronic prescriptions') score high. Proximal fixes (e.g., 'tell doctors to write clearer') score low. If the solution is proximal, tag 'fixation_on_proximal_cause' and consider 'Alternative' probe looking for a systemic fix."
+    },
+    "P2_M1_S8_NonLinearity": {
         "coverage_tag": "complexity",
-         "aj_guidance": "Target: Recognize non-linearity and reject extrapolation. Policy: Look for recognition of diminishing returns, plateaus, or danger outside the observed range. If the user extrapolates linearly, tag pitfall 'linearity_bias'."
-     }
-   },
+        "aj_guidance": "Target: Recognize non-linearity and reject extrapolation. Policy: Look for recognition of diminishing returns, plateaus, or danger outside the observed range. If the user extrapolates linearly, tag pitfall 'linearity_bias'."
+    }
+  },
   "items": [
     {
-      "item_id": "CI_SC_C1_MusicMath",
-      "schema_id": "C1_ConfounderGen",
+      "item_id": "P2_M1_T1_MusicMath",
+      "schema_id": "P2_M1_S1_ConfounderGen",
       "a": 1.1,
       "b": 0.2,
       "band": "Triage",
       "text": "A study found that children who take music lessons have higher math scores, on average, than children who do not.\n\nGive two *different* reasons (other than music helping math) why this link might be true.\n\n(Keep each reason to a few words)."
     },
     {
-        "item_id": "CI_SC_C2_HeartMedication",
-        "schema_id": "C2_Indication",
+        "item_id": "P2_M1_T2_HeartMedication",
+        "schema_id": "P2_M1_S2_Indication",
         "a": 1.3,
         "b": 0.8,
         "band": "Triage",
         "text": "A large hospital reviews its records and finds that patients who receive a new, expensive heart medication have *worse* survival rates than those who receive the old, standard medication.\n\nName one reason why the patients getting the new medication might have been different from the start, which could explain this result.\n\n(Answer in a few words)."
     },
     {
-        "item_id": "CI_SC_C3_MentorshipSuppression",
-        "schema_id": "C3_BiasDirection_Suppression",
+        "item_id": "P2_M1_T3_MentorshipSuppression",
+        "schema_id": "P2_M1_S3_BiasDirection_Suppression",
         "a": 1.4,
         "b": 1.1,
         "band": "Triage",
         "text": "A university introduced an optional mentorship program for new professors to improve their career success. The results showed very little difference between those who joined the program and those who didn't.\n\nWe learn that professors who felt they were struggling the most were the ones most likely to sign up for the mentorship.\n\nDoes this fact suggest the program is actually better or worse than the study results make it look?\n\n(Answer with one word: Better or Worse)."
     },
     {
-        "item_id": "CI_SC_C4_AnxietyProcrastination",
-        "schema_id": "C4_ReciprocalCausation",
+        "item_id": "P2_M1_T4_AnxietyProcrastination",
+        "schema_id": "P2_M1_S4_ReciprocalCausation",
         "a": 1.2,
         "b": 0.5,
         "band": "Triage",
         "text": "We observe that students who are highly anxious often procrastinate (delay starting work).\n\nImagine a student is anxious and starts procrastinating on an important assignment. Describe what is likely to happen to their anxiety and their procrastination over the following week.\n\n(Answer in one or two sentences)."
     },
     {
-        "item_id": "CI_SC_C5_JobTraining",
-        "schema_id": "C5_Temporality",
+        "item_id": "P2_M1_T5_JobTraining",
+        "schema_id": "P2_M1_S5_Temporality",
         "a": 1.5,
         "b": 0.1,
         "band": "Triage",
         "text": "We are comparing a new job training program (Group A) to an old one (Group B). People chose which one to join. We want to know which program leads to a better employment rate one year later.\n\nTo make the comparison fair, which of these is important to make the same between the groups?\n1. The participants' years of experience **before** the program started.\n2. The number of job applications participants sent out **during** the program.\n3. Both 1 and 2.\n\n(Answer 1, 2, or 3, and explain why in five words or less)."
     },
     {
-        "item_id": "CI_SC_C6_SATPrep",
-        "schema_id": "C6_BiasDirection_Inflation",
+        "item_id": "P2_M1_T6_SATPrep",
+        "schema_id": "P2_M1_S6_BiasDirection_Inflation",
         "a": 1.0,
         "b": -0.5,
         "band": "Triage",
         "text": "A high school offers an optional SAT prep course. Students who take it score much higher on the SAT than those who don't.\n\nWe learn that the course costs $500.\n\nDoes this cost suggest the study is making the course look more effective or less effective than it truly is?\n\n(Answer with one word: More or Less)."
     },
     {
-        "item_id": "CI_SC_C7_HospitalError",
-        "schema_id": "C7_UpstreamIntervention",
+        "item_id": "P2_M1_T7_HospitalError",
+        "schema_id": "P2_M1_S7_UpstreamIntervention",
         "a": 1.3,
         "b": 0.6,
         "band": "Triage",
         "text": "A patient received the wrong medication because the nurse misread the doctor's bad handwriting.\n\nWhat is the most effective way for the hospital to prevent this type of error in the future?\n\n(Answer in a few words)."
     },
     {
-        "item_id": "CI_SC_C8_MedicationDose",
-        "schema_id": "C8_NonLinearity",
+        "item_id": "P2_M1_T8_MedicationDose",
+        "schema_id": "P2_M1_S8_NonLinearity",
         "a": 1.4,
         "b": 0.4,
         "band": "Triage",

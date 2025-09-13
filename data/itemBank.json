@@ -57,7 +57,7 @@
         "a": 1.4,
         "b": 1.1,
         "band": "Triage",
-        "text": "A university introduced an optional mentorship program for new teachers to improve their career success. The results showed very little difference between those who joined the program and those who didn't.\n\nWe learn that teachers who felt they were struggling the most were the ones most likely to sign up for the mentorship.\n\nDoes this fact suggest the program is actually better or worse than the study results make it look?\n\n(Answer with one word: Better or Worse)."
+        "text": "A university introduced an optional mentorship program for new teachers to improve their career success. The results showed very little difference between those who joined the program and those who didn't.\n\nWe learn that teachers who felt they were struggling the most were the ones most likely to sign up for the mentorship.\n\nDoes this fact suggest the program is actually better or worse than the study results make it look?\n\nAnswer and briefly explain in a sentence or two."
     },
     {
         "item_id": "P2_M1_T4_AnxietyProcrastination",

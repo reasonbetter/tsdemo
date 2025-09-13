@@ -27,14 +27,15 @@ export interface ItemBank {
 
 // --- Adaptive Judge (AJ) Structures ---
 
-export type AJLabel = 'Correct&Complete' | 'Correct_Missing' | 'Correct_Flawed' | 'Partial' | 'Incorrect' | 'Novel';
-export type ProbeIntent = 'None' | 'Completion' | 'Mechanism' | 'Alternative' | 'Clarify' | 'Boundary';
+export type AJLabel = 'Correct' | 'Incomplete' | 'Flawed' | 'Incorrect' | 'Ambiguous' | 'Off_Topic' | 'None';
+export type ProbeIntent = 'None' | 'Completion' | 'Improvement' | 'Alternative' | 'Clarify' | 'Boundary';
 
 // --- Configuration Structures ---
 
 // Type for data/config.json
 export interface AssessmentConfig {
   CFG: {
+    score_correct_threshold: number;
     tau_complete: number;
     tau_required_move: number;
     tau_pitfall_hi: number;
@@ -53,17 +54,9 @@ export type ProbeLibrary = Record<ProbeIntent, string[]>;
 // The structured output from the Adaptive Judge
 export interface AJJudgment {
   score: number; // A single score from 0.0 to 1.0
-  final_label: AJLabel; // The final categorical label  
-  tags: string[]; // A single list of observed pitfall and process move tags
-
- 
-  // The AJ's generated probe recommendation
-  probe: {
-    intent: ProbeIntent;
-    text: string;
-    rationale: string;
-    confidence: number;
-  };
+label: AJLabel; // The final categorical label
++  rationale?: string; // A short explanation for the score/label
+  
   // Specific to Transcript Windows (TW) - used in the orchestrator merge logic
   tw_labels?: Record<string, number>;
 }
@@ -88,8 +81,7 @@ export interface AJFeatures {
 export interface TurnResult {
   final_label: AJLabel;
   probe_type: ProbeIntent;
-  probe_text: string;
-  probe_source?: string;
+  probe_text: string; // The text of the probe to ask the user
   next_item_id: string | null;
   theta_mean: number;
   theta_var: number;
@@ -113,11 +105,9 @@ export interface HistoryEntry {
   probe_text: string;
   trace: string[];
   tags?: string[];
-  theta_mean?: number;
-  theta_var?: number;
   probe_answer?: string;
-  probe_label?: ProbeIntent;
-  probe_theta_update?: { mean: number; var: number; };
+  final_score?: number;
+  final_rationale?: string;
 }
 
 // InMemorySession is removed.

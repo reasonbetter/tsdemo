@@ -206,6 +206,7 @@ export default function Home() {
             ...h,
             {
                 item_id: currentItem.item_id,
+                text: currentItem.text,
                 answer: input,
                 label: turn.final_label,
                 probe_type: turn.probe_type,

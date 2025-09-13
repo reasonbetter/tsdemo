@@ -56,6 +56,7 @@ export interface AJJudgment {
   probe?: { // Optional probe object from the first pass
     intent: ProbeIntent;
     text: string;
+    rationale?: string;
   };
   tags?: string[]; // Optional tags from the first pass
 }

@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { AJJudgment, AJFeatures, ItemInstance, AJLabel } from '@/types/assessment';
+import { AJJudgment, ItemInstance, AJLabel } from '@/types/assessment';
 
 const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
@@ -8,7 +8,7 @@ const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 interface AJRequest {
     item: ItemInstance;
     userResponse: string;
-    features: AJFeatures;
+    features: any; // Use 'any' as AJFeatures is no longer a defined type
     full_transcript?: any;
 }
 

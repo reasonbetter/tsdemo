@@ -127,27 +127,12 @@ function selectNextItem(sessionState: SessionSelectionState): { next: ItemInstan
     const trace: string[] = [];
     const { askedItemIds } = sessionState;
 
-    if (askedItemIds.length >= 4) {
-        trace.push("Session complete: 4 items have been answered.");
+    if (askedItemIds.length >= 5) {
+        trace.push("Session complete: 5 items have been answered.");
         return { next: null, trace };
     }
 
-    const suiteASchemas = ["P2_M1_S1", "P2_M1_S2", "P2_M1_S3", "P2_M1_S4", "P2_M1_S5", "P2_M1_S6"];
-
-    const askedItems = askedItemIds.map(id => itemById(id)).filter(Boolean) as ItemInstance[];
-    const suiteACount = askedItems.filter(item => {
-        // Check if the start of the schema_id matches any of the suite A schemas
-        return suiteASchemas.some(s => item.schema_id.startsWith(s));
-    }).length;
-    const suiteBCount = askedItems.length - suiteACount;
-
-    trace.push(`Current counts - Suite A: ${suiteACount}, Suite B: ${suiteBCount}`);
-
     const candidates = eligibleCandidates(askedItemIds);
-    const suiteACandidates = candidates.filter(item => suiteASchemas.some(s => item.schema_id.startsWith(s)));
-    const suiteBCandidates = candidates.filter(item => !suiteASchemas.some(s => item.schema_id.startsWith(s)));
-
-    let next: ItemInstance | null = null;
 
     // Fisher-Yates shuffle to randomize selection
     const shuffle = (array: ItemInstance[]) => {
@@ -158,20 +143,11 @@ function selectNextItem(sessionState: SessionSelectionState): { next: ItemInstan
         return array;
     };
 
-    if (suiteACount < 3 && suiteACandidates.length > 0) {
-        trace.push(`Selecting from ${suiteACandidates.length} Suite A candidates.`);
-        next = shuffle(suiteACandidates)[0];
-    } else if (suiteBCount < 1 && suiteBCandidates.length > 0) {
-        trace.push(`Selecting from ${suiteBCandidates.length} Suite B candidates.`);
-        next = shuffle(suiteBCandidates)[0];
-    }
-
-    if (!next) {
-        trace.push("No eligible candidates found for the required suites. Ending session.");
+    if (candidates.length === 0) {
+        trace.push("No eligible candidates found. Ending session.");
         return { next: null, trace };
     }
-
-    const best = next;
+    const best = shuffle(candidates)[0];
     trace.push(`Next (random) =${best.item_id} (schema=${best.schema_id})`);
     return { next: best, trace };
 }

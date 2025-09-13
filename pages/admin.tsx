@@ -51,6 +51,8 @@ export default function Admin() {
       setError(`Failed to load sessions: ${(e as Error).message}`);
       setSessions([]);
     }
+      setLoading(false);
+
   }
 
   function downloadJSON(data: any[], source: string) {

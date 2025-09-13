@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Session } from "@prisma/client";
-import { LogEntry as ClientLogEntry, HistoryEntry, ThetaState } from "@/types/assessment";
+import { HistoryEntry, ThetaState } from "@/types/assessment";
 import ReactMarkdown from 'react-markdown';
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
@@ -130,43 +130,42 @@ export default function Admin() {
             <h3 className="text-xl font-semibold px-2">Session Transcripts (latest {sessions.length})</h3>
             {sessions.length === 0 && !loading && <p className="text-muted-foreground">No sessions found in the database.</p>}
 
-            {sessions.map((session, sessionIndex) => {
-                let thetaBefore = { mean: 0.0, se: Math.sqrt(1.5) }; // Initial state for the first question
+            {sessions.map((session) => {
+                let thetaBefore = { mean: 0.0, se: Math.sqrt(1.5) };
                 const title = `${new Date(session.updatedAt).toLocaleString()} ${session.userTag ? `(User: ${session.userTag})` : ''}`;
                 const transcript = (session.transcript as unknown as HistoryEntry[]) || [];
-
+                
                 return (
                     <CollapsibleSection key={session.id} title={title} className="bg-card shadow-sm" titleSize="xs">
                         <div className="space-y-4 text-sm">
                         {transcript.map((entry, idx) => {
-                            const currentThetaState = (idx < transcript.length - 1) 
-                                ? transcript[idx+1].theta_state_before || thetaBefore
+                            const finalThetaStateForThisTurn = (idx < transcript.length - 1) 
+                                ? transcript[idx+1].theta_state_before || { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) }
                                 : { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
 
                             const displayThetaBefore = entry.theta_state_before || thetaBefore;
                             
-                            // Update thetaBefore for the next iteration
-                            thetaBefore = currentThetaState;
+                            thetaBefore = finalThetaStateForThisTurn;
 
                             return (
                                 <div key={idx} className="p-3 bg-background rounded-lg border border-border">
-                                    <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
-                                    <div className="prose prose-sm max-w-none mt-1"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
+                                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${entry.label === 'Correct' ? 'bg-green-100 text-green-800' : ['Incomplete', 'Flawed', 'Ambiguous'].includes(entry.label) ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                            {entry.label}
+                                        </span>
+                                    </div>
+                                    <div className="prose prose-sm max-w-none"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
                                     
                                     <div className="mt-2 p-2 bg-white border rounded-md">
                                         <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
-                                        <div className="text-xs text-muted-foreground mt-1 pl-1">
-                                            <p>Initial Score: {Number(entry.initial_score).toFixed(2)}</p>
-                                            {entry.initial_tags && entry.initial_tags.length > 0 && (
-                                                <p className="font-mono">Initial Tags: {entry.initial_tags.join(', ')}</p>
-                                            )}
-                                        </div>
                                     </div>
                                     
                                     {entry.probe_answer ? (
                                         <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
-                                            <p className="font-semibold">Probe ({entry.probe_type}): {entry.probe_text}</p>
-                                            <p><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
+                                            <p className="font-semibold">Probe ({entry.probe_type}): <span className="italic">{entry.probe_text}</span></p>
+                                            {entry.probe_rationale && <p className="text-xs mt-1">Rationale: {entry.probe_rationale}</p>}
+                                            <p className="mt-2"><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
                                         </div>
                                     ) : null}
 
@@ -174,7 +173,7 @@ export default function Admin() {
                                         <div className="mt-2 p-2 bg-gray-100 border rounded-md">
                                             <div className="flex justify-between items-center">
                                                 <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
-                                                <ThetaChangeDisplay before={displayThetaBefore} after={currentThetaState} />
+                                                <ThetaChangeDisplay before={displayThetaBefore} after={finalThetaStateForThisTurn} />
                                             </div>
                                             <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
                                             {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}

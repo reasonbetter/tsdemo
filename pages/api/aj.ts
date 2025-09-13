@@ -44,10 +44,8 @@ Return JSON with four items:
     - "Off_Topic": The answer is irrelevant, nonsensical, or incoherent.
 
 - 3. probe: An object for your follow-up question.
-    - If no probe is needed, return: {"intent": "None", "text": ""}
-    - If a probe is needed, return an object with:
-      - "intent": Your reason for probing, chosen from {"Completion", "Improvement", "Clarification", "Alternative"}.
-      - "text": A brief, generic, one-sentence probe.
+    - If no probe is needed, return: {"text": ""}
+    - If a probe is needed, return an object with: "text": A brief, generic, one-sentence probe.
         PROBE TEXT GUIDANCE:
         - Your probe MUST NOT hint at the correct answer or reveal any flaw.
         - It must be a GENERIC request for the user to reflect on their own answer.

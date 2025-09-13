@@ -97,7 +97,7 @@
         "a": 1.4,
         "b": 0.4,
         "band": "Triage",
-        "text": "A new medication is tested for pain relief.\n* 1 pill reduces pain by 2 points (on a pain scale).\n* 2 pills reduce pain by 4 points.\n\nA patient asks: \"If I take 10 pills, will my pain be reduced by 20 points?\"\n\nWhat is the best response the doctor should give?\n\n(Answer in one or two sentences)."
+        "text": "A new medication is tested for pain relief.\n* 1 pill reduces pain by 2 points (on a pain scale).\n* 2 pills reduce pain by 4 points.\n\nA patient asks: \"If I take 10 pills, will my pain be reduced by 20 points?\"\n\nWhat do you think the answer is and why? (Answer in one or two sentences.)"
     }
   ]
 }

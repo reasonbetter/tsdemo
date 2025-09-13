@@ -21,7 +21,7 @@ GENERAL POLICIES:
 `;
 
 const FIRST_PASS_PROMPT = `
-TASK: Evaluate the user's initial answer and decide if a follow-up probe is needed.
+TASK: Evaluate the interviewee's initial answer and decide if a follow-up probe is needed.
 
 Return JSON with four items:
 
@@ -32,34 +32,30 @@ Return JSON with four items:
     - 0.4-0.6: Contains a mix of correct and incorrect elements.
     - 0.1-0.3: Fundamentally incorrect, but shows some understanding of the question.
     - 0.0: Completely incorrect or off-topic.
-    - Base your score entirely on your judgment of the user's reasoning ability applied to this question.
+    - Base your score entirely on your judgment of the interviewee's reasoning ability applied to this question.
     - Do not base your score on style, grammar, or writing ability: use SUBSTANCE not SUPERFICIAL PRESENTATION. 
 
 - 2. label: Your categorical assessment, chosen from ONE of the following:
-    - "Correct": The answer is excellent and well-reasoned.
-    - "Incomplete": The answer is on the right track but misses a key component.
-    - "Flawed": The answer contains a correct element but also a clear conceptual error.
-    - "Incorrect": The answer is relevant to the question but is conceptually wrong.
-    - "Unclear": The answer is too vague or ambiguous to be judged as correct or incorrect.
-    - "Off_Topic": The answer is irrelevant, nonsensical, or incoherent.
+    - "Correct"
+    - "Incomplete"
+    - "Flawed"
+    - "Incorrect"
+    - "Unclear"
+    - "Off_Topic"
 
 - 3. probe: An object for your follow-up question.
-    - Only probe if the answer is incomplete, flawed, unclear, or you have judged it incorrect but it's extremely brief. 
-    - If an answer is thoroughly correct, or clear and thoroughly incorrect, do not probe.
     - If no probe is needed, return: {"text": ""}
-
-    - If a probe is needed, return an object with: "text": A brief, generic, one-sentence probe.
+    - If a probe is needed, return an object with:
+      - "text": A brief, generic, one-sentence probe.
         PROBE TEXT GUIDANCE:
-        - Your probe MUST NOT hint at the correct answer or reveal any flaw.
-        - It must be a GENERIC request for the user to reflect on their own answer.
-        - For specific cases:
-          - If the answer was incomplete or unclear, you can ask for completion or specificity (e.g., "Could you explain why?", "Could you be more specific?").
-          - If a list was required, you can ask for the missing item (e.g., "Please add one more reason or explain how your answer gives two reasons").
-          - If a phrase was unclear, you can ask for clarification on that phrase (e.g., "Can you explain what you meant by 'X'?").
-          - If the answer was flawed, or off-topic, or incorrect & very brief, you can ask in a neutral way for the user to say more (e.g., "Could you elaborate on that?").
+        - Your probe MUST NOT hint at the correct answer or reveal any flaw in the user's answer. 
+        - It should only ask the user to reflect on their own answer (e.g., "Could you explain why?", "Could you be more specific?").
+        - If the question asked for more than one thing and the user only provided one, the probe can say what is missing (e.g. "Please briefly add one more different reason".) It must not contrast the user's answer with the correct one.
+        - If something about the answer's language was unclear, you can specify which part was unclear (e.g. "Can you explain what you meant by X".)
+        - If you initially assessed a question as flawed, incorrect, or off-topic, do not reveal this but probe for more context (e.g. "Could you elaborate on that answer a little?", "Could you tell me more about why you answered that way?"
 
 - 4. "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to user).
-`;     
+`;
 
 
 const SECOND_PASS_PROMPT = `
@@ -69,9 +65,9 @@ Return JSON with only these three fields:
 
 - 1. score: Your FINAL float score from 0.0 to 1.0 for the entire interaction.
         SCORE GUIDANCE FOR FOLLOW-UP:
-        - Reward genuine improvement. A user can earn a high final score if their follow-up is excellent and their initial error was minor (e.g., ambiguity or not noticing that two things were asked for and only providing one).
-        - Do not reward agreement with hints. If the probe guided the user to the answer, the final score should not be higher than the initial score.
-        - Penalize the need for a second try. If the initial answer contained a fundamental flaw in reasoning that they improved in the follow-up, split the difference for the final score. 
+        - The final score can be much higher than the initial score, but only if the initial answer was simply unclear or ambiguous, without strong evidence of a conceptual flaw, and the probe offered NO HINT OF ANY KIND 
+        - If the user required a probe to grasp the relevant concept, apply the relevant process move, or complete their answer, that indicates a flaw in the initial reasoning and significantly reduces their final score. 
+        - If the probe gave a hint and the user simply agreed, there should be NO IMPROVEMENT in their initial score. 
 
 - 2. label: Your FINAL categorical assessment, chosen from ONE of the following:
         - "Correct"

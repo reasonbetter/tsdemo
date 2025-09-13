@@ -52,7 +52,8 @@ export default function Home() {
 
   // Refs for dynamic autofocus
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const probeInputRef = useRef<HTMLTextAreaElement>(null);
+  const probeInputRef = useRef<HTMLInputElement>(null);
+
   // Autofocus implementation
   useEffect(() => {
       if (!pending) {
@@ -97,13 +98,6 @@ export default function Home() {
             ...payload
         };
         try { await fetch("/api/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(entry) }); } catch {}
-
-        try {
-            const key = "rb_local_logs";
-            const arr = JSON.parse(localStorage.getItem(key) || "[]");
-            arr.push(entry);
-            localStorage.setItem(key, JSON.stringify(arr).slice(0, 1_000_000));
-        } catch {}
     }
 
     async function callAJ({ item, userResponse, fullTranscript = null }: { item: ItemInstance, userResponse: string, fullTranscript?: any | null }): Promise<AJJudgment> {
@@ -116,7 +110,6 @@ export default function Home() {
                 item_id: item.item_id,
                 band: item.band,
                 item_params: { a: item.a, b: item.b },
-                // These are no longer used in the simplified prompt
                 aj_guidance: ajGuidance
             };
 
@@ -133,8 +126,8 @@ export default function Home() {
         } catch (e) {
             alert(`AJ error: ${(e as Error).message}`);
              return {
-                score: 0.0, // Default score on error
-                label: "Off_Topic", // Default label on error
+                score: 0.0,
+                label: "Off_Topic",
             };
         }
     }
@@ -173,7 +166,6 @@ export default function Home() {
         if (!input.trim() || pending || !currentItem || !sessionId) return;
         setPending(true);
 
-        // If this is the first submission, create the session in the DB first
         if (!isSessionLive) {
             try {
                 const res = await fetch('/api/create_session', {
@@ -184,7 +176,7 @@ export default function Home() {
                 if (!res.ok) {
                     throw new Error("Failed to create session in database before first turn.");
                 }
-                setIsSessionLive(true); // Mark session as live
+                setIsSessionLive(true);
             } catch (e) {
                 alert(`Error creating session: ${(e as Error).message}`);
                 setPending(false);
@@ -205,7 +197,11 @@ export default function Home() {
                 label: turn.final_label,
                 probe_type: turn.probe_type,
                 probe_text: (turn.probe_text || ""),
-                trace: turn.trace
+                trace: turn.trace,
+                probe_rationale: aj.probe?.rationale,
+                initial_score: aj.score,
+                final_score: turn.probe_type === 'None' ? aj.score : undefined,
+                final_rationale: turn.probe_type === 'None' ? aj.rationale : undefined,
             }
         ]);
         setLog((lines) => [...lines, ...turn.trace, "—"]);
@@ -215,6 +211,7 @@ export default function Home() {
             item_id: currentItem.item_id,
             label: turn.final_label,
             probe_type: turn.probe_type,
+            tags: aj.tags
         });
 
         const prompt = probeTextFromServer(turn);
@@ -240,9 +237,8 @@ export default function Home() {
         setPending(true);
 
         const lastHistory = history[history.length - 1];
-        if (!lastHistory) return; // Should not happen
+        if (!lastHistory) return;
 
-        // Construct the full transcript for the second pass
         const fullTranscript = {
             stimulus: lastHistory.text,
             user_initial_answer: lastHistory.answer,
@@ -252,7 +248,7 @@ export default function Home() {
 
         const tw = await callAJ({
             item: currentItem,
-            userResponse: probeInput, // Still needed for the body
+            userResponse: probeInput,
             fullTranscript,
         });
 
@@ -260,9 +256,9 @@ export default function Home() {
             sessionId,
             itemId: currentItem.item_id,
             ajMeasurement: awaitingProbe.pending.aj,
-            twMeasurement: tw, // This is the final judgment now
-            userResponse: lastHistory.answer, // For logging/transcript
-            probeResponse: probeInput, // For logging/transcript
+            twMeasurement: tw,
+            userResponse: lastHistory.answer,
+            probeResponse: probeInput,
         });
 
         setLog((lines) => [...lines, ...merged.trace, "—"]);
@@ -272,7 +268,13 @@ export default function Home() {
 
         setHistory((h) => {
             const last = h[h.length - 1];
-            const updated: HistoryEntry = { ...last, probe_answer: probeInput, label: merged.final_label };
+            const updated: HistoryEntry = {
+                ...last,
+                probe_answer: probeInput,
+                label: merged.final_label,
+                final_score: tw.score,
+                final_rationale: tw.rationale
+            };
             return [...h.slice(0, -1), updated];
         });
 
@@ -289,16 +291,12 @@ export default function Home() {
 
   // --- Session Management -----------------------------------------------------
 
-    // Function to update User ID in the database (called on input blur)
-const updateUserId = useCallback(async (newUserId: string) => {
+    const updateUserId = useCallback(async (newUserId: string) => {
         const trimmedId = newUserId.trim();
         if (!sessionId || trimmedId === userTag) return;
 
-        // Always update the local state optimistically.
-        // This ensures the ID is ready for the session creation on first submit.
         setUserTag(trimmedId);
 
-        // Only attempt to save to the DB if the session has already been created.
         if (isSessionLive) {
             try {
                 const res = await fetch('/api/update_session', {
@@ -312,7 +310,6 @@ const updateUserId = useCallback(async (newUserId: string) => {
                 }
             } catch (e) {
                 console.error("User ID update failed:", e);
-                // If update fails, revert the local state
                 setUserTag(userTag);
                 setUserIdInput(userTag);
                 alert("Error updating User ID.");
@@ -332,9 +329,8 @@ const updateUserId = useCallback(async (newUserId: string) => {
         setAwaitingProbe(null);
         setInput("");
         setProbeInput("");
-        setIsSessionLive(false); // Reset the session live status
+        setIsSessionLive(false);
 
-        // Use the current value of the input field when resetting
         const currentUserTag = userIdInput.trim() === '' ? null : userIdInput.trim();
         setUserTag(currentUserTag || "");
         setTheta({ mean: 0, se: Math.sqrt(1.5) });
@@ -363,7 +359,6 @@ const updateUserId = useCallback(async (newUserId: string) => {
 
   if (!currentItem) {
     if (history.length > 0 && !pending) {
-        // Completion Screen (Remains the same, centered layout)
         return (
             <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
                 <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground mb-6">Assessment Complete</h1>
@@ -387,21 +382,15 @@ const updateUserId = useCallback(async (newUserId: string) => {
 
   // --- render (The Focused Interview Layout) -----------------------------------------------------------------
   return (
-    // Use a wider max-width (max-w-6xl) for the two-column layout
     <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
 
-       {/* Header */}
        <header className="flex justify-between items-center mb-8">
             <div>
                 <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground">
                     Reasoning Interviewer
                 </h1>
-                <p className="text-base text-muted-foreground">
-                    Demo—Pillar 2, Module 1, Triage Questions Only
-                </p>
             </div>
             <div className="flex items-center gap-4">
-                {/* Sidebar Toggle Button */}
                 <button
                     className="px-4 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
                     onClick={() => setIsSidebarVisible(!isSidebarVisible)}
@@ -413,33 +402,17 @@ const updateUserId = useCallback(async (newUserId: string) => {
        </header>
 
 
-       {/* Main Grid Layout (Responsive) */}
        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-            {/* Main Content Area (8 columns) */}
-            {/* When sidebar is hidden, this area expands to 12 columns */}
             <main className={`transition-all duration-300 ${isSidebarVisible ? 'lg:col-span-8' : 'lg:col-span-12 max-w-4xl mx-auto w-full'}`}>
 
-                {/* Main Assessment Card */}
                 <section className="bg-card shadow-lg border border-border rounded-xl p-6 mb-8">
 
-                    {/* Question Prompt */}
                     <Prose>{currentItem.text}</Prose>
 
                     {!awaitingProbe && (
- <form
-                      onSubmit={onSubmit}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          const el = e.target as HTMLElement | null;
-                          const tag = el?.tagName;
-                          const isTextarea = tag === 'TEXTAREA';
-                          const isButton = tag === 'BUTTON';
-                          // Allow newlines in textareas and allow keyboard activation on the submit button.
-                          if (!isTextarea && !isButton) e.preventDefault();
-                        }
-                      }}
-                    >                        <textarea
+                    <form onSubmit={onSubmit}>
+                        <textarea
                         ref={inputRef}
                         className="w-full px-4 py-3 text-base border border-input-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 ease-in-out resize-vertical"
                         value={input}
@@ -462,30 +435,16 @@ const updateUserId = useCallback(async (newUserId: string) => {
                     )}
 
                     {awaitingProbe && (
- <form
-                     onSubmit={onSubmitProbe}
-                     onKeyDown={(e) => {
-                       if (e.key === 'Enter') {
-                         const el = e.target as HTMLElement | null;
-                         const tag = el?.tagName;
-                         const isTextarea = tag === 'TEXTAREA';
-                         const isButton = tag === 'BUTTON';
-                         if (!isTextarea && !isButton) e.preventDefault();
-                       }
-                     }}
-                   >
-                        {/* Probe Styling (Blue highlight) */}
+                    <form onSubmit={onSubmitProbe}>
                         <div className="bg-primary-light border border-primary-border text-primary-text p-4 rounded-lg italic mb-4">
                             {awaitingProbe.prompt}
                         </div>
-                        <textarea
+                        <input
                         ref={probeInputRef}
                         className="w-full px-4 py-3 text-base border border-input-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 ease-in-out"
                         value={probeInput}
-                         onChange={(e) => setProbeInput(e.target.value)}
-                       placeholder="Your follow-up (multi-line OK)"
-                       rows={3}
-
+                        onChange={(e) => setProbeInput(e.target.value)}
+                        placeholder="One sentence"
                         />
                         <div className="flex flex-wrap gap-3 mt-4">
                         <button type="submit" className="px-6 py-2 text-base font-semibold rounded-lg shadow-sm bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition duration-150" disabled={pending}>
@@ -496,46 +455,39 @@ const updateUserId = useCallback(async (newUserId: string) => {
                     )}
                 </section>
 
-                {/* Transcript History (Collapsible, Closed by Default, In Main Column) */}
                 {history.length > 0 && (
                     <CollapsibleSection title="Transcript History" className="bg-card shadow-sm">
-                        <div className="space-y-8">
-                            {history.map((h, index) => (
-                            <div key={`${h.item_id}-${index}`} className="border-t border-border pt-6 first:pt-0 first:border-t-0">
-                                <div className="flex justify-between items-center mb-4">
-                                    <strong className="text-foreground">Item: {h.item_id}</strong>
-                                    {/* Color-coded correctness tag */}
-                                    <span className={`text-sm font-medium px-3 py-1 rounded-full ${h.label === 'Correct' ? 'bg-green-100 text-green-800' : ['Incomplete', 'Flawed', 'Ambiguous'].includes(h.label) ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                        {h.label}
-                                    </span>
-                                </div>
-
-                                {/* Transcript View */}
-                                <div className="space-y-4">
-                                    <div className="text-muted-foreground">
-                                        <strong className="block mb-1 text-foreground">Interviewer:</strong>
-                                        <Prose size="sm">{h.text}</Prose>
+                        <div className="space-y-4 text-sm">
+                            {history.map((entry, idx) => (
+                                <div key={idx} className="p-3 bg-background rounded-lg border border-border">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
+                                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${entry.label === 'Correct' ? 'bg-green-100 text-green-800' : ['Incomplete', 'Flawed', 'Ambiguous'].includes(entry.label) ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                            {entry.label}
+                                        </span>
                                     </div>
-                                    <div className="p-3 bg-gray-50 rounded-lg">
-                                        <strong className="block mb-1 text-foreground">Subject:</strong>
-                                        <p className="italic text-foreground">{h.answer}</p>
+                                    <div className="prose prose-sm max-w-none"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
+
+                                    <div className="mt-2 p-2 bg-white border rounded-md">
+                                        <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
                                     </div>
 
-                                    {h.probe_type !== "None" && h.probe_text && (
-                                        <div className="text-muted-foreground">
-                                            <strong className="block mb-1 text-foreground">Interviewer (Probe):</strong>
-                                            <p className="text-sm italic">{h.probe_text}</p>
+                                    {entry.probe_answer ? (
+                                        <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
+                                            <p className="font-semibold">Probe ({entry.probe_type}): <span className="italic">{entry.probe_text}</span></p>
+                                            {entry.probe_rationale && <p className="text-xs mt-1">Rationale: {entry.probe_rationale}</p>}
+                                            <p className="mt-2"><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
                                         </div>
-                                    )}
+                                    ) : null}
 
-                                    {h.probe_answer && (
-                                         <div className="p-3 bg-gray-50 rounded-lg">
-                                            <strong className="block mb-1 text-foreground">Subject (Response):</strong>
-                                            <p className="italic text-foreground">{h.probe_answer}</p>
+                                    {entry.final_score !== undefined && (
+                                        <div className="mt-2 p-2 bg-gray-100 border rounded-md">
+                                            <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
+                                            <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
+                                            {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}
                                         </div>
                                     )}
                                 </div>
-                            </div>
                             ))}
                         </div>
                     </CollapsibleSection>
@@ -543,11 +495,8 @@ const updateUserId = useCallback(async (newUserId: string) => {
 
             </main>
 
-            {/* Sidebar (4 columns, Conditionally Rendered) */}
-            {/* The sidebar slides in/out based on visibility state */}
             <aside className={`lg:col-span-4 transition-all duration-300 ease-in-out ${isSidebarVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full lg:hidden'}`}>
                 <div className="space-y-6">
-                    {/* User ID Input */}
                     <div className="p-4 bg-card border border-border rounded-xl shadow-sm">
                         <label className="text-base font-medium text-foreground block mb-2">User ID (optional)</label>
                         <div className="flex items-center gap-3">
@@ -555,35 +504,29 @@ const updateUserId = useCallback(async (newUserId: string) => {
                                 className={`flex-grow px-3 py-2 text-base border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                                 value={userIdInput}
                                 onChange={(e) => setUserIdInput(e.target.value)}
-// Also update when the user presses Enter
+                                onBlur={(e) => updateUserId(e.target.value)}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
-                                        e.preventDefault(); // prevent form submission
+                                        e.preventDefault();
                                         updateUserId((e.target as HTMLInputElement).value);
-                                        (e.target as HTMLInputElement).blur(); // remove focus
+                                        (e.target as HTMLInputElement).blur();
                                     }
                                 }}
-                                // Update the database when the user stops typing and leaves the field (onBlur)
-                                onBlur={(e) => updateUserId(e.target.value)}
                                 placeholder="Enter ID"
                                 readOnly={userIdInput === userTag && userTag !== ""}
-
                             />
-                            {/* Visual confirmation when saved (input value matches the saved userTag) */}
                             {userIdInput === userTag && userTag !== "" && (
-                             <>
+                                <>
                                     <svg className="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <title>ID Saved</title>
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
                                     <button onClick={() => setUserTag("")} className="text-xs text-muted-foreground hover:text-foreground">Edit</button>
                                 </>
-                        )}
-</div>
+                            )}
+                        </div>
                     </div>
 
-
-                    {/* Session Info (Collapsible, Closed by Default) */}
                     <CollapsibleSection title="Session Info" titleSize="sm" className="bg-card shadow-sm">
                         <div className="flex flex-wrap gap-3">
                             <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full"><strong>θ</strong> {theta.mean.toFixed(2)}</span>
@@ -594,14 +537,12 @@ const updateUserId = useCallback(async (newUserId: string) => {
                          <p className="text-xs text-muted-foreground mt-3">Session ID: {sessionId}</p>
                     </CollapsibleSection>
 
-                    {/* Current Item Guidance (Collapsible, Closed by Default) */}
                     <CollapsibleSection title="Item Guidance (AJ)" titleSize="sm" className="bg-card shadow-sm">
                         <div className="font-mono text-sm bg-gray-800 text-gray-400 rounded-lg p-4 whitespace-pre-wrap overflow-auto max-h-60 shadow-inner">
                             {bank.schema_features[currentItem.schema_id]?.aj_guidance || "No specific guidance."}
                         </div>
                     </CollapsibleSection>
 
-                    {/* Session Trace (Collapsible, Closed by Default) */}
                     <CollapsibleSection title="Session Trace (Debug)" titleSize="sm" className="bg-card shadow-sm">
                         <div className="font-mono text-sm bg-gray-900 text-blue-200 rounded-lg p-4 whitespace-pre-wrap overflow-auto max-h-80 shadow-inner">
                             {log.length === 0 ? "Trace log is empty." : log.join("\n")}

@@ -555,7 +555,8 @@ const updateUserId = useCallback(async (newUserId: string) => {
                                     </svg>
                                     <button onClick={() => setUserTag("")} className="text-xs text-muted-foreground hover:text-foreground">Edit</button>
                                 </>
-                        </div>
+                        )}
+</div>
                     </div>
 
 

@@ -1,0 +1,62 @@
+diff --git a/pages/index.tsx b/pages/index.tsx
+--- a/pages/index.tsx
++++ b/pages/index.tsx
+@@ -52,7 +52,7 @@ export default function Home() {
+   // Refs for dynamic autofocus
+   const inputRef = useRef<HTMLTextAreaElement>(null);
+-  const probeInputRef = useRef<HTMLInputElement>(null);
++  const probeInputRef = useRef<HTMLTextAreaElement>(null);
+ 
+@@ -116,7 +116,19 @@ export default function Home() {
+-                    <form onSubmit={onSubmit}>
++                    <form
++                      onSubmit={onSubmit}
++                      onKeyDown={(e) => {
++                        if (e.key === 'Enter') {
++                          const el = e.target as HTMLElement | null;
++                          const tag = el?.tagName;
++                          const isTextarea = tag === 'TEXTAREA';
++                          const isButton = tag === 'BUTTON';
++                          // Allow newlines in textareas and allow keyboard activation on the submit button.
++                          if (!isTextarea && !isButton) e.preventDefault();
++                        }
++                      }}
++                    >
+                       <textarea
+                         ref={inputRef}
+                         className="w-full px-4 py-3 text-base border border-input-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 ease-in-out resize-vertical"
+                         value={input}
+                         onChange={(e) => setInput(e.target.value)}
+                         placeholder="Your answer (few words or one sentence)"
+                         rows={3}
+                       />
+@@ -153,7 +165,19 @@ export default function Home() {
+-                   <form onSubmit={onSubmitProbe}>
++                   <form
++                     onSubmit={onSubmitProbe}
++                     onKeyDown={(e) => {
++                       if (e.key === 'Enter') {
++                         const el = e.target as HTMLElement | null;
++                         const tag = el?.tagName;
++                         const isTextarea = tag === 'TEXTAREA';
++                         const isButton = tag === 'BUTTON';
++                         if (!isTextarea && !isButton) e.preventDefault();
++                       }
++                     }}
++                   >
+                      {/* Probe Styling (Blue highlight) */}
+                      <div className="bg-primary-light border border-primary-border text-primary-text p-4 rounded-lg italic mb-4">
+                        {awaitingProbe.prompt}
+                      </div>
+-                     <input
++                     <textarea
+                        ref={probeInputRef}
+                        className="w-full px-4 py-3 text-base border border-input-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 ease-in-out"
+                        value={probeInput}
+-                       onChange={(e) => setProbeInput(e.target.value)}
+-                       placeholder="One sentence"
+-                       />
++                       onChange={(e) => setProbeInput(e.target.value)}
++                       placeholder="Your follow-up (multi-line OK)"
++                       rows={3}
++                     />

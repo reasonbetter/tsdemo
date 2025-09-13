@@ -225,6 +225,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             // SECOND PASS (after a probe)
             trace.push("This is a second pass after a probe answer.");
             const finalAj = twMeasurement;
+            const thetaStateBefore = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
             finalLabel = finalAj.label;
             probe = { intent: 'None', text: '', source: 'policy' };
 
@@ -246,6 +247,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             if (lastEntry) {
                 lastEntry.probe_answer = probeResponse;
                 lastEntry.label = finalLabel;
+                lastEntry.theta_state_before = thetaStateBefore;
                 lastEntry.final_score = finalAj.score;
                 lastEntry.final_rationale = finalAj.rationale || "";
             }
@@ -260,6 +262,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
             // DO NOT update theta yet.
             if (probe.intent === 'None') {
+                const thetaStateBefore = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
                 // No probe, so this turn is over. Update theta and select next item.
                 const { thetaMeanNew: tm, thetaVarNew: tv, trace: t2 } = calculateThetaUpdate(session.thetaMean, session.thetaVar, item, ajMeasurement.score);
                 thetaMeanNew = tm;
@@ -272,6 +275,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 const { next, trace: t3 } = selectNextItem({ askedItemIds: updatedAskedItemIds });
                 nextItemId = next ? next.item_id : null;
                 trace.push(...t3);
+ // Since this turn is over, we can record the theta change in the transcript
+                const lastEntry = transcript[transcript.length - 1];
+                if (lastEntry) {
+                    lastEntry.theta_state_before = thetaStateBefore;
+                    lastEntry.final_score = ajMeasurement.score;
+                    lastEntry.final_rationale = ajMeasurement.rationale;
+                }
             } else {
                 nextItemId = item.item_id; // Stay on the same item to await probe response.
             }
@@ -285,6 +295,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 probe_type: probe.intent,
                 probe_text: probe.text,
                 trace: trace,
+                initial_tags: (ajMeasurement as any).tags, // Capture initial tags
                 final_score: probe.intent === 'None' ? ajMeasurement.score : undefined,
                 final_rationale: probe.intent === 'None' ? ajMeasurement.rationale : undefined,
             };

@@ -36,7 +36,7 @@
   },
   "items": [
     {
-      "item_id": "P2_M1_T1_MusicMath",
+      "item_id": "P2_M1_T1_I1_MusicMath",
       "schema_id": "P2_M1_S1_ConfounderGen",
       "a": 1.1,
       "b": 0.2,
@@ -44,7 +44,7 @@
       "text": "A study found that children who take music lessons have higher math scores, on average, than children who do not.\n\nGive two *different* reasons (other than music helping math) why this link might be true.\n\n(Keep each reason to a sentence or two.)"
     },
     {
-        "item_id": "P2_M1_T2_HeartMedication",
+        "item_id": "P2_M1_T2_I1_HeartMedication",
         "schema_id": "P2_M1_S2_Indication",
         "a": 1.3,
         "b": 0.8,
@@ -52,7 +52,7 @@
         "text": "A large hospital reviews its records and finds that patients who receive a new, expensive heart medication have *worse* survival rates than those who receive the old, standard medication.\n\nName one reason why the patients getting the new medication might have been different from the start, which could explain this result.\n\n(Answer in a sentence or two.)"
     },
     {
-        "item_id": "P2_M1_T3_MentorshipSuppression",
+        "item_id": "P2_M1_T3_I1_MentorshipSuppression",
         "schema_id": "P2_M1_S3_BiasDirection_Suppression",
         "a": 1.4,
         "b": 1.1,
@@ -60,7 +60,7 @@
         "text": "A university introduced an optional mentorship program for new teachers to improve their career success. The results showed very little difference between those who joined the program and those who didn't.\n\nWe learn that teachers who felt they were struggling the most were the ones most likely to sign up for the mentorship.\n\nDoes this fact suggest the program is actually better or worse than the study results make it look?\n\nAnswer and briefly explain in a sentence or two."
     },
     {
-        "item_id": "P2_M1_T4_AnxietyProcrastination",
+        "item_id": "P2_M1_T4_I1_AnxietyProcrastination",
         "schema_id": "P2_M1_S4_ReciprocalCausation",
         "a": 1.2,
         "b": 0.5,
@@ -68,7 +68,7 @@
         "text": "We observe that students who are highly anxious often procrastinate (delay starting work).\n\nImagine a student is anxious and starts procrastinating on an important assignment. If their anxiety and their procrastination both get worse over time, how would you describe the cause? \n\n(Answer in one or two sentences.)"
     },
     {
-        "item_id": "P2_M1_T5_JobTraining",
+        "item_id": "P2_M1_T5_I1_JobTraining",
         "schema_id": "P2_M1_S5_Temporality",
         "a": 1.5,
         "b": 0.1,
@@ -76,7 +76,7 @@
         "text": "We are comparing a new job training program (Group A) to an old one (Group B). People chose which one to join. We want to know which program leads to a better employment rate one year later.\n\nTo make the comparison fair, which of these is important to make the same between the groups?\n1. 1.The participants' years of experience **before** the program started.\n2. 2.The number of job applications participants sent out **during** the program.\n3. Or both? \n\n(Answer and briefly explain why in a sentence or two.)"
     },
     {
-        "item_id": "P2_M1_T6_SATPrep",
+        "item_id": "P2_M1_T6_I1_SATPrep",
         "schema_id": "P2_M1_S6_BiasDirection_Inflation",
         "a": 1.0,
         "b": -0.5,
@@ -84,7 +84,7 @@
         "text": "A high school offers an optional SAT prep course. Students who take it score much higher on the SAT than those who don't.\n\nWe learn that the course costs $500.\n\nDoes this cost suggest the study is making the course look more effective or less effective than it truly is?\n\n(Answer and briefly explain in a sentence or two.)"
     },
     {
-        "item_id": "P2_M1_T7_HospitalError",
+        "item_id": "P2_M1_T7_I1_HospitalError",
         "schema_id": "P2_M1_S7_UpstreamIntervention",
         "a": 1.3,
         "b": 0.6,
@@ -92,7 +92,7 @@
         "text": "A patient received the wrong medication because the nurse misread the doctor's bad handwriting.\n\nWhat is the most effective way for the hospital to prevent this type of error in the future?\n\n(Answer in a sentence or two.)"
     },
     {
-        "item_id": "P2_M1_T8_MedicationDose",
+        "item_id": "P2_M1_T8_I1_MedicationDose",
         "schema_id": "P2_M1_S8_NonLinearity",
         "a": 1.4,
         "b": 0.4,

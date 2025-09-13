@@ -27,8 +27,8 @@ Return JSON with four items:
 
 - 1. score: A single float from 0.0 (completely incorrect) to 1.0 (perfect).
     SCORE GUIDANCE:
-    - 1.0: Perfect, concise, and requires no follow-up.
-    - 0.7-0.9: Mostly correct, but could be clearer or more detailed.
+    - 1.0: Reflects perfect mastery of the target reasoning skill, and requires no follow-up.
+    - 0.7-0.9: Reflects some unclarity or lack of mastery.
     - 0.4-0.6: Contains a mix of correct and incorrect elements.
     - 0.1-0.3: Fundamentally incorrect, but shows some understanding of the question.
     - 0.0: Completely incorrect or off-topic.

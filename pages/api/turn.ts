@@ -116,7 +116,7 @@ function finalizeLabelAndProbe(item: ItemInstance, aj: AJJudgment, schemaFeature
     const tags = aj.tags || [];
     const moveOK = req.every(requiredMove => tags.includes(requiredMove));
     const pitfalls = tags.filter(tag => !req.includes(tag));
-+    if (pitfalls.length) trace.push(`Pitfalls found: ${pitfalls.join(", ")}`);
+    if (pitfalls.length) trace.push(`Pitfalls found: ${pitfalls.join(", ")}`);
     if (req.length) trace.push(`Required moves present? ${moveOK} (need ≥${CFG.tau_required_move})`);
 
     // Evidence sufficiency → no probe

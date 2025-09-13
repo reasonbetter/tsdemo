@@ -55,8 +55,8 @@ Return JSON with four items:
           - If the answer was incomplete or unclear, you can ask for completion or specificity (e.g., "Could you explain why?", "Could you be more specific?").
           - If a list was required, you can ask for the missing item (e.g., "Please add one more reason or explain how your answer gives two reasons").
           - If a phrase was unclear, you can ask for clarification on that phrase (e.g., "Can you explain what you meant by 'X'?").
-          - If the answer was flawed or incorrect, ask for elaboration in a neutral way (e.g., "Could you elaborate on that?").
-        
+          - If the answer was flawed, or off-topic, or incorrect & very brief, you can ask in a neutral way for the user to say more (e.g., "Could you elaborate on that?").
+
 - 4. "rationale": A brief, one-sentence explanation for why you are probing (for logs, not shown to user).
 `;     
 

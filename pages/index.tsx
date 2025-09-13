@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import bankData from "@/data/itemBank.json";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
-  ItemBank, ItemInstance, AJJudgment, AJFeatures, ProbeIntent, TurnResult, ThetaState, HistoryEntry, AJLabel
+  ItemBank, ItemInstance, AJJudgment, ProbeIntent, TurnResult, ThetaState, HistoryEntry, AJLabel
 } from '@/types/assessment';
 
 const bank: ItemBank = bankData as ItemBank;
@@ -29,7 +29,7 @@ export default function Home() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionInitialized, setSessionInitialized] = useState(false);
   const [userTag, setUserTag] = useState("");
-// New state to track if the session has been saved to the DB
+  // New state to track if the session has been saved to the DB
   const [isSessionLive, setIsSessionLive] = useState(false);
   // State for the User ID input field itself
   const [userIdInput, setUserIdInput] = useState("");
@@ -72,13 +72,12 @@ export default function Home() {
   );
 
   // --- helpers, API calls, submit handlers ----------------------------------------------------------------
-  // (Helper functions remain the same, implementation omitted for brevity)
     function probePromptFor(type: ProbeIntent): string {
-        if (type === "Mechanism") return "One sentence: briefly explain the mechanism.";
-        if (type === "Alternative") return "In a few words: give one different explanation.";
-        if (type === "Boundary") return "One sentence: name a condition where your conclusion would fail.";
+        if (type === "Improvement") return "Could you refine that answer a little?";
         if (type === "Completion") return "Can you give one more different reason?";
         if (type === "Clarify") return "In one sentence: clarify what you meant.";
+        if (type === "Alternative") return "In a few words: give one different explanation.";
+        if (type === "Boundary") return "One sentence: name a condition where your conclusion would fail.";
         return "";
     }
 
@@ -108,26 +107,24 @@ export default function Home() {
         } catch {}
     }
 
-    async function callAJ({ item, userResponse, twType = null }: { item: ItemInstance, userResponse: string, twType?: ProbeIntent | null }): Promise<AJJudgment> {
+    async function callAJ({ item, userResponse, fullTranscript = null }: { item: ItemInstance, userResponse: string, fullTranscript?: any | null }): Promise<AJJudgment> {
         try {
-             const schemaFeatures = bank.schema_features[item.schema_id] || {};
+            const schemaFeatures = bank.schema_features[item.schema_id] || {};
             const ajGuidance = schemaFeatures.aj_guidance || undefined;
 
-            const features: AJFeatures = {
+            const features = {
                 schema_id: item.schema_id,
                 item_id: item.item_id,
                 band: item.band,
                 item_params: { a: item.a, b: item.b },
-                expect_direction_word: item.schema_id.startsWith("P2_M1_S3") || item.schema_id.startsWith("P2_M1_S6"),
-                expected_list_count: item.schema_id.startsWith("P2_M1_S1") ? 2 : undefined,
-                tw_type: twType,
+                // These are no longer used in the simplified prompt
                 aj_guidance: ajGuidance
             };
 
             const res = await fetch("/api/aj", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ item, userResponse, features })
+                body: JSON.stringify({ item, userResponse, features, full_transcript: fullTranscript })
             });
             if (!res.ok) {
                 const text = await res.text();
@@ -137,20 +134,18 @@ export default function Home() {
         } catch (e) {
             alert(`AJ error: ${(e as Error).message}`);
              return {
-                score: 0.0,
-                final_label: "Novel",
-                tags: [],
-                probe: { intent: "None", text: "", rationale: "", confidence: 0.0 }
+                score: 0.0, // Default score on error
+                label: "Off_Topic", // Default label on error
             };
         }
     }
 
-    async function callTurn({ sessionId, itemId, ajMeasurement, twMeasurement = null, userResponse, probeResponse, probeType }: { sessionId: string, itemId: string, ajMeasurement: AJJudgment, twMeasurement?: AJJudgment | null, userResponse: string, probeResponse?: string, probeType?: ProbeIntent }): Promise<TurnResult> {
+    async function callTurn({ sessionId, itemId, ajMeasurement, twMeasurement, userResponse, probeResponse }: { sessionId: string, itemId: string, ajMeasurement: AJJudgment, twMeasurement?: AJJudgment, userResponse: string, probeResponse?: string }): Promise<TurnResult> {
         try {
             const res = await fetch("/api/turn", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sessionId, itemId, ajMeasurement, twMeasurement, userResponse, probeResponse, probeType })
+                body: JSON.stringify({ sessionId, itemId, ajMeasurement, twMeasurement, userResponse, probeResponse })
             });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
@@ -162,7 +157,7 @@ export default function Home() {
             const nextSafe =
                 bank.items.find((it) => it.item_id !== itemId)?.item_id || itemId;
             return {
-                final_label: "Novel",
+                final_label: "Off_Topic",
                 probe_type: "None",
                 probe_text: "",
                 next_item_id: nextSafe,
@@ -179,7 +174,7 @@ export default function Home() {
         if (!input.trim() || pending || !currentItem || !sessionId) return;
         setPending(true);
 
-// If this is the first submission, create the session in the DB first
+        // If this is the first submission, create the session in the DB first
         if (!isSessionLive) {
             try {
                 const res = await fetch('/api/create_session', {
@@ -215,13 +210,12 @@ export default function Home() {
             }
         ]);
         setLog((lines) => [...lines, ...turn.trace, "—"]);
-        setTheta({ mean: Number(turn.theta_mean.toFixed(2)), se: Number(Math.sqrt(turn.theta_var).toFixed(2)) });
+        setTheta({ mean: turn.theta_mean, se: Math.sqrt(turn.theta_var) });
 
         await logEvent("item_answered", {
             item_id: currentItem.item_id,
             label: turn.final_label,
             probe_type: turn.probe_type,
-            tags: aj.tags
         });
 
         const prompt = probeTextFromServer(turn);
@@ -247,32 +241,39 @@ export default function Home() {
         setPending(true);
 
         const lastHistory = history[history.length - 1];
-        if (!lastHistory) return; 
-      
+        if (!lastHistory) return; // Should not happen
+
+        // Construct the full transcript for the second pass
+        const fullTranscript = {
+            stimulus: lastHistory.text,
+            user_initial_answer: lastHistory.answer,
+            probe_question: lastHistory.probe_text,
+            user_final_answer: probeInput,
+        };
+
         const tw = await callAJ({
             item: currentItem,
-            userResponse: probeInput,
-            twType: awaitingProbe.probeType
+            userResponse: probeInput, // Still needed for the body
+            fullTranscript,
         });
 
         const merged = await callTurn({
             sessionId,
             itemId: currentItem.item_id,
             ajMeasurement: awaitingProbe.pending.aj,
-            twMeasurement: tw,
-            userResponse: lastHistory.answer,
-            probeResponse: probeInput,
-            probeType: awaitingProbe.probeType,
+            twMeasurement: tw, // This is the final judgment now
+            userResponse: lastHistory.answer, // For logging/transcript
+            probeResponse: probeInput, // For logging/transcript
         });
 
         setLog((lines) => [...lines, ...merged.trace, "—"]);
-        setTheta({ mean: Number(merged.theta_mean.toFixed(2)), se: Number(Math.sqrt(merged.theta_var).toFixed(2)) });
+        setTheta({ mean: merged.theta_mean, se: Math.sqrt(merged.theta_var) });
 
         setCurrentId(merged.next_item_id || "");
 
         setHistory((h) => {
             const last = h[h.length - 1];
-            const updated: HistoryEntry = { ...last, probe_answer: probeInput, probe_label: awaitingProbe.probeType };
+            const updated: HistoryEntry = { ...last, probe_answer: probeInput, label: merged.final_label };
             return [...h.slice(0, -1), updated];
         });
 
@@ -332,10 +333,8 @@ export default function Home() {
         // Use the current value of the input field when resetting
         const currentUserTag = userIdInput.trim() === '' ? null : userIdInput.trim();
         setUserTag(currentUserTag || "");
-
-  setTheta({ mean: 0, se: Math.sqrt(1.5) });
-   setSessionInitialized(true);
-
+        setTheta({ mean: 0, se: Math.sqrt(1.5) });
+        setSessionInitialized(true);
     }
 
     async function endSession() {
@@ -366,7 +365,7 @@ export default function Home() {
                 <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground mb-6">Assessment Complete</h1>
                 <div className="bg-card shadow-sm border border-border rounded-xl p-6 mb-6">
                     <p className="text-lg mb-4">Thank you for participating. Your session has ended.</p>
-                    <p className="text-lg font-semibold">Final Theta Estimate: {theta.mean} (SE: {theta.se})</p>
+                    <p className="text-lg font-semibold">Final Theta Estimate: {theta.mean.toFixed(2)} (SE: {theta.se.toFixed(2)})</p>
                 </div>
                 <div className="flex gap-4">
                     <button className="px-6 py-2 text-base font-semibold rounded-lg shadow-sm bg-primary text-white hover:bg-primary-hover transition duration-150" onClick={initializeSession}>Start New Session</button>
@@ -478,7 +477,7 @@ export default function Home() {
                                 <div className="flex justify-between items-center mb-4">
                                     <strong className="text-foreground">Item: {h.item_id}</strong>
                                     {/* Color-coded correctness tag */}
-                                    <span className={`text-sm font-medium px-3 py-1 rounded-full ${h.label.startsWith('Correct') ? 'bg-green-100 text-green-800' : h.label === 'Partial' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                    <span className={`text-sm font-medium px-3 py-1 rounded-full ${h.label === 'Correct' ? 'bg-green-100 text-green-800' : ['Incomplete', 'Flawed', 'Ambiguous'].includes(h.label) ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
                                         {h.label}
                                     </span>
                                 </div>
@@ -535,9 +534,9 @@ export default function Home() {
                             {/* Visual confirmation when saved (input value matches the saved userTag) */}
                             {userIdInput === userTag && userTag !== "" && (
                               <svg className="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-  <title>ID Saved</title>
-  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-</svg>
+                                <title>ID Saved</title>
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
                             )}
                         </div>
                     </div>
@@ -546,8 +545,8 @@ export default function Home() {
                     {/* Session Info (Collapsible, Closed by Default) */}
                     <CollapsibleSection title="Session Info" titleSize="sm" className="bg-card shadow-sm">
                         <div className="flex flex-wrap gap-3">
-                            <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full"><strong>θ</strong> {theta.mean}</span>
-                            <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full"><strong>SE</strong> {theta.se}</span>
+                            <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full"><strong>θ</strong> {theta.mean.toFixed(2)}</span>
+                            <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full"><strong>SE</strong> {theta.se.toFixed(2)}</span>
                             <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full">Item: {currentItem.item_id}</span>
                             <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full">Tag: {bank.schema_features[currentItem.schema_id]?.coverage_tag}</span>
                         </div>

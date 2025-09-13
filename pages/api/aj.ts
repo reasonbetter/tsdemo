@@ -36,7 +36,7 @@ Return JSON with four items:
     - Do not base your score on style, grammar, or writing ability: use SUBSTANCE not SUPERFICIAL PRESENTATION. 
 
 - 2. label: Your categorical assessment, chosen from ONE of the following:
-    - "Correct": The answer is sufficient and well-reasoned.
+    - "Correct": The answer is excellent and well-reasoned.
     - "Incomplete": The answer is on the right track but misses a key component.
     - "Flawed": The answer contains a correct element but also a clear conceptual error.
     - "Incorrect": The answer is relevant to the question but is conceptually wrong.
@@ -44,7 +44,10 @@ Return JSON with four items:
     - "Off_Topic": The answer is irrelevant, nonsensical, or incoherent.
 
 - 3. probe: An object for your follow-up question.
+    - Only probe if the answer is incomplete, flawed, unclear, or you have judged it incorrect but it's extremely brief. 
+    - If an answer is thoroughly correct, or clear and thoroughly incorrect, do not probe.
     - If no probe is needed, return: {"text": ""}
+
     - If a probe is needed, return an object with: "text": A brief, generic, one-sentence probe.
         PROBE TEXT GUIDANCE:
         - Your probe MUST NOT hint at the correct answer or reveal any flaw.

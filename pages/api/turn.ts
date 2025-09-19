@@ -131,8 +131,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             ? (session.transcript as unknown) as HistoryEntry[]
             : [];
 
-        const schemaFeat = bank.schema_features[item.schema_id] || {};
-
         let finalLabel: AJLabel;
         let probeText = "";
         let thetaMeanNew = session.thetaMean;
@@ -174,17 +172,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             trace.push("This is a first pass on an initial answer.");
             finalLabel = ajMeasurement.label;
             
-            // Determine if we should probe
-            const shouldProbe = ajMeasurement.score < (CONFIG.CFG.score_correct_threshold || 0.9) && ajMeasurement.label !== 'Incorrect' && ajMeasurement.probe && ajMeasurement.probe.text.trim().length > 0;
+            const shouldProbe = ajMeasurement.score < (CONFIG.CFG.score_correct_threshold || 0.9) && 
+                                finalLabel !== 'Incorrect' && 
+                                ajMeasurement.probe && 
+                                ajMeasurement.probe.text.trim().length > 0;
             
+            let final_score: number | undefined = undefined;
+            let final_rationale: string | undefined = undefined;
+            let theta_state_before: { mean: number, se: number } | undefined = undefined;
+
             if (shouldProbe) {
                 probeText = ajMeasurement.probe!.text;
                 trace.push(`AI recommended a probe: ${probeText}`);
                 nextItemId = item.item_id; // Stay on the same item
             } else {
-                // No probe, so this turn is over. Update theta and select next item.
                 trace.push("No probe needed. Finalizing turn.");
-                const thetaStateBefore = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
+                theta_state_before = { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
                 const { thetaMeanNew: tm, thetaVarNew: tv, trace: t2 } = calculateThetaUpdate(session.thetaMean, session.thetaVar, item, ajMeasurement.score);
                 thetaMeanNew = tm;
                 thetaVarNew = tv;
@@ -196,6 +199,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 const { next, trace: t3 } = selectNextItem({ askedItemIds: updatedAskedItemIds });
                 nextItemId = next ? next.item_id : null;
                 trace.push(...t3);
+                final_score = ajMeasurement.score;
+                final_rationale = ajMeasurement.rationale;
             }
 
             // Add new entry to Transcript
@@ -209,8 +214,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 probe_rationale: ajMeasurement.probe?.rationale,
                 initial_score: ajMeasurement.score,
                 initial_tags: (ajMeasurement as any).tags,
-                final_score: !shouldProbe ? ajMeasurement.score : undefined,
-                final_rationale: !shouldProbe ? ajMeasurement.rationale : undefined,
+                final_score: final_score,
+                final_rationale: final_rationale,
+                theta_state_before: theta_state_before,
             };
             transcript.push(newEntry);
         }

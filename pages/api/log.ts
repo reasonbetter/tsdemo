@@ -53,16 +53,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const take = parseInt(limit as string, 10);
 
       const sessions = await prisma.session.findMany({
-        orderBy: { updatedAt: 'desc' }, // Newest first
-        take: take,
-// Only fetch sessions that have a transcript with at least one entry.
-where: {
-  NOT: {
-    transcript: {
-      equals: []
-    }
-  }
-}
+        orderBy: { updatedAt: "desc" },
+        take,
+        // Only fetch sessions that have a transcript with at least one entry.
+        where: {
+          NOT: {
+            transcript: {
+              equals: [],
+            },
+          },
+        },
       });
 
       // Return the sessions; the frontend will format them.
@@ -85,13 +85,15 @@ where: {
     console.error("Log API error:", e);
     // Handle potential database errors
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        // Handle foreign key constraint violations (logging to a non-existent session)
-        if (e.code === 'P2003' && req.method === 'POST') {
-            // If the session doesn't exist, we shouldn't crash the assessment. Return 202 Accepted.
-            console.error(`Log failed due to invalid session_id: ${req.body?.session_id}`);
-            return res.status(202).json({ ok: false, message: "Ignored: Invalid session_id (FK constraint)." });
-        }
-        return res.status(503).json({ error: "Database error", details: e.message });
+      // Handle foreign key constraint violations (logging to a non-existent session)
+      if (e.code === "P2003" && req.method === "POST") {
+        // If the session doesn't exist, we shouldn't crash the assessment. Return 202 Accepted.
+        console.error(`Log failed due to invalid session_id: ${req.body?.session_id}`);
+        return res
+          .status(202)
+          .json({ ok: false, message: "Ignored: Invalid session_id (FK constraint)." });
+      }
+      return res.status(503).json({ error: "Database error", details: e.message });
     }
     return res.status(500).json({ error: "Internal server error", details: (e as Error).message });
   }

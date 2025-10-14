@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Session } from "@prisma/client";
 import { HistoryEntry, ThetaState } from "@/types/assessment";
 import ReactMarkdown from "react-markdown";
@@ -132,6 +132,7 @@ export default function Admin() {
 
       const data = await res.json();
       setSessions(parseSessions(data));
+      setSessions(Array.isArray(data.sessions) ? data.sessions : []);
     } catch (e) {
       console.error("Error fetching server logs:", e);
       setError(`Failed to load sessions: ${(e as Error).message}`);
@@ -142,6 +143,7 @@ export default function Admin() {
   }, []);
 
   const downloadJSON = useCallback((data: unknown[], source: string) => {
+  function downloadJSON(data: unknown[], source: string) {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -158,6 +160,17 @@ export default function Admin() {
 
     if (!confirmed) {
       return;
+  async function clearServer() {
+    if (confirm("Are you sure you want to delete ALL logs and sessions from the database? This cannot be undone.")) {
+        try {
+            const res = await fetch("/api/log", { method: "DELETE" });
+            if (!res.ok) throw new Error("Failed to clear database.");
+            const result = await res.json();
+            alert(result.message || "Database cleared.");
+            await refresh();
+        } catch (e) {
+            alert(`Failed to clear database: ${(e as Error).message}`);
+        }
     }
 
     try {

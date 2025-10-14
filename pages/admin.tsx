@@ -1,25 +1,101 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Session } from "@prisma/client";
 import { HistoryEntry, ThetaState } from "@/types/assessment";
 import ReactMarkdown from 'react-markdown';
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 
-// Helper component for displaying Theta change
-const ThetaChangeDisplay = ({ before, after }: { before?: ThetaState, after: ThetaState }) => {
-    if (!before) return null;
-    
-    const change = after.mean - before.mean;
-    const color = change > 0.005 ? 'text-green-600' : change < -0.005 ? 'text-red-600' : 'text-gray-500';
+type SessionWithTranscript = Session & { transcript: HistoryEntry[] };
 
-    return (
-        <span className={`font-mono text-sm font-semibold ${color}`}>
-            θ: {before.mean.toFixed(2)} → {after.mean.toFixed(2)}
-        </span>
-    );
+type DisplayTranscriptEntry = {
+  entry: HistoryEntry;
+  displayThetaBefore: ThetaState;
+  finalThetaState: ThetaState;
+};
+
+const DEFAULT_THETA_STATE: ThetaState = { mean: 0, se: Math.sqrt(1.5) };
+
+const sanitizeThetaState = (candidate: unknown, fallback: ThetaState): ThetaState => {
+  if (!candidate || typeof candidate !== "object") {
+    return fallback;
+  }
+
+  const { mean, se } = candidate as Partial<ThetaState>;
+  const safeMean = typeof mean === "number" ? mean : fallback.mean;
+  const safeSe = typeof se === "number" ? se : fallback.se;
+  return { mean: safeMean, se: safeSe };
+};
+
+const isHistoryEntry = (candidate: unknown): candidate is HistoryEntry => {
+  return Boolean(
+    candidate &&
+      typeof candidate === "object" &&
+      "text" in candidate &&
+      typeof (candidate as { text?: unknown }).text === "string"
+  );
+};
+
+const parseSessions = (payload: unknown): SessionWithTranscript[] => {
+  if (!payload || typeof payload !== "object") {
+    return [];
+  }
+
+  const maybeSessions = (payload as { sessions?: unknown }).sessions;
+  if (!Array.isArray(maybeSessions)) {
+    return [];
+  }
+
+  return maybeSessions.reduce<SessionWithTranscript[]>((acc, session) => {
+    if (!session || typeof session !== "object") {
+      return acc;
+    }
+
+    const transcript = Array.isArray((session as { transcript?: unknown }).transcript)
+      ? (session as { transcript: unknown[] }).transcript.filter(isHistoryEntry)
+      : [];
+
+    acc.push({ ...(session as Session), transcript });
+    return acc;
+  }, []);
+};
+
+const buildDisplayTranscript = (
+  session: SessionWithTranscript
+): DisplayTranscriptEntry[] => {
+  const sessionFallback = sanitizeThetaState(
+    { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) },
+    DEFAULT_THETA_STATE
+  );
+
+  return session.transcript.reduce<DisplayTranscriptEntry[]>((entries, entry, index, source) => {
+    const previousFinalTheta = entries.length
+      ? entries[entries.length - 1].finalThetaState
+      : DEFAULT_THETA_STATE;
+
+    const displayThetaBefore = sanitizeThetaState(entry.theta_state_before, previousFinalTheta);
+    const nextThetaCandidate = index < source.length - 1 ? source[index + 1].theta_state_before : sessionFallback;
+    const finalThetaState = sanitizeThetaState(nextThetaCandidate, sessionFallback);
+
+    entries.push({ entry, displayThetaBefore, finalThetaState });
+    return entries;
+  }, []);
+};
+
+// Helper component for displaying Theta change
+const ThetaChangeDisplay = ({ before, after }: { before?: ThetaState; after: ThetaState }) => {
+  if (!before) return null;
+
+  const change = after.mean - before.mean;
+  const color = change > 0.005 ? "text-green-600" : change < -0.005 ? "text-red-600" : "text-gray-500";
+
+  return (
+    <span className={`font-mono text-sm font-semibold ${color}`}>
+      θ: {before.mean.toFixed(2)} → {after.mean.toFixed(2)}
+    </span>
+  );
 };
 
 export default function Admin() {
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessions, setSessions] = useState<SessionWithTranscript[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
@@ -34,56 +110,65 @@ export default function Admin() {
     }
   };
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const res = await fetch("/api/log");
-      if (res.ok) {
-        const data = await res.json();
-        setSessions(data.sessions || []);
-      } else {
+      if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
+
+      const data = await res.json();
+      setSessions(parseSessions(data));
     } catch (e) {
       console.error("Error fetching server logs:", e);
       setError(`Failed to load sessions: ${(e as Error).message}`);
       setSessions([]);
-    }
+    } finally {
       setLoading(false);
+    }
+  }, []);
 
-  }
-
-  function downloadJSON(data: any[], source: string) {
+  const downloadJSON = useCallback((data: unknown[], source: string) => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `rb-server-logs-${Date.now()}.json`;
+    a.download = `${source}-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-  }
+  }, []);
 
-  async function clearServer() {
+  const clearServer = useCallback(async () => {
     if (confirm("Are you sure you want to delete ALL logs and sessions from the database? This cannot be undone.")) {
         try {
             const res = await fetch("/api/log", { method: "DELETE" });
             if (!res.ok) throw new Error("Failed to clear database.");
             const result = await res.json();
             alert(result.message || "Database cleared.");
-            refresh();
+            await refresh();
         } catch (e) {
             alert(`Failed to clear database: ${(e as Error).message}`);
         }
     }
-  }
+  }, [refresh]);
 
   useEffect(() => {
     if (isAuthenticated) {
         refresh();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, refresh]);
+
+  const displaySessions = useMemo(
+    () =>
+      sessions.map((session) => ({
+        session,
+        entries: buildDisplayTranscript(session),
+      })),
+    [sessions]
+  );
 
   if (!isAuthenticated) {
     return (
@@ -129,66 +214,74 @@ export default function Admin() {
       </div>
 
       <section className="space-y-2">
-            <h3 className="text-xl font-semibold px-2">Session Transcripts (latest {sessions.length})</h3>
-            {sessions.length === 0 && !loading && <p className="text-muted-foreground">No sessions found in the database.</p>}
+        <h3 className="text-xl font-semibold px-2">Session Transcripts (latest {sessions.length})</h3>
+        {sessions.length === 0 && !loading && <p className="text-muted-foreground">No sessions found in the database.</p>}
 
-            {sessions.map((session) => {
-                let thetaBefore = { mean: 0.0, se: Math.sqrt(1.5) };
-                const title = `${new Date(session.updatedAt).toLocaleString()} ${session.userTag ? `(User: ${session.userTag})` : ''}`;
-                const transcript = (session.transcript as unknown as HistoryEntry[]) || [];
-                
-                return (
-                    <CollapsibleSection key={session.id} title={title} className="bg-card shadow-sm" titleSize="xs">
-                        <div className="space-y-4 text-sm">
-                        {transcript.map((entry, idx) => {
-                            const finalThetaStateForThisTurn = (idx < transcript.length - 1) 
-                                ? transcript[idx+1].theta_state_before || { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) }
-                                : { mean: session.thetaMean, se: Math.sqrt(session.thetaVar) };
+        {displaySessions.map(({ session, entries }) => {
+          const title = `${new Date(session.updatedAt).toLocaleString()} ${session.userTag ? `(User: ${session.userTag})` : ""}`;
 
-                            const displayThetaBefore = entry.theta_state_before || thetaBefore;
-                            
-                            thetaBefore = finalThetaStateForThisTurn;
+          return (
+            <CollapsibleSection key={session.id} title={title} className="bg-card shadow-sm" titleSize="xs">
+              <div className="space-y-4 text-sm">
+                {entries.map(({ entry, displayThetaBefore, finalThetaState }, idx) => (
+                  <div key={idx} className="p-3 bg-background rounded-lg border border-border">
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
+                      <span
+                        className={`text-xs font-medium px-2 py-1 rounded-full ${
+                          entry.label === "Correct"
+                            ? "bg-green-100 text-green-800"
+                            : ["Incomplete", "Flawed", "Ambiguous"].includes(entry.label)
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {entry.label}
+                      </span>
+                    </div>
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown>{entry.text}</ReactMarkdown>
+                    </div>
 
-                            return (
-                                <div key={idx} className="p-3 bg-background rounded-lg border border-border">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
-                                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${entry.label === 'Correct' ? 'bg-green-100 text-green-800' : ['Incomplete', 'Flawed', 'Ambiguous'].includes(entry.label) ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                            {entry.label}
-                                        </span>
-                                    </div>
-                                    <div className="prose prose-sm max-w-none"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
-                                    
-                                    <div className="mt-2 p-2 bg-white border rounded-md">
-                                        <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
-                                    </div>
-                                    
-                                    {entry.probe_answer ? (
-                                        <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
-                                            <p className="font-semibold">Probe: <span className="italic">{entry.probe_text}</span></p>
-                                            {entry.probe_rationale && <p className="text-xs mt-1">Rationale: {entry.probe_rationale}</p>}
-                                            <p className="mt-2"><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
-                                        </div>
-                                    ) : null}
+                    <div className="mt-2 p-2 bg-white border rounded-md">
+                      <p>
+                        <strong>Answer:</strong> <span className="italic">{entry.answer}</span>
+                      </p>
+                    </div>
 
-                                    {entry.final_score !== undefined && (
-                                        <div className="mt-2 p-2 bg-gray-100 border rounded-md">
-                                            <div className="flex justify-between items-center">
-                                                <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
-                                                <ThetaChangeDisplay before={displayThetaBefore} after={finalThetaStateForThisTurn} />
-                                            </div>
-                                            <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
-                                            {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}
-                                        </div>
-                                    )}
-                                </div>
-                            )
-                        })}
+                    {entry.probe_answer ? (
+                      <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
+                        <p className="font-semibold">
+                          Probe: <span className="italic">{entry.probe_text}</span>
+                        </p>
+                        {entry.probe_rationale && <p className="text-xs mt-1">Rationale: {entry.probe_rationale}</p>}
+                        <p className="mt-2">
+                          <strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span>
+                        </p>
+                      </div>
+                    ) : null}
+
+                    {entry.final_score !== undefined && (
+                      <div className="mt-2 p-2 bg-gray-100 border rounded-md">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
+                          <ThetaChangeDisplay before={displayThetaBefore} after={finalThetaState} />
                         </div>
-                    </CollapsibleSection>
-                )
-            })}
-        </section>
+                        <p className="text-sm">
+                          <strong>Score:</strong> {Number(entry.final_score).toFixed(2)}
+                        </p>
+                        {entry.final_rationale && (
+                          <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CollapsibleSection>
+          );
+        })}
+      </section>
       
       <div className="mt-12 border-t border-border pt-6">
         <button className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 transition duration-150" onClick={clearServer}>

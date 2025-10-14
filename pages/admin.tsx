@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Session } from "@prisma/client";
 import { HistoryEntry, ThetaState } from "@/types/assessment";
 import ReactMarkdown from 'react-markdown';
@@ -34,33 +34,33 @@ export default function Admin() {
     }
   };
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const res = await fetch("/api/log");
-      if (res.ok) {
-        const data = await res.json();
-        setSessions(data.sessions || []);
-      } else {
+      if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
+
+      const data = await res.json();
+      setSessions(Array.isArray(data.sessions) ? data.sessions : []);
     } catch (e) {
       console.error("Error fetching server logs:", e);
       setError(`Failed to load sessions: ${(e as Error).message}`);
       setSessions([]);
-    }
+    } finally {
       setLoading(false);
+    }
+  }, []);
 
-  }
-
-  function downloadJSON(data: any[], source: string) {
+  function downloadJSON(data: unknown[], source: string) {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `rb-server-logs-${Date.now()}.json`;
+    a.download = `${source}-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -72,7 +72,7 @@ export default function Admin() {
             if (!res.ok) throw new Error("Failed to clear database.");
             const result = await res.json();
             alert(result.message || "Database cleared.");
-            refresh();
+            await refresh();
         } catch (e) {
             alert(`Failed to clear database: ${(e as Error).message}`);
         }
@@ -83,7 +83,7 @@ export default function Admin() {
     if (isAuthenticated) {
         refresh();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, refresh]);
 
   if (!isAuthenticated) {
     return (

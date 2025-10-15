@@ -195,15 +195,68 @@ export default function Admin() {
       return;
     }
 
+    const clearPassword = prompt(
+      "Enter the secondary admin password to confirm (case-sensitive):"
+    );
+
+    if (!clearPassword) {
+      alert("Clear cancelled: no password provided.");
+      return;
+    }
+
     try {
-      const res = await fetch("/api/log", { method: "DELETE" });
+      // Step 1: Dry-run to validate and preview counts
+      const dryRunRes = await fetch("/api/log?dryRun=true", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: clearPassword, dryRun: true }),
+      });
+
+      if (dryRunRes.status === 401) {
+        alert("You are not authorized. Please log in again.");
+        return;
+      }
+      if (dryRunRes.status === 403) {
+        alert("Invalid clear password.");
+        return;
+      }
+      if (!dryRunRes.ok) {
+        throw new Error("Failed to validate clear request.");
+      }
+
+      const dryData = await dryRunRes.json();
+      const logs = dryData?.counts?.logs ?? 0;
+      const sessionsToDelete = dryData?.counts?.sessions ?? 0;
+      const finalConfirm = confirm(
+        `Password valid. This action will permanently delete ${logs} logs and ${sessionsToDelete} sessions.\n\nDo you want to proceed?`
+      );
+      if (!finalConfirm) {
+        alert("Clear cancelled.");
+        return;
+      }
+
+      // Step 2: Execute deletion
+      const res = await fetch("/api/log", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: clearPassword }),
+      });
+
       if (!res.ok) {
+        if (res.status === 401) {
+          alert("You are not authorized. Please log in again.");
+          return;
+        }
+        if (res.status === 403) {
+          alert("Invalid clear password.");
+          return;
+        }
         throw new Error("Failed to clear database.");
       }
 
       const result = await res.json();
       alert(result.message || "Database cleared.");
-      await refresh();
+      await refresh(false);
     } catch (e) {
       alert(`Failed to clear database: ${(e as Error).message}`);
     }

@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'; // Import Prisma client
 import { Prisma } from '@prisma/client';
 import { isAuthenticated } from './auth';
 
+// Secondary password for destructive admin actions
+const ADMIN_CLEAR_PASSWORD = process.env.ADMIN_CLEAR_PASSWORD || 'Achtung';
+
 // Define the structure expected in the POST request body
 interface LogPostRequest {
   session_id: string;
@@ -94,15 +97,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // --- DELETE: Clear logs (Admin action) ---
     if (req.method === "DELETE") {
-      // Check authentication
+      // Check authentication (must be logged in via admin cookie)
       if (!isAuthenticated(req)) {
         return res.status(401).json({ error: "Unauthorized", code: "AUTH_REQUIRED" });
+      }
+
+      // Validate secondary clear password from header, body, or query
+      const providedClearPwd =
+        (req.headers['x-clear-password'] as string | undefined) ||
+        (typeof req.body === 'object' && req.body ? (req.body as any).password : undefined) ||
+        (typeof req.query.password === 'string' ? req.query.password : undefined);
+
+      if (providedClearPwd !== ADMIN_CLEAR_PASSWORD) {
+        return res.status(403).json({ error: "Forbidden: invalid clear password", code: "INVALID_CLEAR_PASSWORD" });
+      }
+
+      // Support dry-run to safely validate and preview counts
+      const dryRunFlagFromBody = typeof req.body === 'object' && req.body ? (req.body as any).dryRun : undefined;
+      const dryRunFlagFromQuery = typeof req.query.dryRun === 'string' ? req.query.dryRun : undefined;
+      const isDryRun = dryRunFlagFromBody === true || dryRunFlagFromBody === 'true' || dryRunFlagFromQuery === 'true' || dryRunFlagFromQuery === '1';
+
+      // Compute counts (used for both dry-run preview and response after deletion)
+      const [logCountPreview, sessionCountPreview] = await Promise.all([
+        prisma.logEntry.count(),
+        prisma.session.count(),
+      ]);
+
+      if (isDryRun) {
+        return res.status(200).json({ ok: true, dryRun: true, message: `Dry run: would clear ${logCountPreview} logs and ${sessionCountPreview} sessions.` , counts: { logs: logCountPreview, sessions: sessionCountPreview }});
       }
 
       // Clear all logs and sessions for the demo.
       const logCount = await prisma.logEntry.deleteMany({});
       const sessionCount = await prisma.session.deleteMany({});
-      return res.status(200).json({ ok: true, message: `Cleared ${logCount.count} logs and ${sessionCount.count} sessions.` });
+      return res.status(200).json({ ok: true, message: `Cleared ${logCount.count} logs and ${sessionCount.count} sessions.`, counts: { logs: logCount.count, sessions: sessionCount.count } });
     }
 
     return res.status(405).json({ error: "Method not allowed" });

@@ -112,7 +112,7 @@ const ThetaChangeDisplay = ({ before, after }: { before?: ThetaState; after: The
 
 export default function Admin() {
   const [sessions, setSessions] = useState<SessionWithTranscript[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);

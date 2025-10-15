@@ -146,12 +146,12 @@ export default function Admin() {
     }
   };
 
-  const refresh = useCallback(async (append = false) => {
+  const refresh = useCallback(async (append = false, currentLength = 0) => {
     setLoading(true);
     setError(null);
 
     try {
-      const offset = append ? sessions.length : 0;
+      const offset = append ? currentLength : 0;
       const res = await fetch(`/api/log?limit=20&offset=${offset}`);
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
@@ -160,7 +160,7 @@ export default function Admin() {
       const data = await res.json();
       const newSessions = parseSessions(data);
       
-      setSessions(append ? [...sessions, ...newSessions] : newSessions);
+      setSessions(prev => (append ? [...prev, ...newSessions] : newSessions));
       setHasMore(data.pagination?.hasMore || false);
       setTotalCount(data.pagination?.total || 0);
     } catch (e) {
@@ -174,7 +174,7 @@ export default function Admin() {
     } finally {
       setLoading(false);
     }
-  }, [sessions]);
+  }, []);
 
   const downloadJSON = useCallback((data: SessionWithTranscript[], source: string) => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -227,9 +227,9 @@ export default function Admin() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      refresh();
+      refresh(false);
     }
-  }, [isAuthenticated, refresh]);
+  }, [isAuthenticated]);
 
   const displaySessions = useMemo(
     () =>
@@ -396,7 +396,7 @@ export default function Admin() {
         {hasMore && (
           <div className="mt-6 flex justify-center">
             <button
-              onClick={() => refresh(true)}
+              onClick={() => refresh(true, sessions.length)}
               disabled={loading}
               className="rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:bg-primary-hover disabled:opacity-50"
             >

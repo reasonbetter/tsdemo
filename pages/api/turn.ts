@@ -71,8 +71,9 @@ function selectNextItem(sessionState: SessionSelectionState): { next: ItemInstan
     const trace: string[] = [];
     const { askedItemIds } = sessionState;
 
-    if (askedItemIds.length >= 5) {
-        trace.push("Session complete: 5 items have been answered.");
+    const maxItems = CONFIG.CFG.max_items_per_session;
+    if (askedItemIds.length >= maxItems) {
+        trace.push(`Session complete: ${maxItems} items have been answered.`);
         return { next: null, trace };
     }
 
@@ -105,16 +106,32 @@ interface TurnRequest {
   probeResponse?: string;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<TurnResult | { error: string, details?: string }>) {
+interface ErrorResponse {
+  error: string;
+  code?: string;
+  details?: string;
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse<TurnResult | ErrorResponse>) {
   try {
     const { sessionId, itemId, ajMeasurement, twMeasurement, userResponse, probeResponse } = req.body as TurnRequest;
 
     if (!sessionId) {
-        return res.status(400).json({ error: "sessionId is required" });
+        return res.status(400).json({ 
+          error: "Missing required field", 
+          code: "VALIDATION_ERROR",
+          details: "sessionId is required" 
+        });
     }
 
     const item = itemById(itemId);
-    if (!item) return res.status(400).json({ error: "Unknown itemId" });
+    if (!item) {
+      return res.status(404).json({ 
+        error: "Item not found", 
+        code: "ITEM_NOT_FOUND",
+        details: `No item found with id: ${itemId}` 
+      });
+    }
 
     const result = await prisma.$transaction(async (tx) => {
         const trace: string[] = [];
@@ -123,8 +140,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             where: { id: sessionId },
         });
 
-        if (!session || session.status !== 'ACTIVE') {
-            throw new Error("Session not found or inactive");
+        if (!session) {
+            throw new Error("SESSION_NOT_FOUND");
+        }
+        
+        if (session.status !== 'ACTIVE') {
+            throw new Error("SESSION_INACTIVE");
         }
         
         const transcript = (session.transcript && Array.isArray(session.transcript))
@@ -172,7 +193,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             trace.push("This is a first pass on an initial answer.");
             finalLabel = ajMeasurement.label;
             
-            const shouldProbe = ajMeasurement.score < (CONFIG.CFG.score_correct_threshold || 0.9) && 
+            const shouldProbe = ajMeasurement.score < CONFIG.CFG.score_correct_threshold && 
                                 finalLabel !== 'Incorrect' && 
                                 ajMeasurement.probe && 
                                 ajMeasurement.probe.text.trim().length > 0;
@@ -248,13 +269,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(200).json(result);
 
   } catch (err) {
-    console.error("Turn error:", err);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error("Turn error:", err);
+    }
+    
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        return res.status(503).json({ error: "Database transaction error", details: err.message });
+        return res.status(503).json({ 
+          error: "Database transaction error", 
+          code: "DB_TRANSACTION_ERROR",
+          details: err.message 
+        });
     }
-     if ((err as Error).message.includes("Session not found or inactive")) {
-        return res.status(404).json({ error: (err as Error).message });
+    
+    const errorMessage = (err as Error).message;
+    
+    if (errorMessage === "SESSION_NOT_FOUND") {
+        return res.status(404).json({ 
+          error: "Session not found", 
+          code: "SESSION_NOT_FOUND",
+          details: "The specified session does not exist" 
+        });
     }
-    res.status(500).json({ error: "Internal server error", details: (err as Error).message });
+    
+    if (errorMessage === "SESSION_INACTIVE") {
+        return res.status(400).json({ 
+          error: "Session inactive", 
+          code: "SESSION_INACTIVE",
+          details: "The session has already been completed" 
+        });
+    }
+    
+    res.status(500).json({ 
+      error: "Internal server error", 
+      code: "INTERNAL_ERROR",
+      details: errorMessage 
+    });
   }
 }

@@ -101,19 +101,38 @@ ${guidance}
 }
 
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<AJJudgment | { error: string, details?: string, sample?: string }>) {
+interface ErrorResponse {
+  error: string;
+  code?: string;
+  details?: string;
+  sample?: string;
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse<AJJudgment | ErrorResponse>) {
   try {
     if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({ error: "Missing OPENAI_API_KEY" });
+      return res.status(500).json({ 
+        error: "Missing OPENAI_API_KEY", 
+        code: "CONFIG_ERROR",
+        details: "OpenAI API key is not configured" 
+      });
     }
     if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" });
+      return res.status(405).json({ 
+        error: "Method not allowed", 
+        code: "METHOD_NOT_ALLOWED",
+        details: "Only POST requests are accepted" 
+      });
     }
 
     const { item, userResponse, features, full_transcript } = req.body as AJRequest;
 
     if (!item?.text || typeof userResponse !== "string" || !features) {
-      return res.status(400).json({ error: "Bad request: missing item.text, userResponse, or features" });
+      return res.status(400).json({ 
+        error: "Missing required fields", 
+        code: "VALIDATION_ERROR",
+        details: "item.text, userResponse, and features are required" 
+      });
     }
 
     const isSecondPass = !!full_transcript;
@@ -151,12 +170,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     } catch (apiErr: any) {
       return res.status(502).json({
         error: "OpenAI call failed",
+        code: "OPENAI_ERROR",
         details: apiErr?.message || String(apiErr)
       });
     }
 
     if (!text || typeof text !== "string") {
-      return res.status(502).json({ error: "Empty response from model" });
+      return res.status(502).json({ 
+        error: "Empty response from model", 
+        code: "EMPTY_RESPONSE" 
+      });
     }
 
     let payload: AJJudgment;
@@ -165,6 +188,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     } catch {
       return res.status(502).json({
         error: "Model returned non-JSON",
+        code: "INVALID_JSON",
         sample: text.slice(0, 800)
       });
     }
@@ -173,6 +197,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (payload.score == null || !payload.label) {
       return res.status(502).json({
         error: "Model returned invalid JSON structure",
+        code: "INVALID_RESPONSE_STRUCTURE",
         sample: text.slice(0, 800)
       });
     }
@@ -180,7 +205,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     return res.status(200).json(payload);
   } catch (err) {
-    console.error("AJ route error:", err);
-    return res.status(500).json({ error: "AJ route error", details: String(err) });
+    if (process.env.NODE_ENV !== 'production') {
+      console.error("AJ route error:", err);
+    }
+    return res.status(500).json({ 
+      error: "AJ route error", 
+      code: "INTERNAL_ERROR",
+      details: String(err) 
+    });
   }
 }

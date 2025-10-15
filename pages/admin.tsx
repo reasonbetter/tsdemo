@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Session } from "@prisma/client";
 import { HistoryEntry, ThetaState } from "@/types/assessment";
-import ReactMarkdown from "react-markdown";
+import dynamic from "next/dynamic";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+
+// Dynamically import ReactMarkdown to reduce initial bundle size
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  ssr: false,
+  loading: () => <span className="text-muted-foreground">Loading...</span>,
+});
 
 type SessionWithTranscript = Omit<Session, "transcript"> & {
   transcript: HistoryEntry[];
@@ -110,38 +116,67 @@ export default function Admin() {
   const [error, setError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "cognition") {
-      setIsAuthenticated(true);
-    } else {
-      alert("Incorrect password");
+    setLoading(true);
+    
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      
+      const data = await res.json();
+      
+      if (data.authenticated) {
+        setIsAuthenticated(true);
+        setPassword('');
+      } else {
+        alert(data.error || 'Incorrect password');
+      }
+    } catch (e) {
+      alert('Authentication failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (append = false) => {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/log");
+      const offset = append ? sessions.length : 0;
+      const res = await fetch(`/api/log?limit=20&offset=${offset}`);
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
 
       const data = await res.json();
-      setSessions(parseSessions(data));
+      const newSessions = parseSessions(data);
+      
+      setSessions(append ? [...sessions, ...newSessions] : newSessions);
+      setHasMore(data.pagination?.hasMore || false);
+      setTotalCount(data.pagination?.total || 0);
     } catch (e) {
-      console.error("Error fetching server logs:", e);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error("Error fetching server logs:", e);
+      }
       setError(`Failed to load sessions: ${(e as Error).message}`);
-      setSessions([]);
+      if (!append) {
+        setSessions([]);
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sessions]);
 
-  const downloadJSON = useCallback((data: unknown[], source: string) => {
+  const downloadJSON = useCallback((data: SessionWithTranscript[], source: string) => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -174,6 +209,22 @@ export default function Admin() {
     }
   }, [refresh]);
 
+  // Check authentication status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth');
+        const data = await res.json();
+        setIsAuthenticated(data.authenticated);
+      } catch (e) {
+        setIsAuthenticated(false);
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       refresh();
@@ -189,6 +240,14 @@ export default function Admin() {
     [sessions]
   );
 
+  if (authChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-muted-foreground">Checking authentication...</div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -199,14 +258,17 @@ export default function Admin() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               className="w-full rounded-lg border border-input-border px-4 py-2 text-base transition duration-150 focus:border-primary focus:ring-2 focus:ring-primary"
               placeholder="Password"
+              disabled={loading}
             />
             <button
               type="submit"
+              disabled={loading || !password}
               className="w-full rounded-lg bg-primary px-6 py-2 text-base font-semibold text-white transition duration-150 hover:bg-primary-hover disabled:opacity-50"
             >
-              Enter
+              {loading ? 'Authenticating...' : 'Enter'}
             </button>
           </form>
         </div>
@@ -231,7 +293,7 @@ export default function Admin() {
         </a>
         <button
           className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:bg-primary-hover disabled:opacity-50"
-          onClick={refresh}
+          onClick={() => refresh(false)}
           disabled={loading}
         >
           {loading ? "Loading..." : "Refresh"}
@@ -245,11 +307,16 @@ export default function Admin() {
       </div>
 
       <section className="space-y-2">
-        <h3 className="px-2 text-xl font-semibold">
-          Session Transcripts (latest {sessions.length})
-        </h3>
+        <div className="flex items-center justify-between px-2 mb-4">
+          <h3 className="text-xl font-semibold">
+            Session Transcripts
+          </h3>
+          <span className="text-sm text-muted-foreground">
+            Showing {sessions.length} of {totalCount} sessions
+          </span>
+        </div>
         {sessions.length === 0 && !loading && (
-          <p className="text-muted-foreground">No sessions found in the database.</p>
+          <p className="text-muted-foreground px-2">No sessions found in the database.</p>
         )}
 
         {displaySessions.map(({ session, entries }) => {
@@ -325,6 +392,18 @@ export default function Admin() {
             </CollapsibleSection>
           );
         })}
+
+        {hasMore && (
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={() => refresh(true)}
+              disabled={loading}
+              className="rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-white shadow-sm transition duration-150 hover:bg-primary-hover disabled:opacity-50"
+            >
+              {loading ? 'Loading...' : 'Load More Sessions'}
+            </button>
+          </div>
+        )}
       </section>
 
       <div className="mt-12 border-t border-border pt-6">

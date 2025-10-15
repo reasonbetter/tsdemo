@@ -9,7 +9,7 @@ export interface SchemaFeatures {
   aj_guidance?: string;
 }
 
-export type CoverageTag = 'confounding' | 'temporality' | 'complexity' | string;
+export type CoverageTag = 'confounding' | 'temporality' | 'complexity';
 
 export interface ItemInstance {
   item_id: string;
@@ -39,6 +39,7 @@ export interface AssessmentConfig {
     tau_required_move: number;
     tau_pitfall_hi: number;
     tau_confidence: number;
+    max_items_per_session: number;
     coverage_targets: CoverageTag[];
   };
 }

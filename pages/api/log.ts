@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/prisma'; // Import Prisma client
 import { Prisma } from '@prisma/client';
+import { isAuthenticated } from './auth';
 
 // Define the structure expected in the POST request body
 interface LogPostRequest {
@@ -21,10 +22,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Basic validation
       if (!entry.session_id || !entry.type) {
-        // If essential fields are missing, we log a warning and return 202 Accepted.
-        // We do not want a logging failure (e.g. due to a transient client issue) to stop the assessment.
-        console.warn("Log entry missing essential fields (session_id or type). Ignored.", entry);
-        return res.status(202).json({ ok: false, message: "Ignored: Missing session_id or type" });
+        return res.status(400).json({ 
+          error: "Missing required fields", 
+          code: "VALIDATION_ERROR",
+          details: "Both session_id and type are required" 
+        });
       }
 
       // Separate the known fields (which map to DB columns) from the flexible payload
@@ -49,29 +51,53 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // --- GET: Retrieve SESSIONS (for Admin Dashboard) ---
     if (req.method === "GET") {
-      const { limit = '50' } = req.query;
-      const take = parseInt(limit as string, 10);
+      const { limit = '20', offset = '0' } = req.query;
+      const take = Math.min(parseInt(limit as string, 10), 100); // Max 100 per request
+      const skip = parseInt(offset as string, 10);
 
-      const sessions = await prisma.session.findMany({
-        orderBy: { updatedAt: "desc" },
-        take,
-        // Only fetch sessions that have a transcript with at least one entry.
-        where: {
-          NOT: {
-            transcript: {
-              equals: [],
+      const [sessions, totalCount] = await Promise.all([
+        prisma.session.findMany({
+          orderBy: { updatedAt: "desc" },
+          take,
+          skip,
+          // Only fetch sessions that have a transcript with at least one entry.
+          where: {
+            NOT: {
+              transcript: {
+                equals: [],
+              },
             },
           },
-        },
-      });
+        }),
+        prisma.session.count({
+          where: {
+            NOT: {
+              transcript: {
+                equals: [],
+              },
+            },
+          },
+        }),
+      ]);
 
-      // Return the sessions; the frontend will format them.
-      return res.status(200).json({ sessions });
+      // Return the sessions with pagination metadata
+      return res.status(200).json({ 
+        sessions, 
+        pagination: {
+          total: totalCount,
+          limit: take,
+          offset: skip,
+          hasMore: skip + take < totalCount
+        }
+      });
     }
 
     // --- DELETE: Clear logs (Admin action) ---
     if (req.method === "DELETE") {
-      // !! SECURITY NOTE: This must be protected by admin authentication (Phase 3.1)
+      // Check authentication
+      if (!isAuthenticated(req)) {
+        return res.status(401).json({ error: "Unauthorized", code: "AUTH_REQUIRED" });
+      }
 
       // Clear all logs and sessions for the demo.
       const logCount = await prisma.logEntry.deleteMany({});
@@ -87,14 +113,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       // Handle foreign key constraint violations (logging to a non-existent session)
       if (e.code === "P2003" && req.method === "POST") {
-        // If the session doesn't exist, we shouldn't crash the assessment. Return 202 Accepted.
-        console.error(`Log failed due to invalid session_id: ${req.body?.session_id}`);
-        return res
-          .status(202)
-          .json({ ok: false, message: "Ignored: Invalid session_id (FK constraint)." });
+        if (process.env.NODE_ENV !== 'production') {
+          console.error(`Log failed due to invalid session_id: ${req.body?.session_id}`);
+        }
+        return res.status(404).json({ 
+          error: "Session not found", 
+          code: "SESSION_NOT_FOUND",
+          details: "The specified session_id does not exist" 
+        });
       }
-      return res.status(503).json({ error: "Database error", details: e.message });
+      return res.status(503).json({ 
+        error: "Database error", 
+        code: "DB_ERROR",
+        details: e.message 
+      });
     }
-    return res.status(500).json({ error: "Internal server error", details: (e as Error).message });
+    return res.status(500).json({ 
+      error: "Internal server error", 
+      code: "INTERNAL_ERROR",
+      details: (e as Error).message 
+    });
   }
 }

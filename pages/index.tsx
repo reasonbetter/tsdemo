@@ -23,6 +23,18 @@ const Prose = ({ children, size = 'lg' }: { children: string, size?: 'sm' | 'lg'
     </div>
   );
 
+// Theta change badge (mirrors Admin)
+const ThetaChangeDisplay = ({ before, after }: { before?: ThetaState; after?: ThetaState }) => {
+  if (!before || !after) return null;
+  const change = after.mean - before.mean;
+  const color = change > 0.005 ? "text-green-600" : change < -0.005 ? "text-red-600" : "text-gray-500";
+  return (
+    <span className={`font-mono text-sm font-semibold ${color}`}>
+      θ: {before.mean.toFixed(2)} → {after.mean.toFixed(2)}
+    </span>
+  );
+};
+
 
 export default function Home() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -433,37 +445,45 @@ export default function Home() {
                 {history.length > 0 && (
                     <CollapsibleSection title="Transcript History" className="bg-card shadow-sm">
                         <div className="space-y-4 text-sm">
-                            {history.map((entry, idx) => (
-                                <div key={idx} className="p-3 bg-background rounded-lg border border-border">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
-                                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${entry.label === 'Correct' ? 'bg-green-100 text-green-800' : ['Incomplete', 'Flawed', 'Ambiguous'].includes(entry.label) ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                            {entry.label}
-                                        </span>
-                                    </div>
-                                    <div className="prose prose-sm max-w-none"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
-
-                                    <div className="mt-2 p-2 bg-white border rounded-md">
-                                        <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
-                                    </div>
-
-                                    {entry.probe_answer ? (
-                                        <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
-                                            <p className="font-semibold">Probe: <span className="italic">{entry.probe_text}</span></p>
-                                            {entry.probe_rationale && <p className="text-xs mt-1">Rationale: {entry.probe_rationale}</p>}
-                                            <p className="mt-2"><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
+                            {history.map((entry, idx) => {
+                                const before = entry.theta_state_before;
+                                const nextBefore = history[idx + 1]?.theta_state_before;
+                                const after: ThetaState | undefined = nextBefore || (idx === history.length - 1 ? theta : undefined);
+                                return (
+                                    <div key={idx} className="p-3 bg-background rounded-lg border border-border">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <p className="font-mono text-xs text-muted-foreground">ITEM: {entry.item_id}</p>
+                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${entry.label === 'Correct' ? 'bg-green-100 text-green-800' : ['Incomplete', 'Flawed', 'Ambiguous'].includes(entry.label) ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                {entry.label}
+                                            </span>
                                         </div>
-                                    ) : null}
+                                        <div className="prose prose-sm max-w-none"><ReactMarkdown>{entry.text}</ReactMarkdown></div>
 
-                                    {entry.final_score !== undefined && (
-                                        <div className="mt-2 p-2 bg-gray-100 border rounded-md">
-                                            <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
-                                            <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
-                                            {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}
+                                        <div className="mt-2 p-2 bg-white border rounded-md">
+                                            <p><strong>Answer:</strong> <span className="italic">{entry.answer}</span></p>
                                         </div>
-                                    )}
-                                </div>
-                            ))}
+
+                                        {entry.probe_answer ? (
+                                            <div className="mt-2 p-2 bg-primary-light border-primary-border text-primary-text rounded-md">
+                                                <p className="font-semibold">Probe: <span className="italic">{entry.probe_text}</span></p>
+                                                {entry.probe_rationale && <p className="text-xs mt-1">Rationale: {entry.probe_rationale}</p>}
+                                                <p className="mt-2"><strong>Follow-up:</strong> <span className="italic">{entry.probe_answer}</span></p>
+                                            </div>
+                                        ) : null}
+
+                                        {entry.final_score !== undefined && (
+                                            <div className="mt-2 p-2 bg-gray-100 border rounded-md">
+                                                <div className="flex items-center justify-between">
+                                                    <p className="text-xs font-semibold text-gray-800">Final Assessment</p>
+                                                    <ThetaChangeDisplay before={before} after={after} />
+                                                </div>
+                                                <p className="text-sm"><strong>Score:</strong> {Number(entry.final_score).toFixed(2)}</p>
+                                                {entry.final_rationale && <p className="text-sm italic text-gray-600">Rationale: {entry.final_rationale}</p>}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </CollapsibleSection>
                 )}

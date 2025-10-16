@@ -128,6 +128,7 @@ export default function Admin() {
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ password }),
       });
       
@@ -152,8 +153,13 @@ export default function Admin() {
 
     try {
       const offset = append ? currentLength : 0;
-      const res = await fetch(`/api/log?limit=20&offset=${offset}`);
+      const res = await fetch(`/api/log?limit=20&offset=${offset}`, {
+        credentials: 'include',
+      });
       if (!res.ok) {
+        if (res.status === 401) {
+          setIsAuthenticated(false);
+        }
         throw new Error(`HTTP ${res.status}`);
       }
 
@@ -174,7 +180,7 @@ export default function Admin() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [setIsAuthenticated]);
 
   const downloadJSON = useCallback((data: SessionWithTranscript[], source: string) => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -209,11 +215,13 @@ export default function Admin() {
       const dryRunRes = await fetch("/api/log?dryRun=true", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({ password: clearPassword, dryRun: true }),
       });
 
       if (dryRunRes.status === 401) {
         alert("You are not authorized. Please log in again.");
+        setIsAuthenticated(false);
         return;
       }
       if (dryRunRes.status === 403) {
@@ -239,12 +247,14 @@ export default function Admin() {
       const res = await fetch("/api/log", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({ password: clearPassword }),
       });
 
       if (!res.ok) {
         if (res.status === 401) {
           alert("You are not authorized. Please log in again.");
+          setIsAuthenticated(false);
           return;
         }
         if (res.status === 403) {
@@ -260,13 +270,13 @@ export default function Admin() {
     } catch (e) {
       alert(`Failed to clear database: ${(e as Error).message}`);
     }
-  }, [refresh]);
+  }, [refresh, setIsAuthenticated]);
 
   // Check authentication status on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch('/api/auth');
+        const res = await fetch('/api/auth', { credentials: 'include' });
         const data = await res.json();
         setIsAuthenticated(data.authenticated);
       } catch (e) {

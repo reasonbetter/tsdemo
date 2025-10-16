@@ -5,6 +5,8 @@ import { isAuthenticated } from './auth';
 
 // Secondary password for destructive admin actions
 const ADMIN_CLEAR_PASSWORD = process.env.ADMIN_CLEAR_PASSWORD || 'Achtung';
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 100;
 
 // Define the structure expected in the POST request body
 interface LogPostRequest {
@@ -54,9 +56,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // --- GET: Retrieve SESSIONS (for Admin Dashboard) ---
     if (req.method === "GET") {
+      if (!isAuthenticated(req)) {
+        return res.status(401).json({ error: "Unauthorized", code: "AUTH_REQUIRED" });
+      }
+
       const { limit = '20', offset = '0' } = req.query;
-      const take = Math.min(parseInt(limit as string, 10), 100); // Max 100 per request
-      const skip = parseInt(offset as string, 10);
+
+      const rawLimit = Array.isArray(limit) ? limit[0] : limit;
+      const rawOffset = Array.isArray(offset) ? offset[0] : offset;
+
+      const parsedLimit = parseInt(rawLimit ?? '', 10);
+      const parsedOffset = parseInt(rawOffset ?? '', 10);
+
+      const take = !Number.isNaN(parsedLimit) && parsedLimit > 0
+        ? Math.min(parsedLimit, MAX_LIMIT)
+        : DEFAULT_LIMIT;
+
+      const skip = !Number.isNaN(parsedOffset) && parsedOffset >= 0
+        ? parsedOffset
+        : 0;
 
       const [sessions, totalCount] = await Promise.all([
         prisma.session.findMany({

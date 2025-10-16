@@ -157,6 +157,8 @@ export default function Home() {
         if (!input.trim() || pending || !currentItem || !sessionId) return;
         setPending(true);
 
+        const thetaBefore = theta; // capture before any potential theta update
+
         if (!isSessionLive) {
             try {
                 const res = await fetch('/api/create_session', {
@@ -191,6 +193,8 @@ export default function Home() {
                 initial_score: aj.score,
                 final_score: turn.probe_text.trim().length === 0 ? aj.score : undefined,
                 final_rationale: turn.probe_text.trim().length === 0 ? aj.rationale : undefined,
+                // Only set theta_state_before when the turn finalized (no probe)
+                theta_state_before: turn.probe_text.trim().length === 0 ? thetaBefore : undefined,
             }
         ]);
         setLog((lines) => [...lines, ...turn.trace, "—"]);
@@ -222,6 +226,7 @@ export default function Home() {
         if (!awaitingProbe || !probeInput.trim() || pending || !currentItem || !sessionId) return;
         const lastHistory = history[history.length - 1];
         if (!lastHistory) return;
+        const thetaBefore = theta; // capture before second-pass theta update
         setPending(true);
 
         const fullTranscript = {
@@ -258,7 +263,8 @@ export default function Home() {
                 probe_answer: probeInput,
                 label: merged.final_label,
                 final_score: tw.score,
-                final_rationale: tw.rationale
+                final_rationale: tw.rationale,
+                theta_state_before: thetaBefore,
             };
             return [...h.slice(0, -1), updated];
         });

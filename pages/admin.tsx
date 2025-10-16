@@ -187,14 +187,7 @@ export default function Admin() {
   }, []);
 
   const clearServer = useCallback(async () => {
-    const confirmed = confirm(
-      "Are you sure you want to delete ALL logs and sessions from the database? This cannot be undone."
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+    // 1) Ask for the secondary password FIRST
     const clearPassword = prompt(
       "Enter the secondary admin password to confirm (case-sensitive):"
     );
@@ -205,7 +198,7 @@ export default function Admin() {
     }
 
     try {
-      // Step 1: Dry-run to validate and preview counts
+      // 2) Dry-run to validate and preview counts safely
       const dryRunRes = await fetch("/api/log?dryRun=true", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -227,15 +220,17 @@ export default function Admin() {
       const dryData = await dryRunRes.json();
       const logs = dryData?.counts?.logs ?? 0;
       const sessionsToDelete = dryData?.counts?.sessions ?? 0;
+
+      // 3) Final confirmation with explicit counts
       const finalConfirm = confirm(
-        `Password valid. This action will permanently delete ${logs} logs and ${sessionsToDelete} sessions.\n\nDo you want to proceed?`
+        `This will permanently delete ${logs} logs and ${sessionsToDelete} sessions. This cannot be undone.\n\nAre you sure you want to proceed?`
       );
       if (!finalConfirm) {
         alert("Clear cancelled.");
         return;
       }
 
-      // Step 2: Execute deletion
+      // 4) Execute deletion
       const res = await fetch("/api/log", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },

@@ -33,7 +33,7 @@ export default function Home() {
 
   const triageItems = bank.items.filter(it => it.band === 'Triage');
   const initialItemId = triageItems[Math.floor(Math.random() * triageItems.length)]?.item_id;
-  const [currentId, setCurrentId] = useState<string>(initialItemId);
+  const [currentId, setCurrentId] = useState<string>(initialItemId || "");
 
   const [input, setInput] = useState("");
   const [probeInput, setProbeInput] = useState("");
@@ -208,10 +208,9 @@ export default function Home() {
     async function onSubmitProbe(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
         if (!awaitingProbe || !probeInput.trim() || pending || !currentItem || !sessionId) return;
-        setPending(true);
-
         const lastHistory = history[history.length - 1];
         if (!lastHistory) return;
+        setPending(true);
 
         const fullTranscript = {
             stimulus: lastHistory.text,
@@ -296,7 +295,10 @@ export default function Home() {
         const id = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
 
         setSessionId(id);
-        setCurrentId(initialItemId);
+        // Fresh random triage item each time
+        const triage = bank.items.filter(it => it.band === 'Triage');
+        const firstId = triage.length ? triage[Math.floor(Math.random() * triage.length)].item_id : "";
+        setCurrentId(firstId);
         setHistory([]);
         setLog([]);
         setAwaitingProbe(null);

@@ -40,7 +40,7 @@ Return JSON with four items:
     - "Incomplete"
     - "Flawed"
     - "Incorrect"
-    - "Unclear"
+    - "Ambiguous"
     - "Off_Topic"
 
 - 3. probe: An object for your follow-up question.

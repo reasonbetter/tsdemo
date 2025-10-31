@@ -1,0 +1,79 @@
+{
+  "SchemaID": "SelectionEffectIdentification",
+  "Description": "Assesses the ability to identify and explain selection effects (e.g., confounding by indication, self-selection, survivorship bias) that could explain a surprising or counterintuitive association in an observational context, while adhering to stated premises/constraints.",
+  "Engine": { "driverId": "aeq.aeg.v1" },
+  "GuidanceVersion": "v1",
+  "Ability": { "key": "causal.selection_effects" },
+
+  "ProbePolicy": {
+    "AllowAJGeneratedFor": [],
+    "MaxGeneratedChars": 160,
+    "DisallowHintPatterns": ["\\bfor example\\b","\\be\\.g\\.\\b","\\bbecause\\b","\\btry mentioning\\b","\\bconsider\\b"]
+  },
+
+  "PolicyDefaults": {
+    "MaxConsecutiveFailedAttempts": 2,
+    "MaxTotalFailedAttempts": 4
+  },
+
+  "DriverConfig": {
+    "AJ_System_Guidance": {
+      "AnswerTypeCatalog": [
+        { "id": "Good", "description": "A plausible explanation that identifies a specific selection mechanism consistent with the premise." },
+        { "id": "NotDistinct", "description": "A plausible explanation, but relies on the same mechanism as a previous answer." },
+        { "id": "NotSpecific", "description": "Acknowledges bias but does not describe the specific mechanism or confounding variable." },
+        { "id": "NotClear", "description": "The meaning of the response cannot be interpreted without elaboration." },
+        { "id": "RejectsAssumption", "description": "Violates or contradicts a stated assumption or constraint in the prompt." },
+        { "id": "NotPlausible", "description": "The proposed mechanism is implausible in the context." },
+        { "id": "NotRelevant", "description": "The response is irrelevant to the task." },
+        { "id": "MultipleExplanation", "description": "The response contains multiple explanations." }
+      ],
+      "AnswerTypeGuidance": [
+        "CORE TASK: Identify a SELECTION EFFECT (non-random sorting or sampling) that explains the observed association.",
+        "SELECTION MECHANISM: A 'Good' answer must describe how groups differ systematically or how the sample is biased, and how this explains the outcome (name the factor Z or process).",
+        "CONSTRAINT ADHERENCE: Any explanation that contradicts the stated assumption(s) MUST be classified as 'RejectsAssumption'.",
+        "SPECIFICITY: Merely naming 'confounding' or 'selection bias' without a specific mechanism is 'NotSpecific'.",
+        "DISTINCTNESS: Use the item's ThemeRegistry for ThemeTag; if none fits, use 'NOVEL:…'. Compare against previously accepted themes to decide Good vs NotDistinct. ThemeTag is REQUIRED for Good and NotDistinct.",
+        "SINGLE EXPLANATION RULE: If multiple explanations appear in one turn, classify as MultipleExplanation.",
+        "TIE-BREAKING: If multiple AnswerTypes fit, choose the one appearing earliest in DominanceOrder."
+      ],
+      "ProbingGuidance": [
+        "VARIATION RULE: Select a Probe ID from the ProbeLibrary that has not yet been used in the current unit, if available.",
+        "CONSTRAINT REMINDER: For 'RejectsAssumption', select a short probe from the 'RejectsAssumption' category that neutrally reiterates the relevant constraint without hinting.",
+        "STANDARDIZED SELECTION: For ALL OTHER AnswerTypes, select a probe from that category in the ProbeLibrary."
+      ]
+    },
+    "DominanceOrder": [
+      "MultipleExplanation","RejectsAssumption","NotRelevant","NotDistinct","NotClear","NotSpecific","NotPlausible"
+    ],
+    "ConfidencePolicy": { "GoodAcceptanceMinConfidence": 0.6, "NovelAcceptanceMinConfidence": 0.75 },
+    "MaxClarificationAttempts": 1,
+    "ClarificationPolicy": {
+      "MaxTotal": 2,
+      "MaxConsecutiveNotSpecific": 1,
+      "MaxConsecutiveNotClear": 1
+    },
+    "AnswerTypeMap": { "RejectsAssumption": "RunsThroughA" },
+    "GeneratedProbeCategoryLabel": "RejectsAssumption"
+  },
+
+  "ScoringSpec": {
+    "final": { "perDistinct": { "0": -1, "1": -0.5, "2": 0, "3": 1 } }
+  },
+
+  "AJ_Contract_JsonSchema": {
+    "type": "object",
+    "properties": {
+      "AnswerType": {
+        "type": "string",
+        "enum": ["Good","NotDistinct","NotSpecific","NotClear","NotRelevant","NotPlausible","RejectsAssumption","MultipleExplanation"]
+      },
+      "ThemeTag": { "type": ["string","null"] },
+      "Confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+      "RecommendedProbeID": { "type": ["string","null"] },
+      "GeneratedProbeText": { "type": ["string","null"] }
+    },
+    "required": ["AnswerType","Confidence"],
+    "additionalProperties": false
+  }
+}

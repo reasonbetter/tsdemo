@@ -1,0 +1,15 @@
+{
+  "ItemID": "Fermi_SF_Pop_2020",
+  "SchemaID": "FermiPopulationCity",
+  "Stem": "Roughly estimate the 2020 population of San Francisco (just give one number).",
+  "Content": {},
+  "DriverOverrides": {
+    "Scoring": {
+      "target": 873965,
+      "mode": "log-error",
+      "thresholds": { "full": 0.2, "partial": 0.5, "partialCredit": 0.6 },
+      "completion": { "closeEnough": 0.2, "maxAttempts": 2 }
+    }
+  }
+}
+

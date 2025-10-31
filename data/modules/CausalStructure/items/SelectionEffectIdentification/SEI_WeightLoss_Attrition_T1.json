@@ -1,0 +1,51 @@
+{
+  "ItemID": "SEI_WeightLoss_Attrition_T1",
+  "SchemaID": "SelectionEffectIdentification",
+  "Stem": "A 12-week weight loss program reports that the average participant who completed the program lost 30 pounds. Suppose the program is not actually effective but also that the effect was not by chance. How could the reported average weight loss be so high?",
+  "Content": {
+    "ScenarioDefinition": {
+      "A_text": "completing the 12-week program",
+      "B_text": "large weight loss",
+      "Sample": "Participants who completed the 12-week program.",
+      "Observed_Outcome": "Average weight loss among completers is high (30 pounds).",
+      "Constraint": "The program is not very effective for most people."
+    },
+    "ThemeRegistry": [
+      {
+        "ThemeID": "attrition_bias_dropout_of_unsuccessful",
+        "description": "Participants who were not losing weight were more likely to drop out. Their data is excluded, biasing the average of the completers upward (Attrition Bias).",
+        "Aliases": ["people who failed dropped out","only successful people finished","dropouts skew the results","missing data from non-completers","ignoring the dropouts"]
+      },
+      {
+        "ThemeID": "self_selection_motivation",
+        "description": "The people who completed the program were the most motivated or disciplined, and this motivation (rather than the program itself) led to the weight loss.",
+        "Aliases": ["highly motivated participants finished","completers were more dedicated"]
+      }
+    ],
+    "TooGeneral": ["bias","sampling issues","not everyone finished","motivation"],
+    "Examples": {
+      "RejectsAssumption": [
+        { "text": "The program must actually be highly effective.", "explanation": "Violates the constraint that the program is not effective." },
+        { "text": "The program works well, but only for people who stick with it.", "explanation": "Relies on program efficacy rather than identifying the selection artifact." }
+      ],
+      "NotSpecific": [
+        { "text": "Not everyone finished the program.", "explanation": "Must explain how this leads to the high average (unsuccessful participants dropped out)." },
+        { "text": "They didn't count everyone who started.", "explanation": "Specify who wasn't counted (dropouts) and why their exclusion biases the average." }
+      ],
+      "Good": [
+        { "text": "People who weren't losing weight got discouraged and quit; the reported average counts only those who stayed until the end.", "explanation": "Identifies attrition bias; unsuccessful dropouts are excluded." }
+      ]
+    },
+    "ProbeLibrary": {
+      "MultipleExplanation": [ { "id": "single_1", "text": "One explanation at a time, please—send just one." } ],
+      "Good": [ { "id": "good_1", "text": "Thanks. That is a plausible explanation." } ],
+      "NotDistinct": [ { "id": "redux_1", "text": "Too similar to an earlier idea—try a different mechanism." } ],
+      "NotSpecific": [ { "id": "specific_1", "text": "Please specify who is excluded or how the sample is biased." } ],
+      "NotClear": [ { "id": "clear_1", "text": "I didn’t follow—could you rephrase your explanation clearly?" } ],
+      "NotPlausible": [ { "id": "plaus_1", "text": "Let’s try a more realistic reason consistent with the premise." } ],
+      "NotRelevant": [ { "id": "relevance_1", "text": "Please focus on explaining the observed result described in the question." } ],
+      "RejectsAssumption": [ { "id": "assump_1", "text": "Remember the premise: the program is not effective." } ]
+    }
+  },
+  "DriverOverrides": { "Policy": { "TargetDistinctExplanations": 1 } }
+}

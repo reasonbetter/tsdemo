@@ -1,0 +1,166 @@
+{
+  "ItemID": "AEG_MBA_Salary_T1",
+  "SchemaID": "AlternativeExplanationGeneration",
+  "MutuallyExclusiveWith": ["AEG_SelfConfidence_Income_T1"],
+  "MutuallyExclusiveGroup": "income_determinants",
+  "Stem": "People who have an MBA degree earn significantly higher salaries, on average, than those who do not. Give one reason why this might be true, other than the MBA degree itself causing the higher salary.",
+  "Content": {
+    "ScenarioDefinition": {
+      "A_text": "having an MBA degree",
+      "B_text": "higher salaries"
+    },
+    "ThemeRegistry": [
+      {
+        "ThemeID": "prior_ability_experience",
+        "Aliases": [
+          "smarter people get MBAs",
+          "high prior skills",
+          "more work experience",
+          "stronger candidates",
+          "intelligence",
+          "pre-existing competence",
+          "academic achievement",
+          "high aptitude",
+          "cognitive ability"
+        ]
+      },
+      {
+        "ThemeID": "ambition_drive",
+        "Aliases": [
+          "highly motivated",
+          "ambition",
+          "drive",
+          "strong work ethic",
+          "conscientiousness",
+          "career-focused",
+          "hard workers",
+          "willingness to negotiate salary"
+        ]
+      },
+      {
+        "ThemeID": "ses_network_capital",
+        "Aliases": [
+          "socioeconomic background",
+          "family wealth",
+          "social capital",
+          "pre-existing professional networks",
+          "connections",
+          "privileged background",
+          "access to financial resources",
+          "SES"
+        ]
+      },
+      {
+        "ThemeID": "industry_sorting",
+        "Aliases": [
+          "work in finance",
+          "consulting jobs",
+          "tech industry",
+          "high-paying fields",
+          "sorting into lucrative sectors",
+          "choice of career field"
+        ]
+      },
+      {
+        "ThemeID": "company_sponsorship",
+        "Aliases": [
+          "employer paid for MBA",
+          "already on fast track at work",
+          "sponsored by high-paying firm",
+          "identified as high-potential employee"
+        ]
+      }
+    ],
+    "TooGeneral": [
+      "background",
+      "personality",
+      "skills",
+      "resources",
+      "connections",
+      "where they work",
+      "selection effects",
+      "privilege",
+      "motivation",
+      "their job",
+      "demographics",
+      "education"
+    ],
+    "Examples": {
+      "RunsThroughA": [
+        {
+          "text": "The MBA teaches valuable business skills and management techniques that employers pay more for.",
+          "explanation": "This is A->B (Human Capital Theory). The skills learned during the MBA (A) cause the higher salary (B)."
+        },
+        {
+          "text": "The MBA degree acts as a signal of competence to employers, so they are willing to pay them more.",
+          "explanation": "This is A->B (Signaling Theory). The degree itself causes the higher pay because of how employers interpret the credential."
+        },
+        {
+          "text": "You gain access to the business school's alumni network during the program, which helps you get better jobs.",
+          "explanation": "This is A->Mediator->B. The network gained during the MBA (Mediator) is a direct consequence of pursuing the degree (A). This must be distinguished from pre-existing networks."
+        },
+        {
+          "text": "The MBA credential itself qualifies them for high-paying management roles that others can't get.",
+          "explanation": "This is A->B (Credentialism). The degree causes the higher salary by acting as a prerequisite."
+        },
+        {
+          "text": "The MBA gives people the confidence to ask for higher salaries.",
+          "explanation": "This is A->Mediator->B. The confidence (Mediator) is caused by the degree (A)."
+        }
+      ],
+      "Good": [
+        {
+          "text": "People who are highly ambitious are more likely to pursue an MBA and also more likely to work harder and negotiate higher salaries.",
+          "explanation": "This correctly identifies a common cause (ambition)."
+        },
+        {
+          "text": "Individuals from wealthy backgrounds can afford the tuition for an MBA and also have family connections that lead to better jobs.",
+          "explanation": "This correctly identifies a common cause related to SES and networks."
+        }
+      ]
+    },
+    "ProbeLibrary": {
+      "MultipleExplanation": [
+        { "id": "single_1", "text": "One explanation at a time, please—could you resend just one?" },
+        { "id": "single_2", "text": "Please share only one explanation for now; then we can ask for another." }
+      ],
+      "Good": [
+        { "id": "alt_1", "text": "Thank you. Can you think of another reason for the link between having an MBA and higher salaries?" },
+        { "id": "alt_2", "text": "Great. Now please try to give a different explanation for the association." },
+        { "id": "alt_3", "text": "Thanks. Next, please think of another distinct reason." }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "That is a bit too similar to an explanation you already gave. Please provide a different one." },
+        { "id": "redux_2", "text": "That seems to rely on the same kind of cause as a previous answer. Can you give a different kind of explanation?" },
+        { "id": "redux_3", "text": "Ok, this time try to think about explanations of a different type." }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Could you give a bit more detail about how that would work?" },
+        { "id": "specific_2", "text": "Can you be more specific about the mechanism you are describing?" },
+        { "id": "specific_3", "text": "That explanation is a bit broad. Can you give a concrete factor or example?" }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "Can you clarify what you mean?" },
+        { "id": "clear_2", "text": "I don't quite understand. Can you rephrase that?" },
+        { "id": "clear_3", "text": "I didn't follow—could you explain how that would work?" }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Ok, this time try a different kind of explanation for the link." },
+        { "id": "plaus_2", "text": "Let's try another angle—please offer a different reason." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on explaining the link between having an MBA degree and higher salaries." },
+        { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ]
+    }
+  },
+  "DriverOverrides": {
+    "Policy": {
+      "MaxConsecutiveFailedAttempts": 2
+    },
+    "Scoring": {
+      "TargetDistinctExplanations": 3,
+      "ScoringMapID": "Map_3Expl"
+    }
+  }
+}

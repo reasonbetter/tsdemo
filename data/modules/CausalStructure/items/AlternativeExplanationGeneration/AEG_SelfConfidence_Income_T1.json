@@ -1,0 +1,165 @@
+{
+  "ItemID": "AEG_SelfConfidence_Income_T1",
+  "SchemaID": "AlternativeExplanationGeneration",
+  "MutuallyExclusiveWith": ["AEG_MBA_Salary_T1"],
+  "MutuallyExclusiveGroup": "income_determinants",
+  "Stem": "People with higher self-confidence tend to earn higher incomes. Give one reason why this might be true, other than higher self-confidence causing higher income.",
+  "Content": {
+    "ScenarioDefinition": {
+      "A_text": "higher self-confidence",
+      "B_text": "higher income"
+    },
+    "ThemeRegistry": [
+      {
+        "ThemeID": "reverse_causation_success",
+        "Aliases": [
+          "income boosts confidence",
+          "earning more makes you confident",
+          "financial success leads to confidence",
+          "wealth increases self-esteem",
+          "career success builds confidence"
+        ]
+      },
+      {
+        "ThemeID": "prior_skill_competence",
+        "Aliases": [
+          "high ability",
+          "intelligence",
+          "competence",
+          "track record of success",
+          "prior experience",
+          "strong performance",
+          "talent",
+          "cognitive skills",
+          "expertise"
+        ]
+      },
+      {
+        "ThemeID": "family_ses_capital",
+        "Aliases": [
+          "family wealth",
+          "socioeconomic background",
+          "connections",
+          "social capital",
+          "privileged upbringing",
+          "parent education",
+          "SES",
+          "social class",
+          "elite education access"
+        ]
+      },
+      {
+        "ThemeID": "personality_traits",
+        "Aliases": [
+          "extroversion",
+          "optimism",
+          "narcissism",
+          "risk-taking personality",
+          "agreeableness (low)",
+          "sociability",
+          "assertiveness",
+          "emotional stability",
+          "charisma"
+        ]
+      },
+      {
+        "ThemeID": "physical_attributes",
+        "Aliases": [
+          "attractiveness",
+          "height",
+          "good looks",
+          "physical stature",
+          "beauty bias",
+          "halo effect",
+          "physical appearance"
+        ]
+      }
+    ],
+    "TooGeneral": [
+      "background",
+      "personality",
+      "skills",
+      "resources",
+      "connections",
+      "privilege",
+      "success",
+      "appearance",
+      "upbringing",
+      "education",
+      "demographics",
+      "lifestyle"
+    ],
+    "Examples": {
+      "RunsThroughA": [
+        {
+          "text": "Confident people are more willing to negotiate for higher salaries.",
+          "explanation": "This is A->Mediator->B. Negotiation (Mediator) is driven by confidence (A) and leads to higher income (B)."
+        },
+        {
+          "text": "People with high self-confidence seem more competent to employers, so they get promoted more often.",
+          "explanation": "This is A->B. Confidence causes higher income because of how it is perceived by others (signaling/halo effect)."
+        },
+        {
+          "text": "Confident people take more career risks, which often lead to higher rewards.",
+          "explanation": "This is A->Mediator->B. Risk-taking (Mediator) is driven by confidence (A)."
+        },
+        {
+          "text": "High self-confidence improves performance in job interviews, leading to better offers.",
+          "explanation": "This is A->B. Confidence improves interview performance which leads to higher pay."
+        }
+      ],
+      "Good": [
+        {
+          "text": "Being highly skilled at your job leads to success (higher income) and also makes you feel confident about your abilities.",
+          "explanation": "This correctly identifies a common cause (skill/competence)."
+        },
+        {
+          "text": "Earning a lot of money might make people feel more confident about themselves over time.",
+          "explanation": "This correctly identifies reverse causation (Income -> Confidence)."
+        },
+        {
+          "text": "People from wealthy backgrounds might have access to networks that lead to high-paying jobs, and their upbringing might also foster higher confidence.",
+          "explanation": "This correctly identifies a common cause (SES/Social Capital)."
+        }
+      ]
+    },
+    "ProbeLibrary": {
+      "MultipleExplanation": [
+        { "id": "single_1", "text": "One explanation at a time, please—could you resend just one?" },
+        { "id": "single_2", "text": "Please share only one explanation for now; then we can ask for another." }
+      ],
+      "Good": [
+        { "id": "alt_1", "text": "Thank you. Can you think of another reason for the link between self-confidence and higher income?" },
+        { "id": "alt_2", "text": "Great. Now please try to give a different explanation for the association." },
+        { "id": "alt_3", "text": "Thanks. Next, please think of another distinct reason." }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "That is a bit too similar to an explanation you already gave. Please provide a different one." },
+        { "id": "redux_2", "text": "That seems to rely on the same kind of cause as a previous answer. Can you give a different kind of explanation?" },
+        { "id": "redux_3", "text": "Ok, this time try to think about explanations of a different type." }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Could you give a bit more detail about how that would work?" },
+        { "id": "specific_2", "text": "Can you be more specific about the mechanism you are describing?" },
+        { "id": "specific_3", "text": "That explanation is a bit broad. Can you give a concrete factor or example?" }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "Can you clarify what you mean?" },
+        { "id": "clear_2", "text": "I don't quite understand. Can you rephrase that?" },
+        { "id": "clear_3", "text": "I didn't follow—could you explain how that would work?" }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Ok, this time try a different kind of explanation for the link." },
+        { "id": "plaus_2", "text": "Let's try another angle—please offer a different reason." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on explaining the link between higher self-confidence and higher incomes." },
+        { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ]
+    }
+  },
+  "DriverOverrides": {
+    "Policy": { "MaxConsecutiveFailedAttempts": 2 },
+    "Scoring": { "TargetDistinctExplanations": 3, "ScoringMapID": "Map_3Expl" }
+  }
+}

@@ -1,0 +1,61 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// We assume a PostgreSQL database.
+// The connection URL is read from the environment variable DATABASE_URL.
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Represents a single assessment session (one user taking the test)
+model Session {
+  id             String   @id @default(uuid())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  userTag        String?  // Optional user identifier
+
+  // IRT State (legacy scalar; kept for transition)
+  thetaMean      Float    @default(0.0)
+  thetaVar       Float    @default(1.5)
+
+  // Kernel vector theta and caches
+  theta          Json     @default("{}")        // { dims: { [abilityKey]: { mean, var } } }
+  ajPriming      Json     @default("{}")        // { [driverId]: { guidanceVersion, primed, lastScenarioHash? } }
+  unitSnapshot   Json?                          // { driverId, state: { meta, payload }, completed }
+
+  // Progress Tracking
+  // PostgreSQL supports native string arrays, which is cleaner than JSON arrays
+  askedItemIds   String[]
+  // We store coverage counts as JSONB for flexibility with dynamic tags
+  coverageCounts Json     @default("{}")
+  transcript     Json     @default("[]")
+
+  status         String   @default("ACTIVE") // ACTIVE, COMPLETED
+
+  // Relations
+  logs           LogEntry[]
+}
+
+// Represents a single interaction or event during a session
+model LogEntry {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  type      String   // Event type (e.g., "session_start", "item_answered", "aj_judgment")
+
+  // Link back to the session
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Contextual data
+  itemId    String?
+
+  // Store the detailed payload of the event as JSONB
+  payload   Json
+
+  @@index([sessionId])
+  @@index([timestamp])
+}

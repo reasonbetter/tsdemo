@@ -1,0 +1,50 @@
+{
+  "ItemID": "AEG_SocialMedia_Anxiety_T1",
+  "SchemaID": "AlternativeExplanationGeneration",
+  "MutuallyExclusiveWith": ["AEG_PetStress_T1", "AEG_TeaDrinking_Stress_T1"],
+  "Stem": "People who use a lot of social media report higher levels of anxiety. Give one reason why this might be true, other than social media causing more anxiety.",
+  "Content": {
+    "ScenarioDefinition": { "A_text": "using social media a lot", "B_text": "higher anxiety" },
+    "ThemeRegistry": [
+      { "ThemeID": "age_structure", "Aliases": ["younger age","teens","college-age","young people"] },
+      { "ThemeID": "isolation_loneliness", "Aliases": ["few offline friends","lonely","weak local ties","isolated"] },
+      { "ThemeID": "reverse_coping", "Aliases": ["anxious people scroll","avoidant coping","use to cope","stress leads to more use"] }
+    ],
+    "TooGeneral": ["resources","environment","lifestyle","culture","support structures"],
+    "ProbeLibrary": {
+      "Good": [
+        { "id": "alt_1", "text": "Thank you. Can you think of any other reason for the link?" },
+        { "id": "alt_2", "text": "Great. Now please try to give another, different explanation." },
+        { "id": "alt_3", "text": "Thanks. Next, please think of another distinct explanation." }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "That is a bit too similar to an explanation you already gave. Please provide a different one." },
+        { "id": "redux_2", "text": "That seems to rely on the same kind of cause as a previous answer. Can you give a different kind of explanation?" },
+        { "id": "redux_3", "text": "Ok, this time try to think about explanations of a different type." }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Could you give a bit more detail about your explanation?" },
+        { "id": "specific_2", "text": "Can you be more specific about how that would work?" },
+        { "id": "specific_3", "text": "That explanation is a bit broad. Can you give a concrete example?" }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "Can you clarify what you mean?" },
+        { "id": "clear_2", "text": "I don't quite understand. Can you rephrase that?" },
+        { "id": "clear_3", "text": "Could you explain how that would work?" }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Ok, this time try a different kind of explanation." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on how to explain the link described in the question." }
+      ],
+      "RunsThroughA": [
+        { "id": "rta_1", "text": "Please avoid relying on social media use directly causing anxiety. Try a different kind of explanation." }
+      ]
+    }
+  },
+  "DriverOverrides": {
+    "Policy": { "MaxConsecutiveFailedAttempts": 2 },
+    "Scoring": { "TargetDistinctExplanations": 2, "ScoringMapID": "Map_2Expl" }
+  }
+}

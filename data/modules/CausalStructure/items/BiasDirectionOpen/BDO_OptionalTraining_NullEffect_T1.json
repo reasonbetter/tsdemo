@@ -1,0 +1,74 @@
+{
+  "ItemID": "BDO_OptionalTraining_NullEffect_T1",
+  "SchemaID": "BiasDirectionOpen",
+  "MutuallyExclusiveWith": ["BDS_TrainingProgram_ZeroDiff_T2"],
+  "MutuallyExclusiveGroup": "training_program_zero_diff",
+  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. A large-scale comparison showed that employees who joined the program were, on average, no more or less successful than those who didn’t join.\n\nThe company is now deciding whether to cancel the program. The CEO asks for your interpretation of the study results.\n\nWhat would you tell the CEO about the program's actual effectiveness (considering the possibilities that it might be helpful, harmful, or neither) based on this study? Explain your reasoning.",
+  "Content": {
+    "ScenarioDefinition": {
+      "Intervention": "Optional training program.",
+      "Outcome": "Career success.",
+      "Observed_Result": "Null effect."
+    },
+    "ProbeLibrary": {
+      "Both_Explained": [
+        {"id": "stop_success_1", "text": "Thank you. That is a comprehensive interpretation of the training program results."},
+        {"id": "stop_success_2", "text": "Thanks, that covers the key possibilities for the training program's impact."},
+        {"id": "stop_success_3", "text": "Got it. That's a thorough analysis of the findings."}
+      ],
+      "MaskedBenefit_Only_Explained": [
+        {"id": "flip_harm_1", "text": "Okay. Now consider the opposite possibility: how could the study show no difference even if the training program actually *harmed* the participants' success?"},
+        {"id": "flip_harm_2", "text": "Thanks. What about the other side? Explain how the results might look this way even if the training was actually detrimental."},
+        {"id": "flip_harm_3", "text": "Understood. Now, please explain a scenario where the program actually hurts success, but the study still shows no difference."}
+      ],
+      "MaskedHarm_Only_Explained": [
+        {"id": "flip_benefit_1", "text": "Okay. Now consider the opposite possibility: how could the study show no difference even if the training program actually *helped* the participants' success?"},
+        {"id": "flip_benefit_2", "text": "Thanks. What about the other side? Explain how the results might look this way even if the training was actually beneficial."},
+        {"id": "flip_benefit_3", "text": "Understood. Now, please explain a scenario where the program actually helps success, but the study still shows no difference."}
+      ],
+      "Neither_Explained_Sufficiently": [
+        {"id": "general_1", "text": "Is the observed 'no difference' sufficient evidence to conclude the training program has no actual impact? Why or why not?"},
+        {"id": "general_2", "text": "Can you think of a scenario where the training program *does* have an impact, but the study still shows no difference?"},
+        {"id": "general_3", "text": "Why might the observed results be misleading about the program's actual effectiveness?"}
+      ],
+      "NotSpecific": [
+        {"id": "specific_1", "text": "Can you be more specific about how that would lead to the observed 'no difference' in success? Please explain the mechanism."},
+        {"id": "specific_2", "text": "That's a bit broad. Can you describe the specific factor and how it might mask the program's actual impact?"},
+        {"id": "specific_3", "text": "Could you explain the full logic? How exactly does the factor you mentioned lead to the observed 'no difference' result?"}
+      ],
+      "NotDistinct": [
+        {"id": "distinct_1", "text": "That relies on the same underlying logic as your previous explanation. Please provide a distinctly different possibility for the program's actual effect."},
+        {"id": "distinct_2", "text": "That's too similar to the possibility you already mentioned. Try explaining how the opposite effect could be true."},
+        {"id": "distinct_3", "text": "This seems to overlap with an earlier point. Can you describe a different scenario for the program's impact?"}
+      ],
+      "NotPlausible": [
+        {"id": "plausible_1", "text": "Let's try another angle. Please offer a different interpretation of the results."},
+        {"id": "plausible_2", "text": "Okay, please provide a different possibility for the program's actual effect."},
+        {"id": "plausible_3", "text": "Try to think of a different reason why the study showed no difference."}
+      ],
+      "NotClear": [
+        {"id": "clear_1", "text": "I didn't follow your reasoning. Could you rephrase your explanation?"},
+        {"id": "clear_2", "text": "Can you clarify what you mean? I don't quite understand."},
+        {"id": "clear_3", "text": "I don't quite follow. Could you explain how that would work?"}
+      ],
+      "NotRelevant": [
+        {"id": "relevant_1", "text": "Please focus on interpreting the results of the study regarding the training program."},
+        {"id": "relevant_2", "text": "Your response seems off-topic. Please focus on the effectiveness of the training program based on the study."},
+        {"id": "relevant_3", "text": "Please address the prompt: what is your interpretation of the study results?"}
+      ]
+    },
+    "Examples": {
+      "MaskedBenefit_Example": {
+        "text": "The program might actually be helpful. If the employees who signed up were mostly those who were already struggling (negative selection), the training might have brought them up to the level of the average employee, making it look like there was no effect."
+      },
+      "MaskedHarm_Example": {
+        "text": "The program might actually be harmful, perhaps by wasting time. If the employees who signed up were the most ambitious high-performers (positive selection), they would have done better anyway. The wasted time might have brought their success down to the level of the average employee."
+      },
+      "Neither_Explained_Sufficiently_Example": {
+        "text": "You can't conclude anything because it wasn't randomized. There was selection bias.",
+        "explanation": "This identifies the issue (selection bias) but does not provide a specific mechanism or explain how the bias masks a potential effect (Masking Logic)."
+      }
+    }
+  },
+  "DriverOverrides": { "Policy": { "MaxTotalTurns": 3 } }
+}

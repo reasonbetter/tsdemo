@@ -1,0 +1,94 @@
+{
+  "SchemaID": "AlternativeExplanationGeneration",
+  "Description": "Assesses the ability to generate distinct, plausible alternative explanations for an association.",
+  "Engine": { "driverId": "aeq.aeg.v1", "version": "1.1.0" },
+  "GuidanceVersion": "1.0.0",
+  "Ability": { "key": "causal.aeg" },
+
+  "ProbePolicy": {
+    "AllowAJGeneratedFor": ["RunsThroughA"],
+    "MaxGeneratedChars": 250,
+    "DisallowHintPatterns": ["\\\\bfor example\\\\b", "\\\\bbecause\\\\b", "\\\\btry mentioning\\\\b"]
+  },
+
+  "PolicyDefaults": {
+    "MaxConsecutiveFailedAttempts": 2
+  },
+
+  "DriverConfig": {
+    "AJ_System_Guidance": {
+      "AnswerTypeCatalog": [
+        {"id": "Good", "description": "A plausible causal explanation that does not run through A, and is distinct, specific, and clear."},
+        {"id": "NotDistinct", "description": "A plausible alternative explanation, but relies on the same mechanism with a previous answer in this unit."},
+        {"id": "NotSpecific", "description": "The response is understandable, but there is no causal mechanism specific enough to correspond to a particular theme in the ThemeRegistry or to be identified as a novel mechanism."},
+        {"id": "NotClear", "description": "The meaning of the response cannot be interpreted without elaboration (ambiguous, incoherent, or too compressed)."},
+        {"id": "RunsThroughA", "description": "The proposed causal mechanism directly or indirectly involves the first item in the association (A) causing the second (B)."},
+        {"id": "NotPlausible", "description": "The proposed causal explanation is implausible."},
+        {"id": "NotRelevant", "description": "The response is irrelevant to the task."},
+        {"id": "MultipleExplanation", "description": "The response contains multiple explanations."}
+      ],
+      "AnswerTypeGuidance": [
+        "DISTINCTNESS AND NOVELTY: Map the explanation to exactly one ThemeID from the item’s ThemeRegistry. If none fits, return a ThemeTag with 'NOVEL:' prefix and a concise label. Compare ThemeTag against previously accepted themes to decide Good vs NotDistinct. ThemeTag is REQUIRED for Good and NotDistinct.",
+        "CRITICAL: You must compare the ThemeTag against previous themes in the session history AND other themes in the current response to determine if the AnswerType is 'Good' or 'NotDistinct'. You MUST return the ThemeTag if the AnswerType is 'Good' or 'NotDistinct'",
+        "SINGLE EXPLANATION RULE: Score exactly one explanation per user turn. If the user provides multiple explanations, classify as MultipleExplanation and use a MultipleExplanation probe; do not score the turn.",
+        "PLAUSIBILITY: Evaluate plausibility based on commonly understood dynamics. Ensure the mechanism is concrete and respects plausible temporal ordering. Valid mechanisms include: Common Cause, Reverse Causation, Detection Bias, and Opportunity Cost/Displacement (e.g., A displaces a protective factor C).",
+        "INDEPENDENCE RULE (Anti-Smuggling): The explanation's mechanism MUST NOT rely on the direct causal pathway A->B, or cause B ONLY through A. Scrutinize responses to ensure they are not merely mediators (A->Mediator->B). If the explanation depends on A occurring first to cause B (except for displacement), it is invalid (classify as RunsThroughA). Report your confidence level.",
+        "TIE-BREAKING: If an answer fits multiple AnswerTypes, choose the one that appears earliest in the DominanceOrder list."
+      ],
+      "ProbingGuidance": [
+        "VARIATION RULE: Review the session history. You MUST select a Probe ID from the ProbeLibrary that has not yet been used in the current unit, if available. If all probes in that category have been used, you may reuse them.",
+        "CONTROLLED GENERATION EXCEPTION: If the AnswerType is 'RunsThroughA': Ignore the ProbeLibrary and generate a contextually appropriate, brief (1 sentence), non-hinting probe text that reiterates the question’s constraint that the explanation cannot rely on [A] causing [B]. Do not say 'for example' or offer even a slight bit of guidance.",
+        "STANDARDIZED SELECTION: For ALL OTHER AnswerTypes: Select the ID of the most conversationally appropriate probe from that AnswerType's category in the ProbeLibrary."
+      ]
+    },
+    "DominanceOrder": [
+      "MultipleExplanation","RunsThroughA","NotRelevant","NotDistinct","NotClear","NotSpecific","NotPlausible"
+    ],
+    
+    "ConfidencePolicy": {
+      "GoodAcceptanceMinConfidence": 0.6,
+      "NovelAcceptanceMinConfidence": 0.75
+    },
+    "MaxClarificationAttempts": 1,
+    "ClarificationPolicy": {
+      "MaxTotal": 2,
+      "MaxConsecutiveNotSpecific": 1,
+      "MaxConsecutiveNotClear": 1
+    }
+  },
+
+  "ScoringSpec": {
+    "type": "polytomous_map",
+    "maps": {
+      "Map_2Expl": [
+        { "score": 0, "criteria": "0 Good" },
+        { "score": 1, "criteria": "1 Good" },
+        { "score": 2, "criteria": "2 Good" }
+      ],
+      "Map_3Expl": [
+        { "score": 0, "criteria": "0" },
+        { "score": 1, "criteria": "1" },
+        { "score": 2, "criteria": "2" },
+        { "score": 3, "criteria": "3" }
+      ]
+    },
+    "default": { "TargetDistinctExplanations": 2, "ScoringMapID": "Map_2Expl" },
+    "theta": { "step": 0.25, "varDecay": 0.9, "minVar": 0.5 }
+  },
+
+  "AJ_Contract_JsonSchema": {
+    "type": "object",
+    "properties": {
+      "AnswerType": {
+        "type": "string",
+        "enum": ["Good","NotDistinct","NotSpecific","NotClear","NotRelevant","NotPlausible","RunsThroughA","MultipleExplanation"]
+      },
+      "ThemeTag": { "type": ["string","null"] },
+      "Confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+      "RecommendedProbeID": { "type": ["string","null"] },
+      "GeneratedProbeText": { "type": ["string","null"] }
+    },
+    "required": ["AnswerType","Confidence"],
+    "additionalProperties": false
+  }
+}

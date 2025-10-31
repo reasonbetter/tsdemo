@@ -1,0 +1,61 @@
+{
+  "ItemID": "BDS_TrainingProgram_ZeroDiff_T2",
+  "SchemaID": "BiasDirectionSequential",
+  "MutuallyExclusiveWith": ["BDO_OptionalTraining_NullEffect_T1"],
+  "MutuallyExclusiveGroup": "training_program_zero_diff",
+  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. A large sample showed no difference in success between those who joined and those who didn’t. Is this good evidence the program has no effect? Why or why not?",
+  "Content": {
+    "ScenarioDefinition": { "A_text": "joining the optional training program", "B_text": "career success" },
+    "ThemeRegistry": [
+      { "ThemeID": "self_selection_motivation", "description": "More motivated employees enroll and also do better." },
+      { "ThemeID": "prior_skill_education", "description": "Higher baseline skill/education drives both enrollment and success." },
+      { "ThemeID": "manager_push_low_performers", "description": "Managers steer low performers into the program." },
+      { "ThemeID": "workload_burden_enrollers", "description": "Heavier workload leads to enrollment and depresses outcomes." },
+      { "ThemeID": "cohort_timing_hire_date", "description": "Cohorts differ systematically across joiners vs non-joiners." }
+    ],
+    "ProbeLibrary": {
+      "OppositeFromPositive": [
+        { "id": "ask_neg_1", "text": "Now assume the program actually harmed outcomes—what factor could still make both groups look the same?" },
+        { "id": "ask_neg_2", "text": "Switch assumptions: if the training reduced success, what factor could cancel that so results show no gap?" }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "That overlaps with an earlier reason under the same assumption. Try the opposite direction or a different kind of reason." }
+      ],
+      "OppositeFromNegative": [
+        { "id": "ask_pos_1", "text": "Now assume the program actually helped—what factor could still make the groups look the same?" },
+        { "id": "ask_pos_2", "text": "If the training truly improved success, what factor could offset that so results still look even?" }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Please name a concrete factor and say whether you assume the program helped or harmed." },
+        { "id": "specific_2", "text": "That’s broad—identify a specific factor and note help vs harm." }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "I didn’t follow—restate your reason and include whether you assume help or harm." },
+        { "id": "clear_2", "text": "Please rephrase more clearly and say help vs harm." }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Let’s try a more realistic reason that fits the scenario." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on why both groups might look similar even if the program helps or harms." }
+      ],
+      "MultipleExplanation": [
+        { "id": "single_1", "text": "One reason at a time, please—send just one." }
+      ]
+    },
+    "Examples": {
+      "Good": [
+        "If the program truly helps, lower-performing employees being pushed to enroll could cancel the benefit. (BiasNegative)",
+        "If the program truly harms, motivated joiners could mask the harm. (BiasPositive)"
+      ],
+      "NearMisses": [
+        "Participants learn useful skills; therefore they improve. (NotRelevant)",
+        "The result is zero, so the program has no effect. (NotRelevant)"
+      ]
+    }
+  },
+  "DriverOverrides": {
+    "Policy": { "MaxClarificationAttempts": 1 },
+    "Scoring": { "TargetDistinctExplanations": 2 }
+  }
+}

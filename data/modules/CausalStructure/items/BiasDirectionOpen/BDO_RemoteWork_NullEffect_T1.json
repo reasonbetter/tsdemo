@@ -1,0 +1,78 @@
+{
+  "ItemID": "BDO_RemoteWork_NullEffect_T1",
+  "SchemaID": "BiasDirectionOpen",
+  "MutuallyExclusiveWith": ["AEG_WFH_JobSatisfaction_T1"],
+  "MutuallyExclusiveGroup": "wfh_job_satisfaction",
+  "Stem": "A large tech company allowed its software developers to choose whether to work fully remotely or in the office. A year later, an analysis showed that the average productivity metrics were identical for the remote group and the office group. The company is interpreting the data as showing work location has no impact on productivity.\n\nWhat is your interpretation of these results regarding how remote work might affect performance, for better or worse? Explain your reasoning.",
+  "Content": {
+    "ScenarioDefinition": {
+      "Intervention": "Working fully remotely (vs. in the office).",
+      "Outcome": "Productivity metrics.",
+      "Observed_Result": "No difference in productivity between the two groups (Null effect)."
+    },
+    "ProbeLibrary": {
+      "Both_Explained": [
+        {"id": "stop_success_1", "text": "Thank you. That is a comprehensive interpretation of the remote work analysis."},
+        {"id": "stop_success_2", "text": "Thanks, that covers the key possibilities for how remote work affects performance."},
+        {"id": "stop_success_3", "text": "Got it. That's a thorough analysis of the productivity data."}
+      ],
+      "MaskedBenefit_Only_Explained": [
+        {"id": "flip_harm_1", "text": "Okay. Now consider the opposite possibility: how could the analysis show no difference even if working remotely actually *decreased* productivity?"},
+        {"id": "flip_harm_2", "text": "Thanks. What about the 'for worse' side? Explain how the results might look this way even if remote work actually hurt productivity."},
+        {"id": "flip_harm_3", "text": "Understood. Now, please explain a scenario where remote work decreases performance, but the analysis still shows no difference."}
+      ],
+      "MaskedHarm_Only_Explained": [
+        {"id": "flip_benefit_1", "text": "Okay. Now consider the opposite possibility: how could the analysis show no difference even if working remotely actually *increased* productivity?"},
+        {"id": "flip_benefit_2", "text": "Thanks. What about the 'for better' side? Explain how the results might look this way even if remote work actually helped productivity."},
+        {"id": "flip_benefit_3", "text": "Understood. Now, please explain a scenario where remote work increases performance, but the analysis still shows no difference."}
+      ],
+      "Neither_Explained_Sufficiently": [
+        {"id": "general_1", "text": "Is the observed 'no difference' sufficient evidence to conclude that work location has no impact on productivity? Why or why not?"},
+        {"id": "general_2", "text": "Can you think of a scenario where remote work *does* affect productivity, but the analysis still shows no difference?"},
+        {"id": "general_3", "text": "Why might the observed results be misleading about the actual impact of remote work?"}
+      ],
+      "NotSpecific": [
+        {"id": "specific_1", "text": "Can you be more specific about how that would lead to the observed 'no difference' in productivity? Please explain the mechanism."},
+        {"id": "specific_2", "text": "That's a bit broad. Can you describe the specific factor and how it might mask the actual impact of remote work?"},
+        {"id": "specific_3", "text": "Could you explain the full logic? How exactly does the factor you mentioned lead to the observed 'no difference' result?"}
+      ],
+      "NotDistinct": [
+        {"id": "distinct_1", "text": "That relies on the same underlying logic as your previous explanation. Please provide a distinctly different possibility for the impact of remote work."},
+        {"id": "distinct_2", "text": "That's too similar to the possibility you already mentioned. Try explaining how the opposite effect could be true."},
+        {"id": "distinct_3", "text": "This seems to overlap with an earlier point. Can you describe a different scenario for how remote work affects performance?"}
+      ],
+      "NotPlausible": [
+        {"id": "plausible_1", "text": "Let's try another angle. Please offer a different interpretation of the results."},
+        {"id": "plausible_2", "text": "Okay, please provide a different possibility regarding the impact of remote work."},
+        {"id": "plausible_3", "text": "Try to think of a different reason why the analysis showed no difference."}
+      ],
+      "NotClear": [
+        {"id": "clear_1", "text": "I didn't follow your reasoning. Could you rephrase your explanation?"},
+        {"id": "clear_2", "text": "Can you clarify what you mean? I don't quite understand."},
+        {"id": "clear_3", "text": "I don't quite follow. Could you explain how that would work?"}
+      ],
+      "NotRelevant": [
+        {"id": "relevant_1", "text": "Please focus on interpreting the results regarding the impact of remote work on productivity."},
+        {"id": "relevant_2", "text": "Your response seems off-topic. Please focus on how remote work affects performance based on the analysis."},
+        {"id": "relevant_3", "text": "Please address the prompt: what is your interpretation of these results?"}
+      ]
+    },
+    "Examples": {
+      "MaskedBenefit_Example": {
+        "text": "Remote work might actually improve productivity (Benefit). Employees who face long commutes or find the office environment distracting might choose remote work (Negative Bias). If working remotely allowed them to focus better, it would raise their productivity up to the average level of the office workers.",
+        "explanation": "Identifies Negative Bias (long commutes/distracted employees select remote) and Masking Logic (increased focus brings them up to average)."
+      },
+      "MaskedHarm_Example": {
+        "text": "Remote work might actually decrease productivity (Harm). The most independent, disciplined, and high-performing employees might be the ones who choose (or are allowed) to work remotely (Positive Bias). If remote work actually hindered collaboration or creativity, it could bring their high productivity down to the average level.",
+        "explanation": "Identifies Positive Bias (disciplined/high performers select remote) and Masking Logic (reduced collaboration brings them down to average)."
+      },
+      "Neither_Explained_Sufficiently_Example": {
+        "text": "The results are flawed because employees selected their own location. This means there is self-selection bias, so we can't tell if remote work is better or worse.",
+        "explanation": "This correctly identifies self-selection bias but does not provide a specific mechanism (e.g., 'disciplined employees') or the masking logic."
+      }
+    }
+  },
+  "DriverOverrides": {
+    "Policy": { "MaxTotalTurns": 3 }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "SchemaID": "FermiPopulationCity",
+  "Description": "Estimate a city's population (orders of magnitude).",
+  "Engine": { "driverId": "generic.numeric.v1", "version": "1.1.0" },
+  "GuidanceVersion": "1.0.0",
+  "Ability": { "key": "numeric.fermi" },
+
+  "PolicyDefaults": {
+    "MaxConsecutiveFailedAttempts": 2
+  },
+
+  "DriverConfig": {
+    "AJ_System_Guidance": {
+      "role": "You are a measurement component. Extract exactly one numeric answer per turn, return JSON only.",
+      "return_format": { "value": "number", "unit": "string|null", "normalized": "number|null", "confidence": "number 0..1" },
+      "rules": ["Choose the user's final intended answer; return JSON only."]
+    },
+    "Extraction": {
+      "strategy": "either",
+      "regex": "(?<value>\\b[0-9][0-9,\\.eE+-]*\\b)\\s*(?<unit>[A-Za-z/%]+)?",
+      "flags": "i",
+      "pick": "last"
+    },
+    "Units": {
+      "base": "people",
+      "table": { "people": 1, "person": 1, "k": 1000, "thousand": 1000, "m": 1000000, "million": 1000000 }
+    }
+  },
+
+  "ScoringSpec": {
+    "target": 1200000,
+    "mode": "log-error",
+    "thresholds": { "full": 0.2, "partial": 0.5, "partialCredit": 0.6 },
+    "completion": { "closeEnough": 0.2, "maxAttempts": 2 },
+    "theta": { "step": 0.25, "varDecay": 0.9, "minVar": 0.5 }
+  },
+
+  "AJ_Contract_JsonSchema": {
+    "anyOf": [
+      { "type": "number" },
+      {
+        "type": "object",
+        "properties": {
+          "value": { "type": ["number","null"] },
+          "unit": { "type": ["string","null"] },
+          "normalized": { "type": ["number","null"] },
+          "confidence": { "type": ["number","null"], "minimum": 0, "maximum": 1 }
+        },
+        "anyOf": [
+          { "required": ["value"] },
+          { "required": ["normalized"] }
+        ],
+        "additionalProperties": true
+      }
+    ]
+  }
+}

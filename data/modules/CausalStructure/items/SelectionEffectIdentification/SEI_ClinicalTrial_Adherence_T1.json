@@ -1,0 +1,62 @@
+{
+  "ItemID": "SEI_ClinicalTrial_Adherence_T1",
+  "SchemaID": "SelectionEffectIdentification",
+  "Stem": "In a well-run clinical trial of a new drug, patients who consistently took the drug had better health outcomes than those who frequently missed doses. Assuming neither the drug’s efficacy nor a placebo effect explain this, what's the most likely explanation?",
+  "Content": {
+    "ScenarioDefinition": {
+      "A_text": "high adherence (consistently taking the drug)",
+      "B_text": "better health outcomes",
+      "Context": "Clinical trial for a new drug.",
+      "Observed_Association": "High adherence correlated with better outcomes.",
+      "Constraint_1": "Outcome is NOT caused by drug efficacy.",
+      "Constraint_2": "Outcome is NOT caused by placebo effect."
+    },
+    "ThemeRegistry": [
+      {
+        "ThemeID": "healthy_adherer_effect_behavior",
+        "description": "Adherers tend to practice other healthy behaviors (diet, exercise, following medical advice) which lead to better outcomes (Healthy Adherer Effect).",
+        "Aliases": ["compliant people are healthier","adherers follow other health rules","health-conscious behavior","healthy user bias"]
+      },
+      {
+        "ThemeID": "conscientiousness_confounding",
+        "description": "Personality traits like conscientiousness or discipline lead both to better adherence and better outcomes.",
+        "Aliases": ["disciplined people","personality factors","responsibility"]
+      },
+      {
+        "ThemeID": "adherence_confounding_SES_stability",
+        "description": "Patients with more stable lives, support systems, or higher SES are more able to adhere and also have better outcomes independently.",
+        "Aliases": ["more resources","stable living situation","better access to care","social support"]
+      },
+      {
+        "ThemeID": "reverse_causation_deterioration",
+        "description": "Patients whose health was deteriorating or who felt sicker were less likely to remember or be able to take their pills.",
+        "Aliases": ["getting sicker leads to missed doses","too sick to take pills","sicker patients miss doses"]
+      }
+    ],
+    "TooGeneral": ["lifestyle","personality","background","the groups were different","confounding variables"],
+    "Examples": {
+      "RejectsAssumption": [
+        { "text": "The drug worked for the people who took it consistently.", "explanation": "Violates the constraint that efficacy is not the cause." },
+        { "text": "Taking the pills made them feel better due to a placebo.", "explanation": "Violates the constraint that placebo effect is not the cause." }
+      ],
+      "NotSpecific": [
+        { "text": "The adherent people were different from the non-adherent people.", "explanation": "Too vague—must specify how and why that difference drives outcomes." },
+        { "text": "It's a confounding variable.", "explanation": "Names the concept but not the specific factor (e.g., healthy behaviors)." }
+      ],
+      "Good": [
+        { "text": "People who remember to take pills daily are also more likely to exercise and follow health advice, which improves outcomes.", "explanation": "Healthy adherer effect." }
+      ]
+    },
+    "ProbeLibrary": {
+      "MultipleExplanation": [ { "id": "single_1", "text": "One explanation at a time, please—send just one." } ],
+      "Good": [ { "id": "good_1", "text": "Thanks. That is a plausible explanation." } ],
+      "NotDistinct": [ { "id": "redux_1", "text": "Too similar to an earlier idea—try a different mechanism." } ],
+      "NotSpecific": [ { "id": "specific_1", "text": "Please specify the concrete factor and how it affects outcomes." } ],
+      "NotClear": [ { "id": "clear_1", "text": "I didn’t follow—clarify how adherence correlates with other factors that drive outcomes." } ],
+      "NotPlausible": [ { "id": "plaus_1", "text": "Let’s try a more realistic reason consistent with the constraints." } ],
+      "NotRelevant": [ { "id": "relevance_1", "text": "Please focus on explaining the observed association within the given constraints." } ],
+      "RejectsAssumption": [ { "id": "assump_1", "text": "Remember: neither efficacy nor placebo explains this. Offer an explanation consistent with the constraints instead." } ]
+    }
+  },
+  "DriverOverrides": { "Policy": { "TargetDistinctExplanations": 1 } }
+}

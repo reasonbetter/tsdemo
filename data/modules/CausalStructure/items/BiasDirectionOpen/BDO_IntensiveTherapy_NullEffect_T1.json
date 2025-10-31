@@ -1,0 +1,76 @@
+{
+  "ItemID": "BDO_IntensiveTherapy_NullEffect_T1",
+  "SchemaID": "BiasDirectionOpen",
+  "Stem": "A hospital introduced an optional, intensive therapy program for patients recovering from a specific type of injury. A review of patient records showed that those who participated in the intensive program had the same average recovery time as those who followed the standard, less intensive protocol.\n\nHow should the administration interpret this 'no difference' finding when considering the program's potential benefits and risks? Explain your reasoning.",
+  "Content": {
+    "ScenarioDefinition": {
+      "Intervention": "Optional intensive therapy program (vs. standard protocol).",
+      "Outcome": "Average recovery time.",
+      "Observed_Result": "No difference in recovery time between the two groups (Null effect)."
+    },
+    "ProbeLibrary": {
+      "Both_Explained": [
+        {"id": "stop_success_1", "text": "Thank you. That is a comprehensive interpretation of the intensive therapy results."},
+        {"id": "stop_success_2", "text": "Thanks, that covers the key possibilities regarding the therapy's benefits and risks."},
+        {"id": "stop_success_3", "text": "Got it. That's a thorough analysis of the findings."}
+      ],
+      "MaskedBenefit_Only_Explained": [
+        {"id": "flip_harm_1", "text": "Okay. Now consider the opposite possibility: how could the study show no difference even if the intensive therapy actually *slowed down* recovery?"},
+        {"id": "flip_harm_2", "text": "Thanks. What about the potential risks? Explain how the results might look this way even if the therapy was actually detrimental."},
+        {"id": "flip_harm_3", "text": "Understood. Now, please explain a scenario where the therapy lengthens recovery time, but the study still shows no difference."}
+      ],
+      "MaskedHarm_Only_Explained": [
+        {"id": "flip_benefit_1", "text": "Okay. Now consider the opposite possibility: how could the study show no difference even if the intensive therapy actually *sped up* recovery?"},
+        {"id": "flip_benefit_2", "text": "Thanks. What about the potential benefits? Explain how the results might look this way even if the therapy was actually helpful."},
+        {"id": "flip_benefit_3", "text": "Understood. Now, please explain a scenario where the therapy shortens recovery time, but the study still shows no difference."}
+      ],
+      "Neither_Explained_Sufficiently": [
+        {"id": "general_1", "text": "Is the observed 'no difference' sufficient evidence to conclude the intensive therapy has the same impact as the standard protocol? Why or why not?"},
+        {"id": "general_2", "text": "Can you think of a scenario where the intensive therapy *does* change recovery time, but the study still shows no difference?"},
+        {"id": "general_3", "text": "Why might the observed results be misleading about the therapy's actual impact on recovery?"}
+      ],
+      "NotSpecific": [
+        {"id": "specific_1", "text": "Can you be more specific about how that would lead to the observed 'no difference' in recovery time? Please explain the mechanism."},
+        {"id": "specific_2", "text": "That's a bit broad. Can you describe the specific factor and how it might mask the therapy's actual impact?"},
+        {"id": "specific_3", "text": "Could you explain the full logic? How exactly does the factor you mentioned lead to the observed 'no difference' result?"}
+      ],
+      "NotDistinct": [
+        {"id": "distinct_1", "text": "That relies on the same underlying logic as your previous explanation. Please provide a distinctly different possibility regarding the therapy's benefits or risks."},
+        {"id": "distinct_2", "text": "That's too similar to the possibility you already mentioned. Try explaining how the opposite effect could be true."},
+        {"id": "distinct_3", "text": "This seems to overlap with an earlier point. Can you describe a different scenario for the therapy's impact?"}
+      ],
+      "NotPlausible": [
+        {"id": "plausible_1", "text": "Let's try another angle. Please offer a different interpretation of the results."},
+        {"id": "plausible_2", "text": "Okay, please provide a different possibility regarding the therapy's impact."},
+        {"id": "plausible_3", "text": "Try to think of a different reason why the study showed no difference."}
+      ],
+      "NotClear": [
+        {"id": "clear_1", "text": "I didn't follow your reasoning. Could you rephrase your explanation?"},
+        {"id": "clear_2", "text": "Can you clarify what you mean? I don't quite understand."},
+        {"id": "clear_3", "text": "I don't quite follow. Could you explain how that would work?"}
+      ],
+      "NotRelevant": [
+        {"id": "relevant_1", "text": "Please focus on interpreting the results regarding the intensive therapy program."},
+        {"id": "relevant_2", "text": "Your response seems off-topic. Please focus on the benefits and risks of the therapy based on the study."},
+        {"id": "relevant_3", "text": "Please address the prompt: how should the administration interpret the 'no difference' finding?"}
+      ]
+    },
+    "Examples": {
+      "MaskedBenefit_Example": {
+        "text": "The intensive program might actually speed up recovery (Benefit). It's likely that patients with the most severe injuries, or those whose recovery was stalling, were the ones channeled into the intensive program (Negative Bias). If the program helped them, it would bring their recovery time back to the average rate.",
+        "explanation": "Identifies Negative Bias (severe cases/slow recovery select in) and Masking Logic (effectiveness brings them back to average time)."
+      },
+      "MaskedHarm_Example": {
+        "text": "The intensive program might actually slow down recovery (Harm), perhaps due to fatigue. The patients who opted for intensive therapy might be the most health-conscious or those with milder injuries who wanted to maximize their recovery (Positive Bias). If the therapy was counterproductive, it would lengthen their recovery time, bringing them down to the average rate.",
+        "explanation": "Identifies Positive Bias (health-conscious/milder cases select in) and Masking Logic (harm/fatigue brings them down to average time)."
+      },
+      "Neither_Explained_Sufficiently_Example": {
+        "text": "The study doesn't prove anything because the patients in the intensive group might have been different from the standard group. It's impossible to know the benefits or risks.",
+        "explanation": "This points out the groups might differ but does not specify how (mechanism) or how this masks an effect (masking logic)."
+      }
+    }
+  },
+  "DriverOverrides": {
+    "Policy": { "MaxTotalTurns": 3 }
+  }
+}

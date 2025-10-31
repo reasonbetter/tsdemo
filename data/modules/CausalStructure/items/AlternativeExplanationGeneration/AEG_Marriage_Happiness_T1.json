@@ -1,0 +1,146 @@
+{
+  "ItemID": "AEG_Marriage_Happiness_T1",
+  "SchemaID": "AlternativeExplanationGeneration",
+  "Stem": "Married people report higher levels of happiness, on average, than unmarried people. Give one reason why this might be true, other than marriage causing happiness.",
+  "Content": {
+    "ScenarioDefinition": {
+      "A_text": "being married",
+      "B_text": "higher levels of happiness"
+    },
+    "ThemeRegistry": [
+      {
+        "ThemeID": "reverse_causation_selection",
+        "Aliases": [
+          "happier people get married",
+          "happiness attracts partners",
+          "happy people more likely to marry",
+          "selection into marriage",
+          "unhappy people divorce",
+          "optimism"
+        ]
+      },
+      {
+        "ThemeID": "ses_financial_stability",
+        "Aliases": [
+          "financial stability",
+          "wealth",
+          "socioeconomic status",
+          "job security",
+          "money",
+          "SES",
+          "economic resources"
+        ]
+      },
+      {
+        "ThemeID": "personality_traits",
+        "Aliases": [
+          "agreeableness",
+          "emotional stability",
+          "extroversion",
+          "conscientiousness",
+          "sociability",
+          "low neuroticism"
+        ]
+      },
+      {
+        "ThemeID": "health_status",
+        "Aliases": [
+          "better physical health",
+          "mental health",
+          "absence of illness",
+          "healthy lifestyle"
+        ]
+      },
+      {
+        "ThemeID": "social_support_networks",
+        "Aliases": [
+          "strong social connections",
+          "family support",
+          "large friend group",
+          "community involvement",
+          "social integration"
+        ]
+      }
+    ],
+    "TooGeneral": [
+      "personality",
+      "background",
+      "lifestyle",
+      "resources",
+      "health",
+      "support",
+      "culture",
+      "environment",
+      "stability"
+    ],
+    "Examples": {
+      "RunsThroughA": [
+        {
+          "text": "Marriage provides companionship and emotional support, which makes people happier.",
+          "explanation": "This is A->B. Companionship/support is the mechanism by which marriage causes happiness."
+        },
+        {
+          "text": "Married couples share expenses, so they have less financial stress, leading to more happiness.",
+          "explanation": "This is A->Mediator->B. Shared expenses/economies of scale (Mediator) are a direct consequence of being married (A)."
+        },
+        {
+          "text": "Being married reduces loneliness, and loneliness causes unhappiness.",
+          "explanation": "This is A->Displacement->B. Marriage (A) displaces loneliness, leading to happiness (B)."
+        },
+        {
+          "text": "Married people have a partner to help them through tough times, which increases happiness.",
+          "explanation": "This is A->B. Having a partner is the mechanism by which marriage causes happiness."
+        }
+      ],
+      "Good": [
+        {
+          "text": "People who are already happier and more emotionally stable are more likely to attract a partner and get married.",
+          "explanation": "This correctly identifies reverse causation (selection)."
+        }
+      ]
+    },
+    "ProbeLibrary": {
+      "MultipleExplanation": [
+        { "id": "single_1", "text": "One explanation at a time, please—could you resend just one?" },
+        { "id": "single_2", "text": "Please share only one explanation for now; then we can ask for another." }
+      ],
+      "Good": [
+        { "id": "alt_1", "text": "Thank you. Can you think of another reason for the link between marriage and happiness?" },
+        { "id": "alt_2", "text": "Great. Now please try to give a different explanation for the association." },
+        { "id": "alt_3", "text": "Thanks. Next, please think of another distinct reason." }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "That is a bit too similar to an explanation you already gave. Please provide a different one." },
+        { "id": "redux_2", "text": "That seems to rely on the same kind of cause as a previous answer. Can you give a different kind of explanation?" },
+        { "id": "redux_3", "text": "Ok, this time try to think about explanations of a different type." }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Could you give a bit more detail about how that would work?" },
+        { "id": "specific_2", "text": "Can you be more specific about the mechanism you are describing?" },
+        { "id": "specific_3", "text": "That explanation is a bit broad. Can you give a concrete factor or example?" }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "Can you clarify what you mean?" },
+        { "id": "clear_2", "text": "I don't quite understand. Can you rephrase that?" },
+        { "id": "clear_3", "text": "I didn't follow—could you explain how that would work?" }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Ok, this time try a different kind of explanation for the link." },
+        { "id": "plaus_2", "text": "Let's try another angle—please offer a different reason." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on explaining the link between being married and higher levels of happiness." },
+        { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ]
+    }
+  },
+  "DriverOverrides": {
+    "Policy": {
+      "MaxConsecutiveFailedAttempts": 2
+    },
+    "Scoring": {
+      "TargetDistinctExplanations": 3,
+      "ScoringMapID": "Map_3Expl"
+    }
+  }
+}

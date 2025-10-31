@@ -1,0 +1,142 @@
+{
+  "ItemID": "AEG_VideoGames_Aggression_T1",
+  "SchemaID": "AlternativeExplanationGeneration",
+  "Stem": "Children who play violent video games are more likely to show aggressive behavior in school. Give one reason why this might be true, other than playing violent video games causing aggressive behavior.",
+  "Content": {
+    "ScenarioDefinition": {
+      "A_text": "playing violent video games",
+      "B_text": "aggressive behavior in school"
+    },
+    "ThemeRegistry": [
+      {
+        "ThemeID": "underlying_traits",
+        "Aliases": [
+          "aggressive personality",
+          "impulsivity",
+          "sensation-seeking",
+          "low empathy",
+          "pre-existing aggression",
+          "temperament",
+          "ADHD",
+          "hostile disposition"
+        ]
+      },
+      {
+        "ThemeID": "home_environment",
+        "Aliases": [
+          "stressful home life",
+          "lack of supervision",
+          "parental neglect",
+          "exposure to real violence",
+          "family conflict",
+          "poor parenting",
+          "unsupervised time"
+        ]
+      },
+      {
+        "ThemeID": "social_peer_group",
+        "Aliases": [
+          "aggressive friends",
+          "peer pressure",
+          "bullying (as perpetrator)",
+          "social norms",
+          "delinquent peers"
+        ]
+      },
+      {
+        "ThemeID": "reverse_causation_rejection",
+        "Aliases": [
+          "aggression leads to social rejection",
+          "loneliness",
+          "few friends",
+          "social isolation",
+          "retreating into games",
+          "bullying (as victim)",
+          "using games to cope"
+        ]
+      },
+      {
+        "ThemeID": "demographics_gender",
+        "Aliases": [
+          "being male",
+          "gender",
+          "boys"
+        ]
+      }
+    ],
+    "TooGeneral": [
+      "personality",
+      "environment",
+      "background",
+      "upbringing",
+      "social issues",
+      "mental health",
+      "demographics",
+      "behavioral problems",
+      "media exposure"
+    ],
+    "Examples": {
+      "RunsThroughA": [
+        {
+          "text": "The games desensitize children to violence, making them more likely to act aggressively.",
+          "explanation": "This is A->B (Desensitization). This is the mechanism by which games cause aggression."
+        },
+        {
+          "text": "Children imitate the violent behaviors they practice in the video games.",
+          "explanation": "This is A->B (Social Learning/Imitation). This is the mechanism by which games cause aggression."
+        },
+        {
+          "text": "Playing the games makes them frustrated, and this frustration leads to aggression at school.",
+          "explanation": "This is A->Mediator->B. Frustration (Mediator) is caused by playing the game (A)."
+        },
+        {
+          "text": "Playing video games takes time away from learning social skills, which leads to aggression.",
+          "explanation": "This is A->Displacement->B. Gaming (A) displaces social learning, leading to aggression (B). This relies on A causing the outcome."
+        }
+      ]
+    },
+    "ProbeLibrary": {
+      "MultipleExplanation": [
+        { "id": "single_1", "text": "One explanation at a time, please—could you resend just one?" },
+        { "id": "single_2", "text": "Please share only one explanation for now; then we can ask for another." }
+      ],
+      "Good": [
+        { "id": "alt_1", "text": "Thank you. Can you think of another reason for the link between violent video games and aggressive behavior?" },
+        { "id": "alt_2", "text": "Great. Now please try to give a different explanation for the association." },
+        { "id": "alt_3", "text": "Thanks. Next, please think of another distinct reason." }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "That is a bit too similar to an explanation you already gave. Please provide a different one." },
+        { "id": "redux_2", "text": "That seems to rely on the same kind of cause as a previous answer. Can you give a different kind of explanation?" },
+        { "id": "redux_3", "text": "Ok, this time try to think about explanations of a different type." }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Could you give a bit more detail about how that would work?" },
+        { "id": "specific_2", "text": "Can you be more specific about the mechanism you are describing?" },
+        { "id": "specific_3", "text": "That explanation is a bit broad. Can you give a concrete factor or example?" }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "Can you clarify what you mean?" },
+        { "id": "clear_2", "text": "I don't quite understand. Can you rephrase that?" },
+        { "id": "clear_3", "text": "I didn't follow—could you explain how that would work?" }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Ok, this time try a different kind of explanation for the link." },
+        { "id": "plaus_2", "text": "Let's try another angle—please offer a different reason." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on explaining the link between playing violent video games and aggressive behavior." },
+        { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ]
+    }
+  },
+  "DriverOverrides": {
+    "Policy": {
+      "MaxConsecutiveFailedAttempts": 2
+    },
+    "Scoring": {
+      "TargetDistinctExplanations": 2,
+      "ScoringMapID": "Map_2Expl"
+    }
+  }
+}

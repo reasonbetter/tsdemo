@@ -1,0 +1,74 @@
+{
+  "ItemID": "SEI_CompanyExpansion_Survivorship_T1",
+  "SchemaID": "SelectionEffectIdentification",
+  "Stem": "An analysis of 10-year-old companies found that those which aggressively expanded in their first year were more profitable than those which grew slowly. Assuming aggressive expansion increases the risk of failure, why might the data suggest it leads to higher profits?",
+  "Content": {
+    "ScenarioDefinition": {
+      "A_text": "aggressive early expansion",
+      "B_text": "higher profits",
+      "Sample": "10-year-old companies (companies still in business).",
+      "Observed_Association": "Aggressive early expansion is correlated with higher profits within this sample.",
+      "Constraint": "Aggressive expansion increases the risk of failure (going out of business)."
+    },
+    "ThemeRegistry": [
+      {
+        "ThemeID": "survivorship_bias_exclusion_of_failures",
+        "description": "The analysis only includes companies that survived for 10 years. Companies that expanded aggressively and failed (went out of business) are excluded from the data, biasing the results (Survivorship Bias).",
+        "Aliases": [
+          "only looking at the survivors",
+          "failed companies are not included",
+          "ignoring companies that went bankrupt",
+          "data only includes successful firms",
+          "missing the failures"
+        ]
+      }
+    ],
+    "TooGeneral": [
+      "sampling error",
+      "bias in the study",
+      "correlation is not causation",
+      "they didn't look at all companies",
+      "risk vs reward"
+    ],
+    "Examples": {
+      "RejectsAssumption": [
+        { "text": "Aggressive expansion actually makes companies stronger and more likely to survive.", "explanation": "Contradicts the premise that aggressive expansion increases failure risk." },
+        { "text": "You have to take risks to get rewards, so aggressive expansion causes higher profits.", "explanation": "Argues a direct causal link and ignores the selection mechanism implied by the constraint." }
+      ],
+      "NotSpecific": [
+        { "text": "The data is biased.", "explanation": "True but does not explain how (exclusion of failed firms)." },
+        { "text": "They didn't look at all the data.", "explanation": "Must specify which data is missing (failed companies) and why that matters." }
+      ],
+      "Good": [
+        { "text": "The analysis only includes companies that are still around. Many that expanded aggressively failed and are absent, making the survivors who expanded look more profitable.", "explanation": "Identifies survivorship bias by exclusion of failures." }
+      ]
+    },
+    "ProbeLibrary": {
+      "MultipleExplanation": [
+        { "id": "single_1", "text": "One explanation at a time, please—could you resend just one?" }
+      ],
+      "Good": [
+        { "id": "good_1", "text": "Thank you. That is a plausible explanation." }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "That’s too similar to an earlier reason. Try a different kind of explanation." }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Please specify which companies are excluded or how the sample is biased." }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "I didn’t follow—please restate how the sampling or inclusion criteria create the association." }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Let’s try a more realistic reason consistent with the premise." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on explaining the observed association described in the question." }
+      ],
+      "RejectsAssumption": [
+        { "id": "assump_1", "text": "Remember the premise: aggressive expansion increases failure risk. Please offer an explanation consistent with that." }
+      ]
+    }
+  },
+  "DriverOverrides": { "Policy": { "TargetDistinctExplanations": 1 } }
+}

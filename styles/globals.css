@@ -1,0 +1,24 @@
+/* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure default sans font is applied globally */
+@layer base {
+  html { @apply font-sans; }
+  body { @apply font-sans; }
+}
+
+/* Apply the base colors defined in tailwind.config.ts */
+body {
+  background-color: theme('colors.background');
+  color: theme('colors.foreground');
+  /* Ensure smooth font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure the application takes up the full height */
+html, body, #__next {
+  height: 100%;
+}

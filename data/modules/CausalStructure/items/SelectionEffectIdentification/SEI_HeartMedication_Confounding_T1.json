@@ -1,0 +1,87 @@
+{
+  "ItemID": "SEI_HeartMedication_Confounding_T1",
+  "SchemaID": "SelectionEffectIdentification",
+  "Stem": "A large hospital reviews its records and finds that patients who received a new, expensive heart medication have worse survival rates than those who received the old, standard medication. Assuming the new medication is at least as good as the old one, what’s the most plausible reason for this fact?",
+  "Content": {
+    "ScenarioDefinition": {
+      "A_text": "receiving the new, expensive heart medication",
+      "B_text": "better survival rates",
+      "Intervention_Group": "Patients receiving new, expensive heart medication",
+      "Comparison_Group": "Patients receiving old, standard medication",
+      "Observed_Outcome": "Intervention group has worse survival rates",
+      "Constraint": "The new medication is at least as good as the old one."
+    },
+    "ThemeRegistry": [
+      {
+        "ThemeID": "confounding_by_severity",
+        "description": "The new medication was preferentially prescribed to patients with more severe illness or a worse baseline prognosis (Confounding by Indication).",
+        "Aliases": ["sicker patients got new drug","worse cases assigned new med","confounding by indication","pre-existing severity"]
+      },
+      {
+        "ThemeID": "last_resort_usage",
+        "description": "The new medication was used as a 'last resort' for patients who were already deteriorating or had failed the standard treatment.",
+        "Aliases": ["hail mary","failed standard treatment first","used only when near death"]
+      },
+      {
+        "ThemeID": "comorbidity_frailty_confounding",
+        "description": "Patients receiving the new drug had more comorbidities (other health issues) or were generally frailer, which independently caused worse outcomes.",
+        "Aliases": ["other health problems","weaker patients","frailty"]
+      }
+    ],
+    "TooGeneral": [
+      "selection bias",
+      "confounding",
+      "the groups were different",
+      "pre-existing conditions",
+      "not randomized",
+      "doctor's choice"
+    ],
+    "Examples": {
+      "RejectsAssumption": [
+        { "text": "The new medication must actually be worse than the old one.", "explanation": "Violates the constraint that the new medication is at least as good." },
+        { "text": "The assumption is wrong; the new drug is harmful due to side effects.", "explanation": "Violates the constraint that the new medication is at least as good." }
+      ],
+      "NotSpecific": [
+        { "text": "The patients were not randomized.", "explanation": "True but does not specify the mechanism causing the difference in outcomes." },
+        { "text": "There were confounding variables.", "explanation": "Names the issue but not the specific variable (e.g., severity)." }
+      ]
+    },
+    "ProbeLibrary": {
+      "MultipleExplanation": [
+        { "id": "single_1", "text": "One explanation at a time, please—could you resend just one?" },
+        { "id": "single_2", "text": "Please provide only one explanation for now." }
+      ],
+      "Good": [
+        { "id": "good_1", "text": "Thank you. That is a plausible explanation." },
+        { "id": "good_next_1", "text": "Thanks. If you have another distinct explanation, please provide it." }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "That’s too similar to an earlier reason. Try a different kind of explanation." },
+        { "id": "redux_2", "text": "This overlaps with a prior answer; please give a different mechanism." }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Could you be more specific about how the two groups might differ?" },
+        { "id": "specific_2", "text": "Can you describe the specific mechanism or factor involved?" },
+        { "id": "specific_3", "text": "That's broad. How exactly would that lead to the observed result?" }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "I didn’t follow—could you rephrase how that works?" },
+        { "id": "clear_2", "text": "Can you clarify the mechanism you are describing?" }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Please offer a different kind of explanation for the observation." },
+        { "id": "plaus_2", "text": "Let’s try another angle—give a different explanation for the finding." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on explaining the observation described in the prompt." }
+      ],
+      "RejectsAssumption": [
+        { "id": "assump_1", "text": "Remember the constraint that the new medication is at least as good as the old one—please give a reason consistent with that." },
+        { "id": "assump_2", "text": "Please adhere to the given premise (new medication is not worse) and suggest an explanation consistent with it instead." }
+      ]
+    }
+  },
+  "DriverOverrides": {
+    "Policy": { "TargetDistinctExplanations": 1 }
+  }
+}

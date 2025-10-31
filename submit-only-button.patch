@@ -1,0 +1,38 @@
+cat > submit-only-button-v2.patch <<'PATCH'
+diff --git a/pages/index.tsx b/pages/index.tsx
+--- a/pages/index.tsx
++++ b/pages/index.tsx
+@@ -54,2 +54,2 @@
+   const inputRef = useRef<HTMLTextAreaElement>(null);
+-  const probeInputRef = useRef<HTMLInputElement>(null);
++  const probeInputRef = useRef<HTMLTextAreaElement>(null);
+@@ -430,3 +430,3 @@
+-                    {!awaitingProbe && (
+-                    <form onSubmit={onSubmit}>
+-                        <textarea
++                    {!awaitingProbe && (
++                    <form onSubmit={onSubmit} onKeyDown={(e) => { if (e.key === 'Enter') { const tag = (e.target as HTMLElement)?.tagName; const isTextarea = tag === 'TEXTAREA'; const isButton = tag === 'BUTTON'; if (!isTextarea && !isButton) e.preventDefault(); } }}>
++                        <textarea
+@@ -454,3 +454,3 @@
+-                    {awaitingProbe && (
+-                    <form onSubmit={onSubmitProbe}>
+-                        {/* Probe Styling (Blue highlight) */}
++                    {awaitingProbe && (
++                    <form onSubmit={onSubmitProbe} onKeyDown={(e) => { if (e.key === 'Enter') { const tag = (e.target as HTMLElement)?.tagName; const isTextarea = tag === 'TEXTAREA'; const isButton = tag === 'BUTTON'; if (!isTextarea && !isButton) e.preventDefault(); } }}>
++                        {/* Probe Styling (Blue highlight) */}
+@@ -460,7 +460,7 @@
+-                        <input
++                        <textarea
+                         ref={probeInputRef}
+                         className="w-full px-4 py-3 text-base border border-input-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 ease-in-out"
+                         value={probeInput}
+                         onChange={(e) => setProbeInput(e.target.value)}
+                         placeholder="One sentence"
+-                        />
++                        ></textarea>
+PATCH
+
+git apply --check submit-only-button-v2.patch
+git apply --index submit-only-button-v2.patch
+git commit -m "UI: require submit button; Enter adds newline; probe input → textarea"
+git push -u origin submit-only-button

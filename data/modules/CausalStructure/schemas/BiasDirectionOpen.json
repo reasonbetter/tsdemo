@@ -1,0 +1,74 @@
+{
+  "SchemaID": "BiasDirectionOpen",
+  "Description": "Assesses recognition that observational null results are ambiguous due to selection biases that can mask benefit or harm; constrained categorical AJ output for dynamic probing and path-dependent scoring.",
+  "Engine": { "driverId": "bias.direction.open.v1", "version": "1.0.0" },
+  "GuidanceVersion": "1.1.0",
+  "Ability": { "key": "causal.interpretation.null_effects" },
+
+  "PolicyDefaults": { "MaxConsecutiveFailedAttempts": 2 },
+
+  "DriverConfig": {
+    "AJ_System_Guidance": {
+      "AnswerTypeCatalog": [
+        { "id": "Both_Explained", "description": "Explains BOTH a Masked Benefit and a Masked Harm scenario with specific mechanism and masking logic." },
+        { "id": "MaskedBenefit_Only_Explained", "description": "Explains Masked Benefit (Negative Bias masking helpful effect) with mechanism and logic; not Masked Harm." },
+        { "id": "MaskedHarm_Only_Explained", "description": "Explains Masked Harm (Positive Bias masking harmful effect) with mechanism and logic; not Masked Benefit." },
+        { "id": "NotSpecific", "description": "Clear/relevant but insufficiently specified: e.g., says \"selection bias\" or \"groups differ\" without a concrete mechanism or masking logic." },
+        { "id": "NotDistinct", "description": "A plausible explanation, but relies on the same underlying mechanism/logic as a previous explanation in this unit." },
+        { "id": "NotPlausible", "description": "Mechanism is unrealistic or does not fit the context; not a credible masking story." },
+        { "id": "NotClear", "description": "Ambiguous/incoherent." },
+        { "id": "NotRelevant", "description": "Irrelevant to the task." }
+      ],
+      "AnswerTypeGuidance": [
+        "CORE TASK: Classify into exactly one AnswerType.",
+        "STRICT REQUIREMENTS: (A) Specific mechanism; (B) Direction of bias; (C) Masking logic (bias + true effect → null).",
+        "MaskedBenefit: intervention helps but participants were inherently worse (Negative Bias) → up to average.",
+        "MaskedHarm: intervention harms (e.g., time cost) but participants were inherently better (Positive Bias) → down to average.",
+        "CLASSIFICATION ORDER: NotRelevant/NotClear → NotDistinct/NotPlausible → Both_Explained → Masked[X]_Only → NotSpecific (apply DominanceOrder on ties).",
+        "SPECIFICITY: Responses that merely say 'selection bias' or 'the groups were different' without a concrete factor/process are 'NotSpecific'.",
+        "DISTINCTNESS: If the explanation repeats the same underlying mechanism as earlier, classify as 'NotDistinct'.",
+        "PROBES: Select a probe ID from the item-level ProbeLibrary category matching the AnswerType. Prefer unused IDs."
+      ]
+    },
+    "ConfidencePolicy": { "MinConfidence": 0.6 },
+    "ClarificationPolicy": { "MaxTotal": 2, "MaxConsecutiveNotClear": 1, "MaxConsecutiveNotSpecific": 1 },
+    "DominanceOrder": ["NotRelevant","NotClear","NotDistinct","NotPlausible","Both_Explained","MaskedBenefit_Only_Explained","MaskedHarm_Only_Explained","NotSpecific"],
+    "AnswerTypeMap": { "Neither_Explained_Sufficiently": "NotSpecific" }
+  },
+
+  "ScoringSpec": {
+    "type": "path_dependent_scoring",
+    "PathMap": [
+      { "PathID": "P1_Spontaneous_Both", "Score": 2.0 },
+      { "PathID": "P2_GP_Both", "Score": 1.0 },
+      { "PathID": "P3_Spontaneous_One_FP_Success", "Score": 0.8 },
+      { "PathID": "P4_GP_One_FP_Success", "Score": 0.0 },
+      { "PathID": "P5_Spontaneous_One_FP_Fail", "Score": -0.2 },
+      { "PathID": "P6_GP_One_FP_Fail", "Score": -1.0 },
+      { "PathID": "P7_None_Ever", "Score": -2.5 }
+    ]
+  },
+
+  "AJ_Contract_JsonSchema": {
+    "type": "object",
+    "properties": {
+      "AnswerType": {
+        "type": "string",
+        "enum": [
+          "Both_Explained",
+          "MaskedBenefit_Only_Explained",
+          "MaskedHarm_Only_Explained",
+          "NotSpecific",
+          "NotDistinct",
+          "NotPlausible",
+          "NotClear",
+          "NotRelevant"
+        ]
+      },
+      "Confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+      "RecommendedProbeID": { "type": ["string","null"] }
+    },
+    "required": ["AnswerType","Confidence"],
+    "additionalProperties": false
+  }
+}

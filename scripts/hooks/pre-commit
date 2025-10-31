@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Prevent committing secrets and env files. Grow this list as needed.
+
+red() { printf "\033[0;31m%s\033[0m\n" "$*"; }
+yellow() { printf "\033[0;33m%s\033[0m\n" "$*"; }
+
+# Block staged env files outright
+if git diff --cached --name-only | grep -E '(^|/)(\.env(\..*)?|\.env\.local)$' >/dev/null 2>&1; then
+  red "Blocked: Attempt to commit one or more .env* files."
+  git diff --cached --name-only | grep -E '(^|/)(\.env(\..*)?|\.env\.local)$' || true
+  yellow "Remove these from the index (keep locally):"
+  yellow "  git rm --cached <path> && echo '<path>' >> .gitignore"
+  yellow "If you must proceed, use: git commit --no-verify"
+  exit 1
+fi
+
+# Scan added lines in staged diffs for OpenAI-style keys or OPENAI_API_KEY values
+STAGED_ADDITIONS=$(git diff --cached --no-color -U0 | grep '^\+' || true)
+
+if echo "$STAGED_ADDITIONS" | grep -E -i 'sk-[A-Za-z0-9_-]{10,}'; then
+  red "Blocked: Looks like a secret token (sk-...) in staged changes."
+  yellow "Remove/redact the key and try again."
+  yellow "If this is a false positive, bypass with: git commit --no-verify"
+  exit 1
+fi
+
+if echo "$STAGED_ADDITIONS" | grep -E -i 'OPENAI_API_KEY\s*=\s*[^\s]'; then
+  red "Blocked: OPENAI_API_KEY appears set in staged changes."
+  yellow "Move secrets to .env.local (gitignored) or Vercel envs."
+  yellow "If you must proceed, use: git commit --no-verify"
+  exit 1
+fi
+
+exit 0
+

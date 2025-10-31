@@ -5,4 +5,14 @@ out/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+# Environment variables - API keys and secrets
 .env
+.env*.local
+.env.development
+.env.production
+.env.test
+
+# macOS system files
+.DS_Store
+**/.DS_Store

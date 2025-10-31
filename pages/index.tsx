@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
-import { DisplayTheta } from '@/types/kernel';
-import { getDisplayTheta } from '@/lib/utils';
+// import types and utils as needed
 import Image from 'next/image';
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import ReactMarkdown from 'react-markdown';
 import TranscriptPanel from '@/components/TranscriptPanel';
 import SessionInfo from '@/components/SessionInfo';
@@ -24,22 +22,6 @@ const Prose = ({ children, size = 'lg' }: { children: string, size?: 'sm' | 'lg'
 
 // Use centralized DisplayTheta type from '@/types/kernel'
 
-// Theta change badge (mirrors Admin)
-const ThetaChangeDisplay = ({ before, after, colorOverride }: { before?: DisplayTheta | null; after?: DisplayTheta | null; colorOverride?: string }) => {
-  if (!before || !after) return null;
-  const change = after.mean - before.mean;
-  const autoColor = change > 0.005 ? "text-green-600" : change < -0.005 ? "text-red-600" : "text-gray-500";
-  const color = colorOverride || autoColor;
-  return (
-    <span className={`font-mono text-sm font-semibold ${color}`}>
-      θ: {before.mean.toFixed(2)} → {after.mean.toFixed(2)}
-    </span>
-  );
-};
-
-// getDisplayTheta imported from utils
-
-
 export default function Home() {
   const {
     debugLog, input, probeInput, history, awaitingProbe, awaitingTransition, theta, pending, latestMeasurement, ellipsisCount,
@@ -49,30 +31,7 @@ export default function Home() {
     onSubmit, onSubmitProbe, updateUserId, initializeSession, endSession, driverCapabilities,
   } = useAssessment();
 
-  const formatMeasurementForDisplay = (measurement: any): string => {
-    if (measurement === null) return 'null';
-    if (typeof measurement !== 'object' || Array.isArray(measurement)) {
-        return JSON.stringify(measurement, null, 2); // Fallback for non-objects or arrays
-    }
-    const formatted = Object.entries(measurement)
-        .map(([key, value]) => `${key}: ${String(value)}`)
-        .join('\n');
-    return formatted || '(empty object)';
-  };
-
-  const formatOutgoingTraceForDisplay = (messages: any[] | null): string => {
-    if (!messages || !Array.isArray(messages)) {
-        return "Trace available after first kernel AJ call.";
-    }
-    const formatted = messages.map(msg => `role: ${msg.role}\n\n${msg.content}`).join('\n\n-------------------\n\n');
-    // Corrected regex to remove brackets and quotes for readability
-    let cleaned = formatted.replace(/[\[\]{}"]/g, '');
-    // Suppress blocks of 3+ spaces, and 2+ spaces followed by a comma
-    cleaned = cleaned.replace(/ {3,}| {2,},/g, '');
-    // Suppress lines containing only a comma (with optional whitespace)
-    cleaned = cleaned.replace(/^\s*,\s*$/gm, '');
-    return cleaned;
-  };
+  // (helpers removed: unused in this component)
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const probeInputRef = useRef<HTMLTextAreaElement>(null);
@@ -147,9 +106,9 @@ export default function Home() {
          <header className="flex flex-col -gap-2 sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-4">
               <div className="flex items-center -ml-4 sm:ml-0 gap-0 sm:gap-0">
                   {/* Mobile logo */}
-                  <Image src="/AIowl5.png" alt="Wise Wireframe Logo" width={150} height={150} className="block sm:hidden -ml-6 mr-0" />
+                  <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={150} height={150} className="block sm:hidden -ml-6 mr-0" />
                   {/* Desktop logo */}
-                  <Image src="/AIowl5.png" alt="Wise Wireframe Logo" width={220} height={220} className="hidden sm:block -ml-14 -mr-14" />
+                  <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={220} height={220} className="hidden sm:block -ml-14 -mr-14" />
                   <div className="-ml-8 sm:ml-0">
                     <h1 className="text-2xl sm:text-3xl font-semibold leading-tight tracking-tight text-gray-700">Reasoning Interviewer</h1>
                     <p className="text-sm text-muted-foreground mt-0.5">[Causal Inference Demo]</p>

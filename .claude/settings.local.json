@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(sed:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm run build:*)",
+      "Bash(test:*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": [],
     "ask": []

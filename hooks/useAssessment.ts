@@ -107,21 +107,31 @@ export function useAssessment() {
         const bySchema: Record<string, any[]> = {};
         for (const it of items) { if (!bySchema[it.SchemaID]) bySchema[it.SchemaID] = []; bySchema[it.SchemaID].push(it); }
         setItemsBySchema(bySchema);
-        const ids = Object.keys(bySchema);
-        const randomized = [...ids].sort(() => Math.random() - 0.5);
-        setSchemaOrder(randomized);
-        setSchemaIndex(0);
-        setUsedItemsBySchema({});
-        // Build per-session plan: 2 AEG, 1 BDO, 1 SEI (random order)
-        const AEG = 'AlternativeExplanationGeneration';
-        const BDO = 'BiasDirectionOpen';
-        const SEI = 'SelectionEffectIdentification';
-        const plan = [AEG, AEG, BDO, SEI].sort(() => Math.random() - 0.5);
-        setSessionPlanSchemas(plan);
-        setSessionStepIndex(0);
+        if (restoredFromStorage) {
+          // Respect restored selection/plan; do not reset order/plan
+          const ids = Object.keys(bySchema);
+          const randomized = [...ids].sort(() => Math.random() - 0.5);
+          setSchemaOrder(randomized);
+        } else {
+          const ids = Object.keys(bySchema);
+          const randomized = [...ids].sort(() => Math.random() - 0.5);
+          setSchemaOrder(randomized);
+          setSchemaIndex(0);
+          setUsedItemsBySchema({});
+          // Build per-session plan: 2 AEG, 1 BDO, 1 SEI (random order)
+          const AEG = 'AlternativeExplanationGeneration';
+          const BDO = 'BiasDirectionOpen';
+          const SEI = 'SelectionEffectIdentification';
+          const plan = [AEG, AEG, BDO, SEI].sort(() => Math.random() - 0.5);
+          setSessionPlanSchemas(plan);
+          setSessionStepIndex(0);
+        }
         if (!restoredFromStorage && items.length > 0 && (!selectedItem || !selectedItem.isKernel)) {
           // pick first item from the first schema in the plan
-          const sid = plan[0];
+          const initialPlan = sessionPlanSchemas && sessionPlanSchemas.length > 0
+            ? sessionPlanSchemas
+            : ['AlternativeExplanationGeneration', 'AlternativeExplanationGeneration', 'BiasDirectionOpen', 'SelectionEffectIdentification'];
+          const sid = initialPlan[0];
           const pool = (bySchema[sid] ?? []);
           if (pool.length > 0) {
             const pick = pool[Math.floor(Math.random() * pool.length)];
@@ -148,7 +158,7 @@ export function useAssessment() {
       } catch {}
     })();
     return () => { cancelled = true; };
-  }, [restoredFromStorage, selectedItem]);
+  }, [restoredFromStorage]);
 
   const pickNextItem = useCallback((prev?: SelectedItem) => {
     // Prefer session plan sequence if available

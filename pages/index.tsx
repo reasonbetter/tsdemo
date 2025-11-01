@@ -273,7 +273,7 @@ export default function Home() {
                       <CollapsibleSection title="Session Info" className="bg-card shadow-sm" defaultOpen={false} titleSize="xs">
                         <div className="space-y-6">
                           <SessionInfo bare theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
-                          <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />
+                          <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} titleSize="xs" />
                         </div>
                       </CollapsibleSection>
                     </div>

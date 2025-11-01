@@ -106,9 +106,9 @@ export default function Home() {
          <header className="flex flex-col -gap-2 sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-2">
               <div className="flex items-center -ml-4 sm:ml-0 gap-0 sm:gap-0">
                   {/* Mobile logo */}
-                  <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={150} height={150} className="block sm:hidden -ml-6 mr-0" />
+                  <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={150} height={150} className="block sm:hidden -ml-6 mr-0" priority style={{ maxWidth: '150px', maxHeight: '150px', width: 'auto', height: 'auto' }} />
                   {/* Desktop logo */}
-                  <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={220} height={220} className="hidden sm:block -ml-14 -mr-14" />
+                  <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={220} height={220} className="hidden sm:block -ml-14 -mr-14" priority style={{ maxWidth: '220px', maxHeight: '220px', width: 'auto', height: 'auto' }} />
                   <div className="-ml-8 sm:ml-0">
                     <h1 className="text-2xl sm:text-3xl font-semibold leading-tight tracking-tight text-gray-700">Reasoning Interviewer</h1>
                     <p className="text-sm text-muted-foreground mt-0.5">[Causal Inference Demo]</p>

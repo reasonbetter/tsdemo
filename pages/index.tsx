@@ -200,24 +200,40 @@ export default function Home() {
                         <button type="button" className="inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                           End Session
                         </button>
-                        <div
-                          role="button"
-                          tabIndex={0}
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center h-[30px] w-[44px] text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150"
                           onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsSidebarVisible(!isSidebarVisible); } }}
-                          aria-label={isSidebarVisible ? 'Collapse details panel' : 'Expand details panel'}
-                          title={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                          className="flex items-center"
+                          aria-label={isSidebarVisible ? 'Hide details' : 'Show details'}
+                          title={isSidebarVisible ? 'Hide details' : 'Show details'}
                         >
-                          <Image
-                            src="/sidebar.svg"
-                            alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                            width={40}
-                            height={40}
-                            className={`cursor-pointer transition-opacity duration-150 opacity-80 hover:opacity-100 ${isSidebarVisible ? 'rotate-180' : ''}`}
-                            priority
-                          />
-                        </div>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            {isSidebarVisible ? (
+                              // "<<" when open
+                              <>
+                                <polyline points="14 7 9 12 14 17" />
+                                <polyline points="19 7 14 12 19 17" />
+                              </>
+                            ) : (
+                              // ">>" when closed
+                              <>
+                                <polyline points="5 7 10 12 5 17" />
+                                <polyline points="10 7 15 12 10 17" />
+                              </>
+                            )}
+                          </svg>
+                        </button>
                       </div>
                     </div>
                     <div className="sm:hidden flex items-center gap-3 mt-4">

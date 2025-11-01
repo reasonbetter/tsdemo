@@ -196,7 +196,7 @@ export default function Home() {
                 </section>
 
                 {selectedItem && progressTotal > 0 && (
-                  <div className="mt-2 mb-8 w-full sm:w-1/2">
+                  <div className="mt-2 mb-8 w-full sm:w-1/2 sm:mx-auto">
                     <SessionProgress current={progressCurrent} total={progressTotal} />
                   </div>
                 )}

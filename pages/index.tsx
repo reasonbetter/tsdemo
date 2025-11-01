@@ -118,7 +118,7 @@ export default function Home() {
               </div>
               <div className="flex flex-wrap items-center justify-between sm:justify-end gap-4 ml-3 sm:ml-0 w-full sm:w-auto">
                   <div className="flex items-center gap-2">
-                      <label className="text-sm font-medium text-foreground">User ID:</label>
+                      <label className="text-sm font-medium text-primary">User ID:</label>
                       <div className="flex items-center gap-2">
                           <input
                               className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
@@ -158,8 +158,8 @@ export default function Home() {
                       <Image
                         src="/sidebar.svg"
                         alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                        width={20}
-                        height={20}
+                        width={40}
+                        height={40}
                         className={`cursor-pointer transition-transform duration-200 ${isSidebarVisible ? 'rotate-180' : ''}`}
                         priority
                       />

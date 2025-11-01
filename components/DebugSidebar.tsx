@@ -43,21 +43,21 @@ export default function DebugSidebar({
   return (
     <>
       <CollapsibleSection title="Outgoing Trace" titleSize={titleSize} className="bg-card shadow-sm">
-        <div className="font-mono text-xs bg-gray-800 text-gray-200 rounded-lg p-4 whitespace-pre-wrap overflow-auto max-h-60 shadow-inner">
+        <div className="font-mono text-xs bg-white text-foreground border border-border rounded-lg p-4 whitespace-pre-wrap overflow-auto max-h-60">
           {outgoingTurnTrace}
         </div>
       </CollapsibleSection>
 
       <CollapsibleSection title="AJ Debug" titleSize={titleSize} className="bg-card shadow-sm">
-        <div className="font-mono text-xs bg-gray-900 text-gray-400 rounded-lg p-4 space-y-3 max-h-80 overflow-auto shadow-inner">
+        <div className="font-mono text-xs bg-white text-foreground border border-border rounded-lg p-4 space-y-3 max-h-80 overflow-auto">
           <div>
-            <div className="text-gray-300 font-semibold mb-1">AJ raw:</div>
+            <div className="text-foreground font-semibold mb-1">AJ raw:</div>
             <div className="break-words whitespace-pre-wrap">
               {ajRaw ? JSON.stringify(ajRaw, null, 2) : 'No AJ data yet.'}
             </div>
           </div>
           <div>
-            <div className="text-gray-300 font-semibold mb-1">DO raw:</div>
+            <div className="text-foreground font-semibold mb-1">DO raw:</div>
             <div className="break-words whitespace-pre-wrap">
               {doRaw ? JSON.stringify(doRaw, null, 2) : 'No DO data yet.'}
             </div>

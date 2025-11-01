@@ -10,80 +10,17 @@
       "B_text": "higher salaries"
     },
     "ThemeRegistry": [
-      {
-        "ThemeID": "prior_ability_experience",
-        "Aliases": [
-          "smarter people get MBAs",
-          "high prior skills",
-          "more work experience",
-          "stronger candidates",
-          "intelligence",
-          "pre-existing competence",
-          "academic achievement",
-          "high aptitude",
-          "cognitive ability"
-        ]
-      },
-      {
-        "ThemeID": "ambition_drive",
-        "Aliases": [
-          "highly motivated",
-          "ambition",
-          "drive",
-          "strong work ethic",
-          "conscientiousness",
-          "career-focused",
-          "hard workers",
-          "willingness to negotiate salary"
-        ]
-      },
-      {
-        "ThemeID": "ses_network_capital",
-        "Aliases": [
-          "socioeconomic background",
-          "family wealth",
-          "social capital",
-          "pre-existing professional networks",
-          "connections",
-          "privileged background",
-          "access to financial resources",
-          "SES"
-        ]
-      },
-      {
-        "ThemeID": "industry_sorting",
-        "Aliases": [
-          "work in finance",
-          "consulting jobs",
-          "tech industry",
-          "high-paying fields",
-          "sorting into lucrative sectors",
-          "choice of career field"
-        ]
-      },
-      {
-        "ThemeID": "company_sponsorship",
-        "Aliases": [
-          "employer paid for MBA",
-          "already on fast track at work",
-          "sponsored by high-paying firm",
-          "identified as high-potential employee"
-        ]
-      }
+      { "ThemeID": "prior_ability_experience", "Aliases": ["more work experience","academic achievement","cognitive ability"] },
+      { "ThemeID": "ambition_drive", "Aliases": ["conscientiousness","willingness to negotiate salary","strong work ethic"] },
+      { "ThemeID": "ses_network_capital", "Aliases": ["family wealth","pre-existing professional networks","privileged background"] },
+      { "ThemeID": "industry_sorting", "Aliases": ["work in finance","tech industry","choice of career field"] },
+      { "ThemeID": "company_sponsorship", "Aliases": ["employer paid for MBA","sponsored by high-paying firm","identified as high-potential employee"] }
     ],
     "TooGeneral": [
       "background",
       "personality",
-      "skills",
-      "resources",
-      "connections",
       "where they work",
-      "selection effects",
-      "privilege",
-      "motivation",
-      "their job",
-      "demographics",
-      "education"
+      "selection effects"
     ],
     "Examples": {
       "RunsThroughA": [

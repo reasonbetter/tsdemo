@@ -10,52 +10,12 @@
       "B_text": "lower levels of stress"
     },
     "ThemeRegistry": [
-      {
-        "ThemeID": "reverse_causation_pace_of_life",
-        "Aliases": [
-          "less stressed people drink tea",
-          "more free time"
-        ]
-      },
-      {
-        "ThemeID": "health_behaviors_bias",
-        "Aliases": [
-          "healthy diet",
-          "exercise regularly"
-        ]
-      },
-      {
-        "ThemeID": "ses_resources",
-        "Aliases": [
-          "financial stability",
-          "job security",
-          "flexible work hours"]
-      },
-      {
-        "ThemeID": "culture_geography",
-        "Aliases": [
-          "cultural background",
-          "where they live",
-          "social norms"
-        ]
-      },
-      {
-        "ThemeID": "age_lifestage",
-        "Aliases": [
-          "older adults",
-          "retirees",
-          "life stage"
-        ]
-      },
-      {
-        "ThemeID": "personality_disposition",
-        "Aliases": [
-          "conscientiousness",
-          "patient personality",
-          "emotional stability",
-          "calm disposition"
-        ]
-      }
+      { "ThemeID": "reverse_causation_pace_of_life", "Aliases": ["less stressed people drink tea","more free time"] },
+      { "ThemeID": "health_behaviors_bias", "Aliases": ["healthy diet","exercise regularly"] },
+      { "ThemeID": "ses_resources", "Aliases": ["financial stability","job security","flexible work hours"] },
+      { "ThemeID": "culture_geography", "Aliases": ["cultural background","where they live","social norms"] },
+      { "ThemeID": "age_lifestage", "Aliases": ["older adults","retirees","life stage"] },
+      { "ThemeID": "personality_disposition", "Aliases": ["conscientiousness","emotional stability"] }
     ],
     "TooGeneral": [
       "lifestyle",

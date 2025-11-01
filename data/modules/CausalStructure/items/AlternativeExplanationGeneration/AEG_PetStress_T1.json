@@ -10,61 +10,16 @@
       "B_text": "lower levels of stress"
     },
     "ThemeRegistry": [
-      {
-        "ThemeID": "reverse_causation_capacity",
-        "Aliases": [
-          "less stressed people get pets",
-          "life stability",
-          "better mental health",
-          "emotional stability",
-          "more free time",
-          "capacity to care for another",
-          "already calm"
-        ]
-      },
-      {
-        "ThemeID": "ses_resources",
-        "Aliases": [
-          "financial stability",
-          "wealth",
-          "money",
-          "better housing",
-          "predictable schedules",
-          "socioeconomic status",
-          "job security"
-        ]
-      },
-      {
-        "ThemeID": "personality_sociality",
-        "Aliases": [
-          "extroversion",
-          "agreeableness",
-          "strong social support",
-          "optimism",
-          "outgoing",
-          "sociable",
-          "calm personality"
-        ]
-      },
-      {
-        "ThemeID": "age_lifestage",
-        "Aliases": [
-          "older adults",
-          "retirees",
-          "life stage",
-          "married couples",
-          "empty nesters"
-        ]
-      }
+      { "ThemeID": "reverse_causation_capacity", "Aliases": ["life stability","better mental health","more free time"] },
+      { "ThemeID": "ses_resources", "Aliases": ["financial stability","better housing","predictable schedules"] },
+      { "ThemeID": "personality_sociality", "Aliases": ["extroversion","agreeableness","strong social support"] },
+      { "ThemeID": "age_lifestage", "Aliases": ["older adults","retirees"] }
     ],
     "TooGeneral": [
       "lifestyle",
       "environment",
       "personality",
-      "health",
-      "resources",
       "background",
-      "happiness",
       "demographics"
     ],
     "Examples": {

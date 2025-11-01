@@ -6,9 +6,9 @@
   "Content": {
     "ScenarioDefinition": { "A_text": "using social media a lot", "B_text": "higher anxiety" },
     "ThemeRegistry": [
-      { "ThemeID": "age_structure", "Aliases": ["younger age","teens","college-age","young people"] },
-      { "ThemeID": "isolation_loneliness", "Aliases": ["few offline friends","lonely","weak local ties","isolated"] },
-      { "ThemeID": "reverse_coping", "Aliases": ["anxious people scroll","avoidant coping","use to cope","stress leads to more use"] }
+      { "ThemeID": "age_structure", "Aliases": ["younger age","college-age"] },
+      { "ThemeID": "isolation_loneliness", "Aliases": ["few offline friends","weak local ties","lonely"] },
+      { "ThemeID": "reverse_coping", "Aliases": ["avoidant coping","stress leads to more use","anxious people scroll"] }
     ],
     "TooGeneral": ["resources","environment","lifestyle","culture","support structures"],
     "ProbeLibrary": {

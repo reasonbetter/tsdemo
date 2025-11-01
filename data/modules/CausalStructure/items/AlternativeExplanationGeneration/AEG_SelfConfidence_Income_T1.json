@@ -10,83 +10,15 @@
       "B_text": "higher income"
     },
     "ThemeRegistry": [
-      {
-        "ThemeID": "reverse_causation_success",
-        "Aliases": [
-          "income boosts confidence",
-          "earning more makes you confident",
-          "financial success leads to confidence",
-          "wealth increases self-esteem",
-          "career success builds confidence"
-        ]
-      },
-      {
-        "ThemeID": "prior_skill_competence",
-        "Aliases": [
-          "high ability",
-          "intelligence",
-          "competence",
-          "track record of success",
-          "prior experience",
-          "strong performance",
-          "talent",
-          "cognitive skills",
-          "expertise"
-        ]
-      },
-      {
-        "ThemeID": "family_ses_capital",
-        "Aliases": [
-          "family wealth",
-          "socioeconomic background",
-          "connections",
-          "social capital",
-          "privileged upbringing",
-          "parent education",
-          "SES",
-          "social class",
-          "elite education access"
-        ]
-      },
-      {
-        "ThemeID": "personality_traits",
-        "Aliases": [
-          "extroversion",
-          "optimism",
-          "narcissism",
-          "risk-taking personality",
-          "agreeableness (low)",
-          "sociability",
-          "assertiveness",
-          "emotional stability",
-          "charisma"
-        ]
-      },
-      {
-        "ThemeID": "physical_attributes",
-        "Aliases": [
-          "attractiveness",
-          "height",
-          "good looks",
-          "physical stature",
-          "beauty bias",
-          "halo effect",
-          "physical appearance"
-        ]
-      }
+      { "ThemeID": "reverse_causation_success", "Aliases": ["income boosts confidence","career success builds confidence","wealth increases self-esteem"] },
+      { "ThemeID": "prior_skill_competence", "Aliases": ["intelligence","expertise","track record of success"] },
+      { "ThemeID": "family_ses_capital", "Aliases": ["family wealth","elite education access","social capital"] },
+      { "ThemeID": "personality_traits", "Aliases": ["risk-taking personality","assertiveness","emotional stability"] },
+      { "ThemeID": "physical_attributes", "Aliases": ["attractiveness","height","beauty bias"] }
     ],
     "TooGeneral": [
       "background",
       "personality",
-      "skills",
-      "resources",
-      "connections",
-      "privilege",
-      "success",
-      "appearance",
-      "upbringing",
-      "education",
-      "demographics",
       "lifestyle"
     ],
     "Examples": {

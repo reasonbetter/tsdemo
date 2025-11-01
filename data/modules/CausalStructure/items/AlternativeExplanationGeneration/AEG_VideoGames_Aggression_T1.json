@@ -8,72 +8,17 @@
       "B_text": "aggressive behavior in school"
     },
     "ThemeRegistry": [
-      {
-        "ThemeID": "underlying_traits",
-        "Aliases": [
-          "aggressive personality",
-          "impulsivity",
-          "sensation-seeking",
-          "low empathy",
-          "pre-existing aggression",
-          "temperament",
-          "ADHD",
-          "hostile disposition"
-        ]
-      },
-      {
-        "ThemeID": "home_environment",
-        "Aliases": [
-          "stressful home life",
-          "lack of supervision",
-          "parental neglect",
-          "exposure to real violence",
-          "family conflict",
-          "poor parenting",
-          "unsupervised time"
-        ]
-      },
-      {
-        "ThemeID": "social_peer_group",
-        "Aliases": [
-          "aggressive friends",
-          "peer pressure",
-          "bullying (as perpetrator)",
-          "social norms",
-          "delinquent peers"
-        ]
-      },
-      {
-        "ThemeID": "reverse_causation_rejection",
-        "Aliases": [
-          "aggression leads to social rejection",
-          "loneliness",
-          "few friends",
-          "social isolation",
-          "retreating into games",
-          "bullying (as victim)",
-          "using games to cope"
-        ]
-      },
-      {
-        "ThemeID": "demographics_gender",
-        "Aliases": [
-          "being male",
-          "gender",
-          "boys"
-        ]
-      }
+      { "ThemeID": "underlying_traits", "Aliases": ["impulsivity","sensation-seeking","low empathy"] },
+      { "ThemeID": "home_environment", "Aliases": ["exposure to real violence","lack of supervision","family conflict"] },
+      { "ThemeID": "social_peer_group", "Aliases": ["peer pressure","delinquent peers","social norms"] },
+      { "ThemeID": "reverse_causation_rejection", "Aliases": ["aggression leads to social rejection","retreating into games","bullying (as victim)"] },
+      { "ThemeID": "demographics_gender", "Aliases": ["being male"] }
     ],
     "TooGeneral": [
       "personality",
       "environment",
       "background",
-      "upbringing",
-      "social issues",
-      "mental health",
-      "demographics",
-      "behavioral problems",
-      "media exposure"
+      "demographics"
     ],
     "Examples": {
       "RunsThroughA": [

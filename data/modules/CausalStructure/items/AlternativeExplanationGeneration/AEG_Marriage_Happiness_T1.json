@@ -8,70 +8,18 @@
       "B_text": "higher levels of happiness"
     },
     "ThemeRegistry": [
-      {
-        "ThemeID": "reverse_causation_selection",
-        "Aliases": [
-          "happier people get married",
-          "happiness attracts partners",
-          "happy people more likely to marry",
-          "selection into marriage",
-          "unhappy people divorce",
-          "optimism"
-        ]
-      },
-      {
-        "ThemeID": "ses_financial_stability",
-        "Aliases": [
-          "financial stability",
-          "wealth",
-          "socioeconomic status",
-          "job security",
-          "money",
-          "SES",
-          "economic resources"
-        ]
-      },
-      {
-        "ThemeID": "personality_traits",
-        "Aliases": [
-          "agreeableness",
-          "emotional stability",
-          "extroversion",
-          "conscientiousness",
-          "sociability",
-          "low neuroticism"
-        ]
-      },
-      {
-        "ThemeID": "health_status",
-        "Aliases": [
-          "better physical health",
-          "mental health",
-          "absence of illness",
-          "healthy lifestyle"
-        ]
-      },
-      {
-        "ThemeID": "social_support_networks",
-        "Aliases": [
-          "strong social connections",
-          "family support",
-          "large friend group",
-          "community involvement",
-          "social integration"
-        ]
-      }
+      { "ThemeID": "reverse_causation_selection", "Aliases": ["happier people get married","unhappy people divorce","optimism"] },
+      { "ThemeID": "ses_financial_stability", "Aliases": ["financial stability","job security","wealth"] },
+      { "ThemeID": "personality_traits", "Aliases": ["agreeableness","conscientiousness","emotional stability"] },
+      { "ThemeID": "health_status", "Aliases": ["better physical health","mental health","healthy lifestyle"] },
+      { "ThemeID": "social_support_networks", "Aliases": ["family support","community involvement","social integration"] }
     ],
     "TooGeneral": [
       "personality",
       "background",
       "lifestyle",
-      "resources",
-      "health",
-      "support",
       "culture",
-      "environment",
-      "stability"
+      "environment"
     ],
     "Examples": {
       "RunsThroughA": [

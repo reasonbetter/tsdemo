@@ -10,71 +10,16 @@
       "B_text": "higher job satisfaction"
     },
     "ThemeRegistry": [
-      {
-        "ThemeID": "industry_job_type",
-        "Aliases": [
-          "knowledge work",
-          "tech industry",
-          "high-autonomy fields",
-          "creative jobs",
-          "flexible sectors",
-          "type of work",
-          "nature of the job"
-        ]
-      },
-      {
-        "ThemeID": "seniority_status",
-        "Aliases": [
-          "senior roles",
-          "experienced employees",
-          "high rank",
-          "more control over work",
-          "higher status",
-          "management positions",
-          "tenure"
-        ]
-      },
-      {
-        "ThemeID": "personality_preference",
-        "Aliases": [
-          "value autonomy",
-          "introversion",
-          "self-motivated",
-          "disciplined",
-          "preference for solitude",
-          "personality fit"
-        ]
-      },
-      {
-        "ThemeID": "reverse_causation_trust",
-        "Aliases": [
-          "already satisfied employees WFH",
-          "high performers allowed WFH",
-          "trusted by management",
-          "good relationship with boss"
-        ]
-      },
-      {
-        "ThemeID": "company_culture",
-        "Aliases": [
-          "progressive companies",
-          "better management",
-          "high-trust organizations",
-          "companies that value employees"
-        ]
-      }
+      { "ThemeID": "industry_job_type", "Aliases": ["tech industry","creative jobs","high-autonomy fields"] },
+      { "ThemeID": "seniority_status", "Aliases": ["management positions","tenure","more control over work"] },
+      { "ThemeID": "personality_preference", "Aliases": ["introversion","self-motivated","disciplined"] },
+      { "ThemeID": "reverse_causation_trust", "Aliases": ["trusted by management","high performers allowed WFH","already satisfied employees WFH"] },
+      { "ThemeID": "company_culture", "Aliases": ["progressive companies","better management","high-trust organizations"] }
     ],
     "TooGeneral": [
       "lifestyle",
-      "personality",
-      "the job",
-      "the company",
-      "resources",
-      "flexibility",
-      "autonomy",
       "background",
-      "demographics",
-      "work-life balance"
+      "demographics"
     ],
     "Examples": {
       "RunsThroughA": [

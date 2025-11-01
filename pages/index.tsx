@@ -284,14 +284,20 @@ export default function Home() {
                         }}
                         placeholder="Optional"
                       />
-                      <button type="button" className="ml-auto px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
-                        End Session
-                      </button>
                     </div>
                     <div className="lg:hidden mt-6">
                       <CollapsibleSection title="Session Info" className="bg-card shadow-sm" defaultOpen={false} titleSize="xs">
-                        <div className="space-y-6">
-                          <SessionInfo bare theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
+                        <div className="space-y-4">
+                          {/* Mobile top controls: End Session + Admin */}
+                          <div className="flex items-center gap-3">
+                            <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                              End Session
+                            </button>
+                            <a className="px-4 py-1.5 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150 whitespace-nowrap" href="/admin" title="Admin log">
+                              View Admin Logs
+                            </a>
+                          </div>
+                          <SessionInfo bare hideReset hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
                           <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} titleSize="xs" />
                         </div>
                       </CollapsibleSection>
@@ -308,13 +314,16 @@ export default function Home() {
 
             <aside className={`hidden ${isSidebarVisible ? 'lg:block' : 'lg:hidden'} lg:col-span-1 transition-all duration-300 ease-in-out`}>
                 <div className="space-y-4">
-                    {/* Top bar with Admin Logs on right */}
-                    <div className="flex justify-end">
+                    {/* Top bar with End Session and Admin */}
+                    <div className="flex justify-end gap-2">
+                      <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={endSession}>
+                        End Session
+                      </button>
                       <a className="px-4 py-1 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
                         View Admin Logs
                       </a>
                     </div>
-                    <SessionInfo bare hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} onEndSession={endSession} capabilities={driverCapabilities} />
+                    <SessionInfo bare hideReset hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
 
                     <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />
                 </div>

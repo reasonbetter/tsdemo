@@ -212,9 +212,9 @@ export default function Home() {
                           <Image
                             src="/sidebar.svg"
                             alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                            width={37}
-                            height={37}
-                            className={`cursor-pointer ${isSidebarVisible ? 'rotate-180' : ''}`}
+                            width={40}
+                            height={40}
+                            className={`cursor-pointer transition-opacity duration-150 opacity-80 hover:opacity-100 ${isSidebarVisible ? 'rotate-180' : ''}`}
                             priority
                           />
                         </div>

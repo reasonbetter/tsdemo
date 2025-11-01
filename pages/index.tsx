@@ -180,8 +180,8 @@ export default function Home() {
                       <div className="w-full sm:w-2/5">
                         <SessionProgress current={progressCurrent} total={progressTotal} />
                       </div>
-                      {/* Right-aligned controls on desktop: User ID + End Session */}
-                      <div className="hidden sm:flex items-center gap-3 ml-auto">
+                      {/* Right-aligned controls on desktop (>=1024px): User ID + End Session + Details */}
+                      <div className="hidden lg:flex items-center gap-3 ml-auto">
                         <label className="text-sm font-semibold text-primary">User ID:</label>
                         <input
                           className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
@@ -269,7 +269,7 @@ export default function Home() {
                         End Session
                       </button>
                     </div>
-                    <div className="sm:hidden mt-4">
+                    <div className="lg:hidden mt-6">
                       <CollapsibleSection title="Session Info" className="bg-card shadow-sm" defaultOpen={false} titleSize="xs">
                         <div className="space-y-6">
                           <SessionInfo bare theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />

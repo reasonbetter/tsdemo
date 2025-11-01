@@ -181,7 +181,7 @@ export default function Home() {
                       </div>
                       {/* Right-aligned controls on desktop: User ID + End Session */}
                       <div className="hidden sm:flex items-center gap-3 ml-auto">
-                        <label className="text-sm font-medium text-primary">User ID:</label>
+                        <label className="text-sm font-semibold text-primary">User ID:</label>
                         <input
                           className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                           value={userIdInput}
@@ -212,8 +212,8 @@ export default function Home() {
                           <Image
                             src="/sidebar.svg"
                             alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                            width={28}
-                            height={28}
+                            width={32}
+                            height={32}
                             className={`cursor-pointer opacity-70 ${isSidebarVisible ? 'rotate-180' : ''}`}
                             priority
                           />
@@ -221,7 +221,7 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="sm:hidden flex items-center gap-3 mt-4">
-                      <label className="text-sm font-medium text-primary">User ID:</label>
+                      <label className="text-sm font-semibold text-primary">User ID:</label>
                       <input
                         className={`w-28 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                         value={userIdInput}

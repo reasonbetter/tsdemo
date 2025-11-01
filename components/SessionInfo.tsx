@@ -28,7 +28,7 @@ export default function SessionInfo({
 }) {
   const content = (
     <>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full">
           <strong>θ</strong> {Number(getDisplayTheta(theta)?.mean ?? 0).toFixed(2)}
         </span>
@@ -40,6 +40,11 @@ export default function SessionInfo({
         )}
         {capabilities?.continuousScore && (
           <span className="inline-flex items-center gap-2 px-2 py-0.5 text-xs text-purple-700 bg-purple-100 border border-purple-200 rounded-full">Continuous</span>
+        )}
+        {onEndSession && (
+          <button type="button" className="ml-auto px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={onEndSession}>
+            End Session
+          </button>
         )}
       </div>
       <div className="mt-3 text-xs text-muted-foreground font-mono">
@@ -59,23 +64,20 @@ export default function SessionInfo({
           <div className="text-sm text-muted-foreground italic">No measurement yet.</div>
         )}
       </div>
-      <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 flex-wrap">
-        {!hideReset && (
-          <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150" onClick={onReset}>
-            Reset Session
-          </button>
-        )}
-        {onEndSession && (
-          <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={onEndSession}>
-            End Session
-          </button>
-        )}
-        {!hideAdminLink && (
-          <a className="px-4 py-1 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
-            View Admin Logs
-          </a>
-        )}
-      </div>
+      {!hideReset || !hideAdminLink ? (
+        <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 flex-wrap">
+          {!hideReset && (
+            <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150" onClick={onReset}>
+              Reset Session
+            </button>
+          )}
+          {!hideAdminLink && (
+            <a className="px-4 py-1 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
+              View Admin Logs
+            </a>
+          )}
+        </div>
+      ) : null}
     </>
   );
 

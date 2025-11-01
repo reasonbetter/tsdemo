@@ -315,22 +315,20 @@ export default function Home() {
 
             </main>
 
-            <aside className={`hidden ${isSidebarVisible ? 'lg:block' : 'lg:hidden'} lg:col-span-1 transition-all duration-300 ease-in-out`}>
+            <aside className={`hidden ${isSidebarVisible ? 'lg:block' : 'lg:hidden'} lg:col-span-1 transition-all duration-300 ease-in-out relative`}>
+                {/* Admin logs button floated at top-right of sidebar */}
+                <div className="absolute -top-8 right-0">
+                  <a className="px-4 py-1 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
+                    View Admin Logs
+                  </a>
+                </div>
                 <div className="space-y-4">
-                  {/* Group the session info in a white box with header and bottom controls */}
+                  {/* Group the session info in a white box with header */}
                   <div className="bg-white rounded-xl border border-border p-4 space-y-4">
                     <div className="flex items-center">
                       <h3 className="text-base font-semibold text-foreground">Session Info</h3>
                     </div>
-                    <SessionInfo bare hideReset hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
-                    <div className="flex justify-between gap-2 pt-2">
-                      <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={endSession}>
-                        End Session
-                      </button>
-                      <a className="px-4 py-1 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
-                        View Admin Logs
-                      </a>
-                    </div>
+                    <SessionInfo bare hideReset hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} onEndSession={endSession} capabilities={driverCapabilities} />
                   </div>
 
                   <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />

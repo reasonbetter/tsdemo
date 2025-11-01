@@ -163,11 +163,6 @@ export default function Home() {
             <main className={`transition-all duration-300 ${isSidebarVisible ? 'lg:col-span-2' : 'max-w-4xl mx-auto w-full'}`}>
 
                 <section className="bg-card shadow-lg border border-border rounded-xl px-6 py-5 sm:px-10 sm:py-8 mb-8 animate-fadeIn">
-
-                    {selectedItem && progressTotal > 0 && (
-                      <SessionProgress current={progressCurrent} total={progressTotal} />
-                    )}
-
                     <Prose>{promptText || ""}</Prose>
 
                     {awaitingTransition && (
@@ -199,6 +194,12 @@ export default function Home() {
                       />
                     )}
                 </section>
+
+                {selectedItem && progressTotal > 0 && (
+                  <div className="mb-8">
+                    <SessionProgress current={progressCurrent} total={progressTotal} />
+                  </div>
+                )}
 
                 {history.length > 0 && (
                   <TranscriptPanel history={history} currentTheta={theta} capabilities={driverCapabilities} />

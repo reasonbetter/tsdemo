@@ -221,6 +221,21 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="sm:hidden flex items-center gap-3 mt-4">
+                      <label className="text-sm font-medium text-primary">User ID:</label>
+                      <input
+                        className={`w-28 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                        value={userIdInput}
+                        onChange={(e) => setUserIdInput(e.target.value)}
+                        onBlur={(e) => updateUserId(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            updateUserId((e.target as HTMLInputElement).value);
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
+                        placeholder="Optional"
+                      />
                       <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                         End Session
                       </button>

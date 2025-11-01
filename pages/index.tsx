@@ -160,7 +160,7 @@ export default function Home() {
                         alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
                         width={40}
                         height={40}
-                        className={`cursor-pointer transition-transform duration-200 ${isSidebarVisible ? 'rotate-180' : ''}`}
+                        className={`cursor-pointer ${isSidebarVisible ? 'rotate-180' : ''}`}
                         priority
                       />
                   </div>

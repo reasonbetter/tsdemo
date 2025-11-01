@@ -195,20 +195,27 @@ export default function Home() {
                 </section>
 
                 {selectedItem && progressTotal > 0 && (
-                  <div className="mt-2 mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
-                    <div className="flex items-center gap-3">
-                      <button type="button" className="px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                  <div className="mt-2 mb-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="w-full sm:flex-1">
+                        <SessionProgress current={progressCurrent} total={progressTotal} />
+                      </div>
+                      <div className="hidden sm:flex items-center gap-3">
+                        <button type="button" className="px-6 py-2 text-base font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                          End Session
+                        </button>
+                      </div>
+                    </div>
+                    <div className="sm:hidden flex items-center gap-3 mt-4">
+                      <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                         End Session
                       </button>
                       <button
-                        className="sm:hidden px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
+                        className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
                         onClick={() => setIsSidebarVisible(!isSidebarVisible)}
                       >
                         Details
                       </button>
-                    </div>
-                    <div className="w-full sm:flex-1">
-                      <SessionProgress current={progressCurrent} total={progressTotal} />
                     </div>
                   </div>
                 )}

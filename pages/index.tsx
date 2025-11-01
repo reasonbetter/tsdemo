@@ -9,6 +9,7 @@ import PromptForm from '@/components/PromptForm';
 import ProbeForm from '@/components/ProbeForm';
 import useAssessment from 'hooks/useAssessment';
 import TransitionMessage from '@/components/TransitionMessage';
+import SessionProgress from '@/components/SessionProgress';
 
 
 // Assessment state and actions are provided by useAssessment
@@ -27,6 +28,7 @@ export default function Home() {
     debugLog, input, probeInput, history, awaitingProbe, awaitingTransition, theta, pending, latestMeasurement, ellipsisCount,
     bankItems, selectedItem, outgoingTurnTrace,
     isSessionLive, userIdInput, userTag, sessionId, sessionInitialized, isSidebarVisible, showSessionEndOverlay,
+    progressCurrent, progressTotal,
     setInput, setProbeInput, setIsSidebarVisible, setUserIdInput, setUserTag,
     onSubmit, onSubmitProbe, updateUserId, initializeSession, endSession, driverCapabilities,
   } = useAssessment();
@@ -161,6 +163,10 @@ export default function Home() {
             <main className={`transition-all duration-300 ${isSidebarVisible ? 'lg:col-span-2' : 'max-w-4xl mx-auto w-full'}`}>
 
                 <section className="bg-card shadow-lg border border-border rounded-xl px-6 py-5 sm:px-10 sm:py-8 mb-8 animate-fadeIn">
+
+                    {selectedItem && progressTotal > 0 && (
+                      <SessionProgress current={progressCurrent} total={progressTotal} />
+                    )}
 
                     <Prose>{promptText || ""}</Prose>
 

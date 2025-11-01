@@ -379,6 +379,9 @@ export function useAssessment() {
     bankItems, selectedItem, outgoingTurnTrace, seenKernelIds,
     isSessionLive, userIdInput, userTag, sessionId, sessionInitialized, isSidebarVisible, showSessionEndOverlay,
     driverCapabilities: currentDriverId ? capByDriverId[currentDriverId] ?? null : null,
+    // progress
+    progressCurrent: Math.min(sessionPlanSchemas.length > 0 ? (sessionStepIndex + 1) : 0, sessionPlanSchemas.length || 0),
+    progressTotal: sessionPlanSchemas.length || 0,
     // setters
     setInput, setProbeInput, setIsSidebarVisible, setUserIdInput, setUserTag,
     // actions

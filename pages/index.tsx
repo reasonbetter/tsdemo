@@ -265,8 +265,11 @@ export default function Home() {
                         placeholder="Optional"
                       />
                       <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
-                        End
+                        End Session
                       </button>
+                    </div>
+                    {/* Mobile Details button on its own line, left-justified */}
+                    <div className="sm:hidden mt-2">
                       <button
                         className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 inline-flex items-center gap-2"
                         onClick={() => setIsSidebarVisible(!isSidebarVisible)}

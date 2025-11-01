@@ -3,7 +3,7 @@
   "SchemaID": "BiasDirectionSequential",
   "MutuallyExclusiveWith": ["BDO_OptionalTraining_NullEffect_T1"],
   "MutuallyExclusiveGroup": "training_program_zero_diff",
-  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. A large sample showed no difference in success between those who joined and those who didn’t. Is this good evidence the program has no effect? Why or why not?",
+  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. However, tehre was no difference in success between those who joined and those who didn’t. Is this good evidence the program has no effect? Why or why not?",
   "Content": {
     "ScenarioDefinition": { "A_text": "joining the optional training program", "B_text": "career success" },
     "ThemeRegistry": [

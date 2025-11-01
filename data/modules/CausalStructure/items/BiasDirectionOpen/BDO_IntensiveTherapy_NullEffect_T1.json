@@ -1,7 +1,7 @@
 {
   "ItemID": "BDO_IntensiveTherapy_NullEffect_T1",
   "SchemaID": "BiasDirectionOpen",
-  "Stem": "A hospital introduced an optional, intensive therapy program for patients recovering from a specific type of injury. A review of patient records showed that those who participated in the intensive program had the same average recovery time as those who followed the standard, less intensive protocol.\n\nHow should the administration interpret this 'no difference' finding when considering the program's potential benefits and risks? Explain your reasoning.",
+  "Stem": "A hospital introduced an optional, intensive therapy program for patients recovering from a specific type of injury. But those who participated in the  program had the same average recovery time as those who did not.\n\nHow should this finding be interpreted when considering the program's potential benefits and risks? Explain your reasoning.",
   "Content": {
     "ScenarioDefinition": {
       "Intervention": "Optional intensive therapy program (vs. standard protocol).",

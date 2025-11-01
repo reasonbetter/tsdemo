@@ -116,7 +116,7 @@
       ],
       "NotSpecific": [
         { "id": "specific_1", "text": "Could you give a bit more detail about how that would work?" },
-        { "id": "specific_2", "text": "Can you be more specific about the mechanism you are describing?" },
+        { "id": "specific_2", "text": "Can you be more specific about the explanation you're giving?" },
         { "id": "specific_3", "text": "That explanation is a bit broad. Can you give a concrete factor or example?" }
       ],
       "NotClear": [

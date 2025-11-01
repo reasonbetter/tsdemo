@@ -1,7 +1,7 @@
 {
   "ItemID": "SEI_ClinicalTrial_Adherence_T1",
   "SchemaID": "SelectionEffectIdentification",
-  "Stem": "In a well-run clinical trial of a new drug, patients who consistently took the drug had better health outcomes than those who frequently missed doses. Assuming neither the drug’s efficacy nor a placebo effect explain this, what's the most likely explanation?",
+  "Stem": "In studying a new drug, it was found that patients who consistently took the drug had better health outcomes than those who frequently missed doses. Assuming neither the drug’s efficacy nor a placebo effect explain this, what's the most likely explanation? (A placebo effect is when the simple act of taking even a sham medical treatment improves outcomes).",
   "Content": {
     "ScenarioDefinition": {
       "A_text": "high adherence (consistently taking the drug)",

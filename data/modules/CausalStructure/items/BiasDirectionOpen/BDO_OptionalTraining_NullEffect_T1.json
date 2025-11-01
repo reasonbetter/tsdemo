@@ -3,7 +3,7 @@
   "SchemaID": "BiasDirectionOpen",
   "MutuallyExclusiveWith": ["BDS_TrainingProgram_ZeroDiff_T2"],
   "MutuallyExclusiveGroup": "training_program_zero_diff",
-  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. A large-scale comparison showed that employees who joined the program were, on average, no more or less successful than those who didn’t join.\n\nThe company is now deciding whether to cancel the program. The CEO asks for your interpretation of the study results.\n\nWhat would you tell the CEO about the program's actual effectiveness (considering the possibilities that it might be helpful, harmful, or neither) based on this study? Explain your reasoning.",
+  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. However, those who joined the program were no more or less successful than those who didn’t join.\n\nThe CEO is now deciding whether to cancel the program. \n\nWhat would you tell the CEO about the program's actual effectiveness (considering the possibilities that it might be helpful, harmful, or neither) based on this study? Explain your reasoning.",
   "Content": {
     "ScenarioDefinition": {
       "Intervention": "Optional training program.",

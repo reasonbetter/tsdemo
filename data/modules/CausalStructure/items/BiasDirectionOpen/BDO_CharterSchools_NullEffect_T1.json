@@ -1,7 +1,7 @@
 {
   "ItemID": "BDO_CharterSchools_NullEffect_T1",
   "SchemaID": "BiasDirectionOpen",
-  "Stem": "A large study compared students attending charter schools (which are publicly funded but independently operated) with those attending traditional public schools in the same districts. The study found no difference in average academic performance between the two groups. The Department of Education is using this study to guide future policy on whether to expand or restrict charter schools.\n\nWhat is your interpretation of the study results regarding the actual effectiveness of charter schools? Explain your reasoning.",
+  "Stem": "A comprehensive study found that students attending elective public charter schools had no difference in learning outcomes from those attending traditional public schools in the same districts. \n\nWhat do we learn from this about the actual effect that charter schools in the district had on learning outcomes? Explain your reasoning.",
   "Content": {
     "ScenarioDefinition": {
       "Intervention": "Attending a charter school (vs. traditional public school).",

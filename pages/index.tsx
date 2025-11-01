@@ -180,7 +180,29 @@ export default function Home() {
                       <div className="w-full sm:w-2/5">
                         <SessionProgress current={progressCurrent} total={progressTotal} />
                       </div>
-                      {/* Right-aligned controls on desktop (>=1024px): User ID + End Session + Details */}
+                      {/* Right-aligned controls on tablet (>=640px and <1024px): User ID + End Session (no Details) */}
+                      <div className="hidden sm:flex lg:hidden items-center gap-3 ml-auto">
+                        <label className="text-sm font-semibold text-primary">User ID:</label>
+                        <input
+                          className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                          value={userIdInput}
+                          onChange={(e) => setUserIdInput(e.target.value)}
+                          onBlur={(e) => updateUserId(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              updateUserId((e.target as HTMLInputElement).value);
+                              (e.target as HTMLInputElement).blur();
+                            }
+                          }}
+                          placeholder="Optional"
+                          readOnly={userIdInput === userTag && userTag !== ""}
+                        />
+                        <button type="button" className="inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                          End Session
+                        </button>
+                      </div>
+                      {/* Right-aligned controls on desktop (>=1024px): User ID + Session Info toggle (no End Session here) */}
                       <div className="hidden lg:flex items-center gap-3 ml-auto">
                         <label className="text-sm font-semibold text-primary">User ID:</label>
                         <input
@@ -198,15 +220,12 @@ export default function Home() {
                           placeholder="Optional"
                       readOnly={userIdInput === userTag && userTag !== ""}
                         />
-                        <button type="button" className="inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
-                          End Session
-                        </button>
                         <button
                           type="button"
                           className={`inline-flex items-center gap-2 h-[30px] ${isSidebarVisible ? 'px-2' : 'px-3'} text-sm font-semibold text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150`}
                           onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-                          aria-label={isSidebarVisible ? 'Hide details' : 'Show details'}
-                          title={isSidebarVisible ? 'Hide details' : 'Show details'}
+                          aria-label={isSidebarVisible ? 'Hide session info' : 'Show session info'}
+                          title={isSidebarVisible ? 'Hide session info' : 'Show session info'}
                         >
                           {isSidebarVisible ? (
                             // Only left chevron when open (collapse)
@@ -228,7 +247,7 @@ export default function Home() {
                           ) : (
                             // "Details" + right chevron when closed (expand)
                             <>
-                              <span>Details</span>
+                              <span>Session Info</span>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -288,8 +307,14 @@ export default function Home() {
             </main>
 
             <aside className={`hidden ${isSidebarVisible ? 'lg:block' : 'lg:hidden'} lg:col-span-1 transition-all duration-300 ease-in-out`}>
-                <div className="space-y-6">
-                    <SessionInfo theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
+                <div className="space-y-4">
+                    {/* Top bar with Admin Logs on right */}
+                    <div className="flex justify-end">
+                      <a className="px-4 py-1 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
+                        View Admin Logs
+                      </a>
+                    </div>
+                    <SessionInfo bare hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} onEndSession={endSession} capabilities={driverCapabilities} />
 
                     <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />
                 </div>

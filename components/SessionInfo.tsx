@@ -12,6 +12,8 @@ export default function SessionInfo({
   onReset,
   capabilities,
   bare,
+  onEndSession,
+  hideAdminLink,
 }: {
   theta: DisplayTheta;
   selectedItem: SelectedItem;
@@ -19,6 +21,8 @@ export default function SessionInfo({
   onReset: () => void;
   capabilities?: { usesProbes?: boolean; continuousScore?: boolean } | null;
   bare?: boolean;
+  onEndSession?: () => void;
+  hideAdminLink?: boolean;
 }) {
   const content = (
     <>
@@ -53,13 +57,20 @@ export default function SessionInfo({
           <div className="text-sm text-muted-foreground italic">No measurement yet.</div>
         )}
       </div>
-      <div className="mt-4 pt-4 border-t border-border flex items-center gap-4">
+      <div className="mt-4 pt-4 border-t border-border flex items-center gap-4 flex-wrap">
         <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150" onClick={onReset}>
           Reset Session
         </button>
-        <a className="px-4 py-1 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
-          View Admin Logs
-        </a>
+        {onEndSession && (
+          <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={onEndSession}>
+            End Session
+          </button>
+        )}
+        {!hideAdminLink && (
+          <a className="px-4 py-1 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
+            View Admin Logs
+          </a>
+        )}
       </div>
     </>
   );

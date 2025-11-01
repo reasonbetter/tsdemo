@@ -1,6 +1,7 @@
 {
   "ItemID": "SEI_HeartMedication_Confounding_T1",
   "SchemaID": "SelectionEffectIdentification",
+  "MutuallyExclusiveWith": ["SEI_ClinicalTrial_Adherence_T1"],
   "Stem": "A large hospital reviews its records and finds that patients who received a new, expensive heart medication have worse survival rates than those who received the old, standard medication. Assuming the new medication is at least as good as the old one, what’s the most plausible reason for this fact?",
   "Content": {
     "ScenarioDefinition": {

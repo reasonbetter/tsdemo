@@ -3,7 +3,7 @@
   "SchemaID": "AlternativeExplanationGeneration",
   "MutuallyExclusiveWith": ["BDO_RemoteWork_NullEffect_T1"],
   "MutuallyExclusiveGroup": "wfh_job_satisfaction",
-  "Stem": "People who work from home (WFH) report higher job satisfaction, on average, than those who work in an office. Give one reason why this might be true, other than working from home causing higher job satisfaction.",
+  "Stem": "People who work from home report higher job satisfaction, on average, than those who work in an office. Give one reason why this might be true, other than working from home causing higher job satisfaction.",
   "Content": {
     "ScenarioDefinition": {
       "A_text": "working from home (WFH)",
@@ -98,7 +98,7 @@
         { "id": "single_2", "text": "Please share only one explanation for now; then we can ask for another." }
       ],
       "Good": [
-        { "id": "alt_1", "text": "Thank you. Can you think of another reason for the link between WFH and higher job satisfaction?" },
+        { "id": "alt_1", "text": "Thank you. What's another possible reason for the link between working from home and higher job satisfaction?" },
         { "id": "alt_2", "text": "Great. Now please try to give a different explanation for the association." },
         { "id": "alt_3", "text": "Thanks. Next, please think of another distinct reason." }
       ],

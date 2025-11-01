@@ -1,6 +1,7 @@
 {
   "ItemID": "SEI_CompanyExpansion_Survivorship_T1",
   "SchemaID": "SelectionEffectIdentification",
+  "MutuallyExclusiveWith": ["SEI_WeightLoss_Attrition_T1"],
   "Stem": "An analysis of 10-year-old companies found that those which aggressively expanded in their first year were more profitable than those which grew slowly. Assuming aggressive expansion increases the risk of failure, why might the data suggest it leads to higher profits?",
   "Content": {
     "ScenarioDefinition": {

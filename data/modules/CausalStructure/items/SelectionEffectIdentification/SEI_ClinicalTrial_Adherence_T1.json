@@ -1,6 +1,8 @@
 {
   "ItemID": "SEI_ClinicalTrial_Adherence_T1",
   "SchemaID": "SelectionEffectIdentification",
+  "MutuallyExclusiveWith": ["SEI_WeightLoss_Attrition_T1", "SEI_HeartMedication_Confounding_T1"],
+  "MutuallyExclusiveGroup": "sei_adherence_attrition",
   "Stem": "In studying a new drug, it was found that patients who consistently took the drug had better health outcomes than those who frequently missed doses. Assuming neither the drug’s efficacy nor a placebo effect explain this, what's the most likely explanation? (A placebo effect is when the simple act of taking even a sham medical treatment improves outcomes).",
   "Content": {
     "ScenarioDefinition": {

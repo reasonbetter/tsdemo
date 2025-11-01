@@ -212,8 +212,8 @@ export default function Home() {
                           <Image
                             src="/sidebar.svg"
                             alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                            width={32}
-                            height={32}
+                            width={35}
+                            height={35}
                             className={`cursor-pointer opacity-70 ${isSidebarVisible ? 'rotate-180' : ''}`}
                             priority
                           />

@@ -202,32 +202,49 @@ export default function Home() {
                         </button>
                         <button
                           type="button"
-                          className="inline-flex items-center gap-2 h-[30px] px-3 text-sm font-semibold text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150"
+                          className={`inline-flex items-center gap-2 h-[30px] ${isSidebarVisible ? 'px-2' : 'px-3'} text-sm font-semibold text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150`}
                           onClick={() => setIsSidebarVisible(!isSidebarVisible)}
                           aria-label={isSidebarVisible ? 'Hide details' : 'Show details'}
                           title={isSidebarVisible ? 'Hide details' : 'Show details'}
                         >
-                          <span>Details</span>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            width="18"
-                            height="18"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            aria-hidden="true"
-                          >
-                            {isSidebarVisible ? (
-                              // single left chevron when open
+                          {isSidebarVisible ? (
+                            // Only left chevron when open (collapse)
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              width="18"
+                              height="18"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                              className="text-muted-foreground"
+                            >
                               <polyline points="15 18 9 12 15 6" />
-                            ) : (
-                              // single right chevron when closed
-                              <polyline points="9 6 15 12 9 18" />
-                            )}
-                          </svg>
+                            </svg>
+                          ) : (
+                            // "Details" + right chevron when closed (expand)
+                            <>
+                              <span>Details</span>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="18"
+                                height="18"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                                className="text-muted-foreground"
+                              >
+                                <polyline points="9 6 15 12 9 18" />
+                              </svg>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>

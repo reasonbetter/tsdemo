@@ -57,23 +57,24 @@
       ],
       "NotDistinct": [
         { "id": "redux_1", "text": "That’s too similar to an earlier reason. Try a different kind of explanation." },
-        { "id": "redux_2", "text": "This overlaps with a prior answer; please give a different mechanism." }
+        { "id": "redux_2", "text": "This overlaps with a prior answer; please give a different explanation." }
       ],
       "NotSpecific": [
         { "id": "specific_1", "text": "Could you be more specific about how the two groups might differ?" },
-        { "id": "specific_2", "text": "Can you describe the specific mechanism or factor involved?" },
+        { "id": "specific_2", "text": "Can you explain the factor you have in mind?" },
         { "id": "specific_3", "text": "That's broad. How exactly would that lead to the observed result?" }
       ],
       "NotClear": [
         { "id": "clear_1", "text": "I didn’t follow—could you rephrase how that works?" },
-        { "id": "clear_2", "text": "Can you clarify the mechanism you are describing?" }
+        { "id": "clear_2", "text": "Can you clarify the explanation you're giving?" }
       ],
       "NotPlausible": [
         { "id": "plaus_1", "text": "Please offer a different kind of explanation for the observation." },
         { "id": "plaus_2", "text": "Let’s try another angle—give a different explanation for the finding." }
       ],
       "NotRelevant": [
-        { "id": "relevance_1", "text": "Please focus on explaining the observation described in the prompt." }
+        { "id": "relevance_1", "text": "Please focus on explaining the observation described in the prompt." },
+        { "id": "relevance_2", "text": "Let’s stick to the scenario; address the observed result directly." }
       ],
       "RejectsAssumption": [
         { "id": "assump_1", "text": "Remember the constraint that the new medication is at least as good as the old one—please give a reason consistent with that." },

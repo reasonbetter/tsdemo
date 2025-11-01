@@ -3,7 +3,7 @@
   "SchemaID": "AlternativeExplanationGeneration",
   "MutuallyExclusiveWith": ["AEG_SelfConfidence_Income_T1"],
   "MutuallyExclusiveGroup": "income_determinants",
-  "Stem": "People who have an MBA degree earn significantly higher salaries, on average, than those who do not. Give one reason why this might be true, other than the MBA degree itself causing the higher salary.",
+  "Stem": "People who have an MBA degree earn significantly higher salaries, on average, than those who do not. Give one reason why this might be true, other than the degree (or the education) causing the higher salary.",
   "Content": {
     "ScenarioDefinition": {
       "A_text": "having an MBA degree",

@@ -3,7 +3,7 @@
   "SchemaID": "AlternativeExplanationGeneration",
   "MutuallyExclusiveWith": ["AEG_PetStress_T1", "AEG_SocialMedia_Anxiety_T1"],
   "MutuallyExclusiveGroup": "stress_relief_lifestyle",
-  "Stem": "People who regularly drink tea report lower levels of stress, on average, than those who do not. Give one reason why this might be true, other than drinking tea reducing stress.",
+  "Stem": "People who regularly drink tea report lower levels of stress, on average, than those who do not. Give one reason why this might be true, if drinking tea does not actually reduce stress.",
   "Content": {
     "ScenarioDefinition": {
       "A_text": "regularly drinking tea",

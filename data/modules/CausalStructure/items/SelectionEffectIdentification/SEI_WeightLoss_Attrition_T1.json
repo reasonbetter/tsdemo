@@ -37,15 +37,38 @@
       ]
     },
     "ProbeLibrary": {
-      "MultipleExplanation": [ { "id": "single_1", "text": "One explanation at a time, please—send just one." } ],
-      "Good": [ { "id": "good_1", "text": "Thanks. That is a plausible explanation." } ],
-      "NotDistinct": [ { "id": "redux_1", "text": "Too similar to an earlier idea—try a different mechanism." } ],
-      "NotSpecific": [         { "id": "specific_1", "text": "Could you be more specific?" },
-        { "id": "specific_3", "text": "That's broad. How exactly would that lead to the observed result?" }],
-      "NotClear": [ { "id": "clear_1", "text": "I didn’t follow—could you rephrase your explanation clearly?" } ],
-      "NotPlausible": [ { "id": "plaus_1", "text": "Let’s try a more realistic reason consistent with the premise." } ],
-      "NotRelevant": [ { "id": "relevance_1", "text": "Please focus on explaining the observed result described in the question." } ],
-      "RejectsAssumption": [ { "id": "assump_1", "text": "Remember the premise: the program is not effective." } ]
+      "MultipleExplanation": [
+        { "id": "single_1", "text": "One explanation at a time, please—send just one." },
+        { "id": "single_2", "text": "Please provide only one explanation for now." }
+      ],
+      "Good": [
+        { "id": "good_1", "text": "Thanks. That is a plausible explanation." },
+        { "id": "good_2", "text": "Thanks. If you have another distinct explanation, please provide it." }
+      ],
+      "NotDistinct": [
+        { "id": "redux_1", "text": "Your answer is too similar to an earlier idea—try a different reason." },
+        { "id": "redux_2", "text": "This overlaps with a prior answer; please give a different explanation." }
+      ],
+      "NotSpecific": [
+        { "id": "specific_1", "text": "Could you be more specific?" },
+        { "id": "specific_3", "text": "That's broad. How exactly would that lead to the observed result?" }
+      ],
+      "NotClear": [
+        { "id": "clear_1", "text": "I didn’t follow—could you rephrase your explanation clearly?" },
+        { "id": "clear_2", "text": "Can you clarify what you mean?" }
+      ],
+      "NotPlausible": [
+        { "id": "plaus_1", "text": "Let’s try a more realistic reason consistent with the premise." },
+        { "id": "plaus_2", "text": "Let’s try another angle—give a different explanation consistent with the premise." }
+      ],
+      "NotRelevant": [
+        { "id": "relevance_1", "text": "Please focus on explaining the observed result described in the question." },
+        { "id": "relevance_2", "text": "Let’s stick to the scenario; address the observed result directly." }
+      ],
+      "RejectsAssumption": [
+        { "id": "assump_1", "text": "Remember the premise: the program is not effective." },
+        { "id": "assump_2", "text": "Please provide an explanation consistent with the premise (not due to program efficacy)." }
+      ]
     }
   },
   "DriverOverrides": { "Policy": { "TargetDistinctExplanations": 1 } }

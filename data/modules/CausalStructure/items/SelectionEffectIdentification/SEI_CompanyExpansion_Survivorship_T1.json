@@ -45,28 +45,36 @@
     },
     "ProbeLibrary": {
       "MultipleExplanation": [
-        { "id": "single_1", "text": "One explanation at a time, please—could you resend just one?" }
+        { "id": "single_1", "text": "One explanation at a time, please—could you resend just one?" },
+        { "id": "single_2", "text": "Please provide only one explanation for now." }
       ],
       "Good": [
-        { "id": "good_1", "text": "Thank you. That is a plausible explanation." }
+        { "id": "good_1", "text": "Thank you. That is a plausible explanation." },
+        { "id": "good_2", "text": "Thanks. If you have another distinct explanation, please provide it." }
       ],
       "NotDistinct": [
-        { "id": "redux_1", "text": "That’s too similar to an earlier reason. Try a different kind of explanation." }
+        { "id": "redux_1", "text": "That’s too similar to an earlier reason. Try a different kind of explanation." },
+        { "id": "redux_2", "text": "This overlaps with a prior answer; please give a different mechanism." }
       ],
       "NotSpecific": [
-        { "id": "specific_1", "text": "Please specify which companies are excluded or how the sample is biased." }
+        { "id": "specific_1", "text": "Please be more specific with your explanation." },
+        { "id": "specific_2", "text": "That's broad. How exactly would that lead to the observed association?" }
       ],
       "NotClear": [
-        { "id": "clear_1", "text": "I didn’t follow—please restate how the sampling or inclusion criteria create the association." }
+        { "id": "clear_1", "text": "I didn’t follow— could you put your answer a different way?" },
+        { "id": "clear_2", "text": "Can you clarify what you mean?" }
       ],
       "NotPlausible": [
-        { "id": "plaus_1", "text": "Let’s try a more realistic reason consistent with the premise." }
+        { "id": "plaus_1", "text": "Let’s try a more realistic reason consistent with the premise." },
+        { "id": "plaus_2", "text": "Let’s try another angle—give a different explanation consistent with the premise." }
       ],
       "NotRelevant": [
-        { "id": "relevance_1", "text": "Please focus on explaining the observed association described in the question." }
+        { "id": "relevance_1", "text": "Please focus on explaining the observed association described in the question." },
+        { "id": "relevance_2", "text": "Let’s stick to the scenario; address the observed association directly." }
       ],
       "RejectsAssumption": [
-        { "id": "assump_1", "text": "Remember the premise: aggressive expansion increases failure risk. Please offer an explanation consistent with that." }
+        { "id": "assump_1", "text": "Remember the premise: aggressive expansion increases failure risk. Please offer an explanation consistent with that." },
+        { "id": "assump_2", "text": "Please adhere to the premise (expansion raises failure risk) and provide a selection-based explanation instead." }
       ]
     }
   },

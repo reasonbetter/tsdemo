@@ -105,7 +105,7 @@ export default function Home() {
       <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
 
        <div className={`transition-all duration-300 ${!isSidebarVisible ? 'max-w-4xl mx-auto' : ''}`}>
-         <header className="flex flex-col -gap-2 sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-2">
+         <header className="flex flex-col -gap-2 sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-2 lg:mb-1">
               <div className="flex items-center -ml-4 sm:ml-0 gap-0 sm:gap-0">
                   {/* Mobile logo */}
                   <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={150} height={150} className="block sm:hidden -ml-6 mr-0" priority />

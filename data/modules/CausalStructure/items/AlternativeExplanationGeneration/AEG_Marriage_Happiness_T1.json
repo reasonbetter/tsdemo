@@ -1,7 +1,7 @@
 {
   "ItemID": "AEG_Marriage_Happiness_T1",
   "SchemaID": "AlternativeExplanationGeneration",
-  "Stem": "Married people report higher levels of happiness, on average, than unmarried people. Give one reason why this might be true, other than marriage causing happiness.",
+  "Stem": "Married people have higher levels of happiness, on average, than unmarried people. Give one reason why this might be true, other than marriage causing happiness.",
   "Content": {
     "ScenarioDefinition": {
       "A_text": "being married",

@@ -157,11 +157,7 @@ export default function Home() {
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
-                        {isSidebarVisible ? (
-                          <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                        ) : (
-                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        )}
+                        <path fillRule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H14a1 1 0 110 2H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0zM17.707 9.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H6a1 1 0 110-2h8.586l-2.293-2.293a1 1 0 011.414-1.414l4 4z" clipRule="evenodd" />
                       </svg>
                   </button>
               </div>

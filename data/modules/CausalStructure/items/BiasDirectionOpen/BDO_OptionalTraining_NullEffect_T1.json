@@ -3,7 +3,7 @@
   "SchemaID": "BiasDirectionOpen",
   "MutuallyExclusiveWith": ["BDS_TrainingProgram_ZeroDiff_T2"],
   "MutuallyExclusiveGroup": "training_program_zero_diff",
-  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. However, those who joined the program were no more or less successful than those who didn’t join.\n\nThe CEO is now deciding whether to cancel the program. \n\nWhat would you tell the CEO about the program's actual effectiveness (considering the possibilities that it might be helpful, harmful, or neither) based on this study? Explain your reasoning.",
+  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. However, those who joined the program were no more or less successful than those who didn’t.\n\nWhat does this tell us about the program's actual effectiveness (whether it was helpful, harmful, or neither). Explain your reasoning.",
   "Content": {
     "ScenarioDefinition": {
       "Intervention": "Optional training program.",
@@ -17,18 +17,18 @@
         {"id": "stop_success_3", "text": "Got it. That's a thorough analysis of the findings."}
       ],
       "MaskedBenefit_Only_Explained": [
-        {"id": "flip_harm_1", "text": "Okay. Now consider the opposite possibility: how could the study show no difference even if the training program actually *harmed* the participants' success?"},
+        {"id": "flip_harm_1", "text": "Okay. Now consider the opposite possibility: could there be no difference even if the training program actually *harmed* the participants' success?"},
         {"id": "flip_harm_2", "text": "Thanks. What about the other side? Explain how the results might look this way even if the training was actually detrimental."},
-        {"id": "flip_harm_3", "text": "Understood. Now, please explain a scenario where the program actually hurts success, but the study still shows no difference."}
+        {"id": "flip_harm_3", "text": "Understood. Now, please explain a scenario where the program actually hurts success, but the results still show no difference."}
       ],
       "MaskedHarm_Only_Explained": [
-        {"id": "flip_benefit_1", "text": "Okay. Now consider the opposite possibility: how could the study show no difference even if the training program actually *helped* the participants' success?"},
+        {"id": "flip_benefit_1", "text": "Okay. Now consider the opposite possibility: how could there be no difference even if the training program actually *helped* the participants' success?"},
         {"id": "flip_benefit_2", "text": "Thanks. What about the other side? Explain how the results might look this way even if the training was actually beneficial."},
-        {"id": "flip_benefit_3", "text": "Understood. Now, please explain a scenario where the program actually helps success, but the study still shows no difference."}
+        {"id": "flip_benefit_3", "text": "Understood. Now, please explain a scenario where the program actually helps success, but the results still show no difference."}
       ],
       "Neither_Explained_Sufficiently": [
         {"id": "general_1", "text": "Is the observed 'no difference' sufficient evidence to conclude the training program has no actual impact? Why or why not?"},
-        {"id": "general_2", "text": "Can you think of a scenario where the training program *does* have an impact, but the study still shows no difference?"},
+        {"id": "general_2", "text": "Can you think of a scenario where the training program *does* have an impact, but the results still show no difference?"},
         {"id": "general_3", "text": "Why might the observed results be misleading about the program's actual effectiveness?"}
       ],
       "NotSpecific": [
@@ -44,7 +44,7 @@
       "NotPlausible": [
         {"id": "plausible_1", "text": "Let's try another angle. Please offer a different interpretation of the results."},
         {"id": "plausible_2", "text": "Okay, please provide a different possibility for the program's actual effect."},
-        {"id": "plausible_3", "text": "Try to think of a different reason why the study showed no difference."}
+        {"id": "plausible_3", "text": "Try to think of a different reason why the results showed no difference."}
       ],
       "NotClear": [
         {"id": "clear_1", "text": "I didn't follow your reasoning. Could you rephrase your explanation?"},
@@ -52,9 +52,9 @@
         {"id": "clear_3", "text": "I don't quite follow. Could you explain how that would work?"}
       ],
       "NotRelevant": [
-        {"id": "relevant_1", "text": "Please focus on interpreting the results of the study regarding the training program."},
-        {"id": "relevant_2", "text": "Your response seems off-topic. Please focus on the effectiveness of the training program based on the study."},
-        {"id": "relevant_3", "text": "Please address the prompt: what is your interpretation of the study results?"}
+        {"id": "relevant_1", "text": "Please focus on interpreting the results of the training program."},
+        {"id": "relevant_2", "text": "Your response seems off-topic. Please focus on the effectiveness of the training program."},
+        {"id": "relevant_3", "text": "Please address the prompt: what is your interpretation of the results?"}
       ]
     },
     "Examples": {

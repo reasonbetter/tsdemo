@@ -104,14 +104,14 @@ export default function Home() {
 
        <div className={`transition-all duration-300 ${!isSidebarVisible ? 'max-w-4xl mx-auto' : ''}`}>
          <header className="flex flex-col -gap-2 sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-2">
-              <div className="flex items-center -ml-4 sm:ml-0 gap-0 sm:gap-0" style={{ minWidth: 'min-content' }}>
+              <div className="flex items-center -ml-4 sm:ml-0 gap-0 sm:gap-0">
                   {/* Mobile logo */}
-                  <div className="block sm:hidden" style={{ minWidth: '150px', width: '150px', flexShrink: 0 }}>
-                    <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={150} height={150} className="-ml-6 mr-0" priority style={{ maxWidth: '150px', maxHeight: '150px', width: 'auto', height: 'auto' }} />
+                  <div className="block sm:hidden" style={{ flexShrink: 0 }}>
+                    <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={150} height={150} className="-ml-6 mr-0" priority style={{ maxWidth: '150px', maxHeight: '150px', width: '150px', height: '150px' }} />
                   </div>
                   {/* Desktop logo */}
-                  <div className="hidden sm:block" style={{ minWidth: '220px', width: '220px', flexShrink: 0 }}>
-                    <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={220} height={220} className="-ml-14 -mr-14" priority style={{ maxWidth: '220px', maxHeight: '220px', width: 'auto', height: 'auto' }} />
+                  <div className="hidden sm:block" style={{ flexShrink: 0 }}>
+                    <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={220} height={220} className="-ml-14 -mr-14" priority style={{ maxWidth: '220px', maxHeight: '220px', width: '220px', height: '220px' }} />
                   </div>
                   <div className="-ml-8 sm:ml-0" style={{ flexShrink: 0 }}>
                     <h1 className="text-2xl sm:text-3xl font-semibold leading-tight tracking-tight text-gray-700">Reasoning Interviewer</h1>

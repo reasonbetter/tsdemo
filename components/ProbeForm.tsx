@@ -25,7 +25,7 @@ export default function ProbeForm({
   }, [value, probeInputRef]);
   return (
     <form onSubmit={onSubmit} className="animate-fadeIn">
-      <div className="bg-primary-light border border-primary-border text-primary-text p-4 rounded-lg italic mb-6 break-words tracking-[-0.01em]">
+      <div className="bg-primary-light border border-primary-border text-primary-text p-4 rounded-lg italic mb-8 break-words tracking-[-0.01em]">
         {prompt}
       </div>
       <textarea

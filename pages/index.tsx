@@ -152,32 +152,14 @@ export default function Home() {
                       aria-label={isSidebarVisible ? 'Collapse details panel' : 'Expand details panel'}
                       title={isSidebarVisible ? 'Collapse details' : 'Expand details'}
                   >
-                      <svg
-                        className="w-5 h-5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.75"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        {/* center divider */}
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        {isSidebarVisible ? (
-                          // collapse (->|<-): arrows point inward toward the divider
-                          <>
-                            <path d="M6 7 L10 11 L6 15" />
-                            <path d="M18 7 L14 11 L18 15" />
-                          </>
-                        ) : (
-                          // expand (<-|->): arrows point outward away from the divider
-                          <>
-                            <path d="M10 7 L6 11 L10 15" />
-                            <path d="M14 7 L18 11 L14 15" />
-                          </>
-                        )}
-                      </svg>
+                      <Image
+                        src="/sidebar.svg"
+                        alt=""
+                        width={20}
+                        height={20}
+                        className={`transition-transform duration-200 ${isSidebarVisible ? 'rotate-180' : ''}`}
+                        priority
+                      />
                   </button>
               </div>
          </header>

@@ -202,16 +202,17 @@ export default function Home() {
                         </button>
                         <button
                           type="button"
-                          className="inline-flex items-center justify-center h-[30px] w-[44px] text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150"
+                          className="inline-flex items-center gap-2 h-[30px] px-3 text-sm font-semibold text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150"
                           onClick={() => setIsSidebarVisible(!isSidebarVisible)}
                           aria-label={isSidebarVisible ? 'Hide details' : 'Show details'}
                           title={isSidebarVisible ? 'Hide details' : 'Show details'}
                         >
+                          <span>Details</span>
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
+                            width="18"
+                            height="18"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2"
@@ -220,17 +221,11 @@ export default function Home() {
                             aria-hidden="true"
                           >
                             {isSidebarVisible ? (
-                              // "<<" when open
-                              <>
-                                <polyline points="14 7 9 12 14 17" />
-                                <polyline points="19 7 14 12 19 17" />
-                              </>
+                              // single left chevron when open
+                              <polyline points="15 18 9 12 15 6" />
                             ) : (
-                              // ">>" when closed
-                              <>
-                                <polyline points="5 7 10 12 5 17" />
-                                <polyline points="10 7 15 12 10 17" />
-                              </>
+                              // single right chevron when closed
+                              <polyline points="9 6 15 12 9 18" />
                             )}
                           </svg>
                         </button>

@@ -148,7 +148,8 @@ export default function Home() {
                       className="px-4 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
                       onClick={() => setIsSidebarVisible(!isSidebarVisible)}
                   >
-                      {isSidebarVisible ? 'Hide Details' : 'Show Details'}
+                      <span className="sm:hidden">Details</span>
+                      <span className="hidden sm:inline">{isSidebarVisible ? 'Hide Details' : 'Show Details'}</span>
                   </button>
               </div>
          </header>

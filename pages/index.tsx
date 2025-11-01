@@ -15,7 +15,7 @@ import TransitionMessage from '@/components/TransitionMessage';
 
 // Helper component for rendering markdown prompts professionally
 const Prose = ({ children, size = 'lg' }: { children: string, size?: 'sm' | 'lg' }) => (
-    <div className={`${size === 'lg' ? 'text-base sm:text-lg leading-relaxed' : 'text-sm sm:text-base leading-normal'} tracking-[-0.01em] text-foreground mb-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>li]:mb-2`}>
+    <div className={`${size === 'lg' ? 'text-base sm:text-lg leading-relaxed' : 'text-sm sm:text-base leading-normal'} tracking-[-0.01em] text-foreground mb-8 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>li]:mb-2`}>
       <ReactMarkdown>{children}</ReactMarkdown>
     </div>
   );

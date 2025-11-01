@@ -5,11 +5,7 @@
   "GuidanceVersion": "v1",
   "Ability": { "key": "causal.selection_effects" },
 
-  "ProbePolicy": {
-    "AllowAJGeneratedFor": [],
-    "MaxGeneratedChars": 160,
-    "DisallowHintPatterns": ["\\bfor example\\b","\\be\\.g\\.\\b","\\bbecause\\b","\\btry mentioning\\b","\\bconsider\\b"]
-  },
+  
 
   "PolicyDefaults": {
     "MaxConsecutiveFailedAttempts": 2,
@@ -40,7 +36,7 @@
       "ProbingGuidance": [
         "VARIATION RULE: Select a Probe ID from the ProbeLibrary that has not yet been used in the current unit, if available.",
         "CONSTRAINT REMINDER: For 'RejectsAssumption', select a short probe from the 'RejectsAssumption' category that neutrally reiterates the relevant constraint without hinting.",
-        "STANDARDIZED SELECTION: For ALL OTHER AnswerTypes, select a probe from that category in the ProbeLibrary."
+        "STANDARDIZED SELECTION: Select a probe from the appropriate category in the ProbeLibrary. Do not generate new probe text."
       ]
     },
     "DominanceOrder": [
@@ -54,7 +50,7 @@
       "MaxConsecutiveNotClear": 1
     },
     "AnswerTypeMap": { "RejectsAssumption": "RunsThroughA" },
-    "GeneratedProbeCategoryLabel": "RejectsAssumption"
+    "RunsThroughCategoryLabel": "RejectsAssumption"
   },
 
   "ScoringSpec": {
@@ -70,8 +66,7 @@
       },
       "ThemeTag": { "type": ["string","null"] },
       "Confidence": { "type": "number", "minimum": 0, "maximum": 1 },
-      "RecommendedProbeID": { "type": ["string","null"] },
-      "GeneratedProbeText": { "type": ["string","null"] }
+      "RecommendedProbeID": { "type": ["string","null"] }
     },
     "required": ["AnswerType","Confidence"],
     "additionalProperties": false

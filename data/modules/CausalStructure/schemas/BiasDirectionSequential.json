@@ -5,11 +5,7 @@
   "GuidanceVersion": "v1",
   "Ability": { "key": "causal.selection.direction" },
 
-  "ProbePolicy": {
-    "AllowAJGeneratedFor": [],
-    "MaxGeneratedChars": 160,
-    "DisallowHintPatterns": ["\\bfor example\\b","\\bbecause\\b","\\btry mentioning\\b","\\bconsider\\b","\\be\\.g\\.\\b","\\bi\\.e\\.\\b"]
-  },
+  
 
   "PolicyDefaults": {
     "MaxConsecutiveFailedAttempts": 2,

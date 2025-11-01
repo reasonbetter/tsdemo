@@ -78,12 +78,7 @@ export interface SchemaEnvelope {
   PolicyDefaults?: KernelPolicy;
   ScoringSpec?: ScoringSpecification;
   DriverConfig?: Json;
-  ProbePolicy?: {
-    AllowAJGeneratedFor?: string[];
-    MaxGeneratedChars?: number;
-    DisallowHintPatterns?: string[];
-    [k: string]: unknown;
-  };
+  ProbePolicy?: { [k: string]: unknown };
   AJ_Contract_JsonSchema: JSONSchema; // may be object OR boolean
   [k: string]: unknown;
 }

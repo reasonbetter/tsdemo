@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { __resetRegistryForTests__, registerDriver, resolveDriver, registryHealth } from "@/engine/registry";
+import { __resetRegistryForTests__, registerDriver, resolveDriver, registryHealth, setDefaultDriverForKind } from "@/engine/registry";
 import type { SkillDriver } from "@/types/kernel";
 
 const D = (id: string, kind?: string): SkillDriver => ({
@@ -16,6 +16,9 @@ describe("driver registry health", () => {
   it("reports registered drivers and resolves by id/kind", () => {
     registerDriver(D("aeq.aeg.v1", "aeg"));
     registerDriver(D("generic.numeric.v1", "generic.numeric"));
+
+    // Set default mapping for kind-based resolution used below
+    setDefaultDriverForKind("aeg", "aeq.aeg.v1");
 
     const h = registryHealth();
     expect(h.count).toBe(2);

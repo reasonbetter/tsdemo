@@ -5,11 +5,7 @@
   "GuidanceVersion": "1.0.0",
   "Ability": { "key": "causal.aeg" },
 
-  "ProbePolicy": {
-    "AllowAJGeneratedFor": ["RunsThroughA"],
-    "MaxGeneratedChars": 250,
-    "DisallowHintPatterns": ["\\\\bfor example\\\\b", "\\\\bbecause\\\\b", "\\\\btry mentioning\\\\b"]
-  },
+  
 
   "PolicyDefaults": {
     "MaxConsecutiveFailedAttempts": 2
@@ -37,8 +33,7 @@
       ],
       "ProbingGuidance": [
         "VARIATION RULE: Review the session history. You MUST select a Probe ID from the ProbeLibrary that has not yet been used in the current unit, if available. If all probes in that category have been used, you may reuse them.",
-        "CONTROLLED GENERATION EXCEPTION: If the AnswerType is 'RunsThroughA': Ignore the ProbeLibrary and generate a contextually appropriate, brief (1 sentence), non-hinting probe text that reiterates the question’s constraint that the explanation cannot rely on [A] causing [B]. Do not say 'for example' or offer even a slight bit of guidance.",
-        "STANDARDIZED SELECTION: For ALL OTHER AnswerTypes: Select the ID of the most conversationally appropriate probe from that AnswerType's category in the ProbeLibrary."
+        "STANDARDIZED SELECTION: Select the ID of the most conversationally appropriate probe from that AnswerType's category in the ProbeLibrary. Do not generate new probe text."
       ]
     },
     "DominanceOrder": [
@@ -85,8 +80,7 @@
       },
       "ThemeTag": { "type": ["string","null"] },
       "Confidence": { "type": "number", "minimum": 0, "maximum": 1 },
-      "RecommendedProbeID": { "type": ["string","null"] },
-      "GeneratedProbeText": { "type": ["string","null"] }
+      "RecommendedProbeID": { "type": ["string","null"] }
     },
     "required": ["AnswerType","Confidence"],
     "additionalProperties": false

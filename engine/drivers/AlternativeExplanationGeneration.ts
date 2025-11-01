@@ -44,7 +44,6 @@ type AJOut = {
   ThemeTag: string | null;
   Confidence: number;
   RecommendedProbeID?: string | null;
-  GeneratedProbeText?: string | null;
 };
 
 /* ---------------- Helpers & shims --------------- */
@@ -86,9 +85,9 @@ function extractConfig(schema: SchemaEnvelope) {
   const AnswerTypeMap: Record<string, string> = { ...(dc?.AnswerTypeMap ?? {}) };
   // Back-compat convenience: allow schemas to alias friendlier labels to RunsThroughA
   if (!AnswerTypeMap["RejectsPremise"]) AnswerTypeMap["RejectsPremise"] = "RunsThroughA";
-  const RunsThroughCategoryLabel: string = typeof dc?.GeneratedProbeCategoryLabel === 'string'
-    ? String(dc.GeneratedProbeCategoryLabel)
-    : "RunsThroughA"; // reuse existing key to minimize schema churn
+  const RunsThroughCategoryLabel: string = typeof (dc as any)?.RunsThroughCategoryLabel === 'string'
+    ? String((dc as any).RunsThroughCategoryLabel)
+    : (typeof (dc as any)?.GeneratedProbeCategoryLabel === 'string' ? String((dc as any).GeneratedProbeCategoryLabel) : "RunsThroughA");
 
   return { DominanceOrder, AJ_System_Guidance, ConfidencePolicy, MaxClarificationAttempts, ClarificationPolicy, AnswerTypeMap, RunsThroughCategoryLabel };
 }
@@ -183,7 +182,6 @@ export const AlternativeExplanationGenerationDriver: SkillDriver<AEGState, AEGPo
       ThemeTag: obj?.ThemeTag == null ? null : String(obj.ThemeTag),
       Confidence: clamp01(asNum(obj?.Confidence, 0)),
       RecommendedProbeID: obj?.RecommendedProbeID == null ? null : String(obj.RecommendedProbeID),
-      GeneratedProbeText: obj?.GeneratedProbeText == null ? null : String(obj.GeneratedProbeText),
     };
   },
 

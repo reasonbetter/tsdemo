@@ -72,11 +72,6 @@ const SchemaEnvelopeJsonSchema = {
     DriverConfig: { type: "object" },
     ProbePolicy: {
       type: "object",
-      properties: {
-        AllowAJGeneratedFor: { type: "array", items: { type: "string" } },
-        MaxGeneratedChars: { type: "number", minimum: 1 },
-        DisallowHintPatterns: { type: "array", items: { type: "string" } }
-      },
       additionalProperties: true
     },
     AJ_Contract_JsonSchema: {

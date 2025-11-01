@@ -3,7 +3,7 @@
   "SchemaID": "BiasDirectionOpen",
   "MutuallyExclusiveWith": ["BDS_TrainingProgram_ZeroDiff_T2"],
   "MutuallyExclusiveGroup": "training_program_zero_diff",
-  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. However, those who joined the program were no more or less successful than those who didn’t.\n\nWhat does this tell us about the program's actual effectiveness (whether it was helpful, harmful, or neither). Explain your reasoning.",
+  "Stem": "A company introduced an optional training program for new employees, intended to improve their career success. However, those who joined the program were no more or less successful than those who didn’t.\n\nWhat does this tell us about the program's actual effectiveness (whether it was helpful, harmful, or neither)? Explain your reasoning.",
   "Content": {
     "ScenarioDefinition": {
       "Intervention": "Optional training program.",

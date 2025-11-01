@@ -9,7 +9,7 @@ import PromptForm from '@/components/PromptForm';
 import ProbeForm from '@/components/ProbeForm';
 import useAssessment from 'hooks/useAssessment';
 import TransitionMessage from '@/components/TransitionMessage';
-import SessionProgress from '@/components/SessionProgress';
+import SessionProgress from '../components/SessionProgress';
 
 
 // Assessment state and actions are provided by useAssessment

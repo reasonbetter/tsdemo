@@ -125,7 +125,7 @@ export default function Home() {
                   <a
                     href="/admin"
                     title="Admin log"
-                    className="px-4 py-1.5 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150"
+                    className="inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150"
                   >
                     View Admin Logs
                   </a>
@@ -280,7 +280,7 @@ export default function Home() {
                     <div className="sm:hidden flex items-center gap-3 mt-4">
                       <label className="text-sm font-semibold text-primary">User ID:</label>
                       <input
-                        className={`w-28 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                        className={`h-[30px] w-28 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                         value={userIdInput}
                         onChange={(e) => setUserIdInput(e.target.value)}
                         onBlur={(e) => updateUserId(e.target.value)}
@@ -299,10 +299,10 @@ export default function Home() {
                         <div className="space-y-4">
                           {/* Mobile top controls: End Session + Admin */}
                           <div className="flex items-center gap-3">
-                            <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                            <button type="button" className="inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                               End Session
                             </button>
-                            <a className="px-4 py-1.5 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150 whitespace-nowrap" href="/admin" title="Admin log">
+                            <a className="inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150 whitespace-nowrap" href="/admin" title="Admin log">
                               View Admin Logs
                             </a>
                           </div>

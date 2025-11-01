@@ -131,25 +131,7 @@ export default function Home() {
 
             <main className={`transition-all duration-300 ${isSidebarVisible ? 'lg:col-span-2' : 'max-w-4xl mx-auto w-full'}`}>
                 {/* Expand/Collapse icon above main box (desktop) */}
-                <div className="hidden sm:flex justify-end mb-1">
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsSidebarVisible(!isSidebarVisible); } }}
-                    aria-label={isSidebarVisible ? 'Collapse details panel' : 'Expand details panel'}
-                    title={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                  >
-                    <Image
-                      src="/sidebar.svg"
-                      alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                      width={32}
-                      height={32}
-                      className={`cursor-pointer opacity-70 ${isSidebarVisible ? 'rotate-180' : ''}`}
-                      priority
-                    />
-                  </div>
-                </div>
+                <div className="hidden sm:flex justify-end mb-1"></div>
 
                 <section className="bg-card shadow-lg border border-border rounded-xl px-6 py-5 sm:px-10 sm:py-8 mb-12 animate-fadeIn">
                     <Prose>{promptText || ""}</Prose>
@@ -213,11 +195,29 @@ export default function Home() {
                             }
                           }}
                           placeholder="Optional"
-                          readOnly={userIdInput === userTag && userTag !== ""}
+                      readOnly={userIdInput === userTag && userTag !== ""}
                         />
                         <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                           End Session
                         </button>
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsSidebarVisible(!isSidebarVisible); } }}
+                          aria-label={isSidebarVisible ? 'Collapse details panel' : 'Expand details panel'}
+                          title={isSidebarVisible ? 'Collapse details' : 'Expand details'}
+                          className="flex items-center"
+                        >
+                          <Image
+                            src="/sidebar.svg"
+                            alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
+                            width={28}
+                            height={28}
+                            className={`cursor-pointer opacity-70 ${isSidebarVisible ? 'rotate-180' : ''}`}
+                            priority
+                          />
+                        </div>
                       </div>
                     </div>
                     <div className="sm:hidden flex items-center gap-3 mt-4">

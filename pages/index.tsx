@@ -116,7 +116,27 @@ export default function Home() {
                     <p className="text-sm text-muted-foreground mt-0.5">[Causal Inference Demo]</p>
                   </div>
               </div>
-              <div className="flex flex-wrap items-center justify-between sm:justify-end gap-4 ml-3 sm:ml-0 w-full sm:w-auto">
+              <div className="flex flex-col items-end gap-2 ml-3 sm:ml-0 w-full sm:w-auto">
+                  {/* Toggle icon above, on desktop */}
+                  <div
+                      className="hidden sm:flex items-center justify-center"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsSidebarVisible(!isSidebarVisible); } }}
+                      aria-label={isSidebarVisible ? 'Collapse details panel' : 'Expand details panel'}
+                      title={isSidebarVisible ? 'Collapse details' : 'Expand details'}
+                  >
+                      <Image
+                        src="/sidebar.svg"
+                        alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
+                        width={40}
+                        height={40}
+                        className={`cursor-pointer opacity-70 ${isSidebarVisible ? 'rotate-180' : ''}`}
+                        priority
+                      />
+                  </div>
+
                   <div className="flex items-center gap-2">
                       <label className="text-sm font-medium text-primary">User ID:</label>
                       <div className="flex items-center gap-2">
@@ -146,24 +166,7 @@ export default function Home() {
                           )}
                       </div>
                   </div>
-                  <div
-                      className="hidden sm:flex items-center justify-center"
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsSidebarVisible(!isSidebarVisible); } }}
-                      aria-label={isSidebarVisible ? 'Collapse details panel' : 'Expand details panel'}
-                      title={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                  >
-                      <Image
-                        src="/sidebar.svg"
-                        alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                        width={40}
-                        height={40}
-                        className={`cursor-pointer ${isSidebarVisible ? 'rotate-180' : ''}`}
-                        priority
-                      />
-                  </div>
+                  
               </div>
          </header>
        </div>

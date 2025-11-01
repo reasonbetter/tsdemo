@@ -14,45 +14,29 @@
         "ThemeID": "reverse_causation_pace_of_life",
         "Aliases": [
           "less stressed people drink tea",
-          "more free time",
-          "slower pace of life",
-          "time for rituals",
-          "already calm",
-          "relaxed lifestyle",
-          "calm people prefer tea"
+          "more free time"
         ]
       },
       {
         "ThemeID": "health_behaviors_bias",
         "Aliases": [
           "healthy diet",
-          "exercise regularly",
-          "health-conscious",
-          "better sleep habits",
-          "healthy user bias",
-          "mindfulness",
-          "meditation"
+          "exercise regularly"
         ]
       },
       {
         "ThemeID": "ses_resources",
         "Aliases": [
           "financial stability",
-          "wealth",
-          "money",
-          "socioeconomic status",
           "job security",
-          "flexible work hours"
-        ]
+          "flexible work hours"]
       },
       {
         "ThemeID": "culture_geography",
         "Aliases": [
           "cultural background",
           "where they live",
-          "upbringing",
-          "social norms",
-          "different cultural coping mechanisms"
+          "social norms"
         ]
       },
       {
@@ -76,14 +60,7 @@
     "TooGeneral": [
       "lifestyle",
       "environment",
-      "personality",
-      "health",
-      "resources",
-      "background",
-      "happiness",
-      "demographics",
-      "culture",
-      "habits"
+      "personality"
     ],
     "Examples": {
       "RunsThroughA": [

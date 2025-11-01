@@ -314,7 +314,8 @@ export default function Home() {
 
             <aside className={`hidden ${isSidebarVisible ? 'lg:block' : 'lg:hidden'} lg:col-span-1 transition-all duration-300 ease-in-out`}>
                 <div className="space-y-4">
-                    {/* Top bar with End Session and Admin */}
+                  {/* Group the top controls and session info in a white box */}
+                  <div className="bg-white rounded-xl border border-border p-4 space-y-4">
                     <div className="flex justify-end gap-2">
                       <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={endSession}>
                         End Session
@@ -324,8 +325,9 @@ export default function Home() {
                       </a>
                     </div>
                     <SessionInfo bare hideReset hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
+                  </div>
 
-                    <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />
+                  <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />
                 </div>
             </aside>
        </div>

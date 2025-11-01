@@ -31,6 +31,9 @@ export function useAssessment() {
   const [itemsBySchema, setItemsBySchema] = useState<Record<string, any[]>>({});
   const [schemaOrder, setSchemaOrder] = useState<string[]>([]);
   const [schemaIndex, setSchemaIndex] = useState<number>(0);
+  // Session plan: exactly 4 questions -> 2 AEG, 1 BDO, 1 SEI (random order)
+  const [sessionPlanSchemas, setSessionPlanSchemas] = useState<string[]>([]);
+  const [sessionStepIndex, setSessionStepIndex] = useState<number>(0); // index within session plan
   const [usedItemsBySchema, setUsedItemsBySchema] = useState<Record<string, Set<string>>>({});
   const [usedMutExGroups, setUsedMutExGroups] = useState<Set<string>>(new Set());
   const [selectedItem, setSelectedItem] = useState<SelectedItem>(null);
@@ -66,8 +69,8 @@ export function useAssessment() {
     (async () => {
       try {
         const raw = await apiGetItems();
-        // Exclude generic numeric Fermi items for this demo policy
-        const items = raw.filter((it: any) => it.SchemaID !== 'FermiPopulationCity');
+        // Exclude generic numeric Fermi items and set BDS aside for now
+        const items = raw.filter((it: any) => it.SchemaID !== 'FermiPopulationCity' && it.SchemaID !== 'BiasDirectionSequential');
         if (cancelled) return;
         setBankItems(items);
         // Build items-by-schema mapping and randomize schema order once
@@ -79,9 +82,16 @@ export function useAssessment() {
         setSchemaOrder(randomized);
         setSchemaIndex(0);
         setUsedItemsBySchema({});
+        // Build per-session plan: 2 AEG, 1 BDO, 1 SEI (random order)
+        const AEG = 'AlternativeExplanationGeneration';
+        const BDO = 'BiasDirectionOpen';
+        const SEI = 'SelectionEffectIdentification';
+        const plan = [AEG, AEG, BDO, SEI].sort(() => Math.random() - 0.5);
+        setSessionPlanSchemas(plan);
+        setSessionStepIndex(0);
         if (items.length > 0 && (!selectedItem || !selectedItem.isKernel)) {
-          // pick first item from first schema
-          const sid = randomized[0];
+          // pick first item from the first schema in the plan
+          const sid = plan[0];
           const pool = (bySchema[sid] ?? []);
           if (pool.length > 0) {
             const pick = pool[Math.floor(Math.random() * pool.length)];
@@ -89,9 +99,6 @@ export function useAssessment() {
             setSeenKernelIds((s) => (s.includes(pick.ItemID) ? s : [...s, pick.ItemID]));
             setUsedItemsBySchema({ [sid]: new Set([pick.ItemID]) });
             if ((pick as any).MutuallyExclusiveGroup) setUsedMutExGroups(new Set([(pick as any).MutuallyExclusiveGroup]));
-            // Advance schema index so the next pick rotates to the next schema
-            if (randomized.length > 1) setSchemaIndex(1 % randomized.length);
-            else setSchemaIndex(0);
           }
         }
       } catch (e) {
@@ -114,46 +121,69 @@ export function useAssessment() {
   }, []);
 
   const pickNextItem = useCallback((prev?: SelectedItem) => {
-    if (schemaOrder.length === 0) {
-      setSelectedItem(null); return;
-    }
-    const hasUnused = (sid: string) => {
+    // Prefer session plan sequence if available
+    const AEG = 'AlternativeExplanationGeneration';
+    const BDO = 'BiasDirectionOpen';
+    const SEI = 'SelectionEffectIdentification';
+
+    const computePool = (sid: string) => {
       const all = itemsBySchema[sid] ?? [];
       const used = usedItemsBySchema[sid] ?? new Set<string>();
-      return all.some((it) => !used.has(it.ItemID));
+      return all.filter((it: any) => {
+        if (used.has(it.ItemID)) return false;
+        const meWith: string[] = (it as any).MutuallyExclusiveWith ?? [];
+        if (meWith.some((id) => seenKernelIds.includes(id))) return false;
+        const grp: string | undefined = (it as any).MutuallyExclusiveGroup;
+        if (grp && usedMutExGroups.has(grp)) return false;
+        return true;
+      });
     };
+
+    const selectAndSet = (sid: string, nextIdx: number | null) => {
+      const pool = computePool(sid);
+      if (pool.length === 0) return false;
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      setSelectedItem({ ItemID: pick.ItemID, SchemaID: pick.SchemaID, Stem: pick.Stem, isKernel: true });
+      setSeenKernelIds((s) => (s.includes(pick.ItemID) ? s : [...s, pick.ItemID]));
+      setUsedItemsBySchema((prevMap) => {
+        const next = { ...prevMap } as Record<string, Set<string>>;
+        const set = new Set(next[sid] ?? []);
+        set.add(pick.ItemID);
+        next[sid] = set; return next;
+      });
+      if ((pick as any).MutuallyExclusiveGroup) setUsedMutExGroups((prev) => new Set(prev).add((pick as any).MutuallyExclusiveGroup));
+      if (nextIdx != null) setSessionStepIndex(nextIdx);
+      return true;
+    };
+
+    if (sessionPlanSchemas && sessionPlanSchemas.length > 0) {
+      const nextIdx = sessionStepIndex + 1;
+      if (nextIdx < sessionPlanSchemas.length) {
+        const targetSchema = sessionPlanSchemas[nextIdx];
+        if (selectAndSet(targetSchema, nextIdx)) return;
+        // Fallback: try other allowed schemas if target lacks available items
+        for (const sid of [AEG, BDO, SEI]) {
+          if (sid === targetSchema) continue;
+          if (selectAndSet(sid, nextIdx)) return;
+        }
+        // Nothing available -> end selection early
+        setSelectedItem(null);
+        return;
+      }
+    }
+
+    // Legacy fallback: rotate across schemas
+    if (schemaOrder.length === 0) { setSelectedItem(null); return; }
+    const hasUnused = (sid: string) => computePool(sid).length > 0;
     const anyLeft = schemaOrder.some(hasUnused);
     if (!anyLeft) { setSelectedItem(null); return; }
-    let idx = schemaIndex;
-    let guard = 0;
-    while (guard < schemaOrder.length && !hasUnused(schemaOrder[idx])) {
-      idx = (idx + 1) % schemaOrder.length; guard++;
-    }
+    let idx = schemaIndex; let guard = 0;
+    while (guard < schemaOrder.length && !hasUnused(schemaOrder[idx])) { idx = (idx + 1) % schemaOrder.length; guard++; }
     if (!hasUnused(schemaOrder[idx])) { setSelectedItem(null); return; }
     const sid = schemaOrder[idx];
-    const all = itemsBySchema[sid] ?? [];
-    const used = usedItemsBySchema[sid] ?? new Set<string>();
-    const pool = all.filter((it: any) => {
-      if (used.has(it.ItemID)) return false;
-      const meWith: string[] = (it as any).MutuallyExclusiveWith ?? [];
-      if (meWith.some((id) => seenKernelIds.includes(id))) return false;
-      const grp: string | undefined = (it as any).MutuallyExclusiveGroup;
-      if (grp && usedMutExGroups.has(grp)) return false;
-      return true;
-    });
-    if (pool.length === 0) { setSchemaIndex((v) => (idx + 1) % schemaOrder.length); return pickNextItem(prev); }
-    const pick = pool[Math.floor(Math.random() * pool.length)];
-    setSelectedItem({ ItemID: pick.ItemID, SchemaID: pick.SchemaID, Stem: pick.Stem, isKernel: true });
-    setSeenKernelIds((s) => (s.includes(pick.ItemID) ? s : [...s, pick.ItemID]));
-    setUsedItemsBySchema((prevMap) => {
-      const next = { ...prevMap } as Record<string, Set<string>>;
-      const set = new Set(next[sid] ?? []);
-      set.add(pick.ItemID);
-      next[sid] = set; return next;
-    });
-    if ((pick as any).MutuallyExclusiveGroup) setUsedMutExGroups((prev) => new Set(prev).add((pick as any).MutuallyExclusiveGroup));
+    if (!selectAndSet(sid, null)) { setSelectedItem(null); return; }
     setSchemaIndex((v) => (idx + 1) % schemaOrder.length);
-  }, [schemaOrder, schemaIndex, itemsBySchema, usedItemsBySchema, seenKernelIds, usedMutExGroups]);
+  }, [sessionPlanSchemas, sessionStepIndex, itemsBySchema, usedItemsBySchema, seenKernelIds, usedMutExGroups, schemaOrder, schemaIndex]);
 
   const logEvent = useCallback(async (type: string, payload: Record<string, any>, specificSessionId?: string) => {
     const sid = specificSessionId || sessionId;
@@ -194,7 +224,30 @@ export function useAssessment() {
     setSchemaIndex(0);
     setUsedItemsBySchema({});
     setUsedMutExGroups(new Set());
-  }, [userIdInput]);
+    // Build a new session plan for the next session
+    const AEG = 'AlternativeExplanationGeneration';
+    const BDO = 'BiasDirectionOpen';
+    const SEI = 'SelectionEffectIdentification';
+    const plan = [AEG, AEG, BDO, SEI].sort(() => Math.random() - 0.5);
+    setSessionPlanSchemas(plan);
+    setSessionStepIndex(0);
+    // Select the first item for the new session if available
+    try {
+      const firstSchema = plan[0];
+      const pool = (itemsBySchema[firstSchema] ?? []);
+      if (pool.length > 0) {
+        const pick = pool[Math.floor(Math.random() * pool.length)];
+        setSelectedItem({ ItemID: pick.ItemID, SchemaID: pick.SchemaID, Stem: pick.Stem, isKernel: true });
+        setSeenKernelIds([pick.ItemID]);
+        setUsedItemsBySchema({ [firstSchema]: new Set([pick.ItemID]) });
+        if ((pick as any).MutuallyExclusiveGroup) setUsedMutExGroups(new Set([(pick as any).MutuallyExclusiveGroup]));
+      } else {
+        setSelectedItem(null);
+      }
+    } catch {
+      setSelectedItem(null);
+    }
+  }, [userIdInput, itemsBySchema]);
 
   const endSession = useCallback(() => {
     logEvent('session_end_manual', { item_count: history.length });
@@ -227,15 +280,23 @@ export function useAssessment() {
       setDebugLog((lines) => [...lines, ...(turn.telemetry ? [JSON.stringify(turn.telemetry)] : []), '—']);
       if (turn.completed) {
         setIsSessionLive(false);
-        // Show transition cue and advance after a short delay
-        const phrase = nextTransitionPhrase();
-        setAwaitingProbe(null);
-        setAwaitingTransition(phrase);
-        const prevSel = selectedItem;
-        setTimeout(() => {
+        const isLastPlanned = (sessionStepIndex >= (sessionPlanSchemas.length - 1));
+        if (isLastPlanned) {
+          // End session using the same overlay animation as the button
+          setAwaitingProbe(null);
           setAwaitingTransition(null);
-          pickNextItem(prevSel);
-        }, DEFAULT_TRANSITION_DELAY_MS);
+          endSession();
+        } else {
+          // Show transition cue and advance after a short delay
+          const phrase = nextTransitionPhrase();
+          setAwaitingProbe(null);
+          setAwaitingTransition(phrase);
+          const prevSel = selectedItem;
+          setTimeout(() => {
+            setAwaitingTransition(null);
+            pickNextItem(prevSel);
+          }, DEFAULT_TRANSITION_DELAY_MS);
+        }
       }
       const probeText = (turn as any)?.probe?.text ?? '';
       if (probeText) setAwaitingProbe({ prompt: probeText, initial_answer: input });
@@ -246,7 +307,7 @@ export function useAssessment() {
     } finally {
       setPending(false);
     }
-  }, [input, pending, sessionId, selectedItem, isSessionLive, pickNextItem]);
+  }, [input, pending, sessionId, selectedItem, isSessionLive, pickNextItem, endSession, sessionPlanSchemas.length, sessionStepIndex]);
 
   const onSubmitProbe = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -269,15 +330,23 @@ export function useAssessment() {
       if (merged.completed) {
         setAwaitingProbe(null);
         setProbeInput('');
-        const phrase = nextTransitionPhrase();
-        setAwaitingTransition(phrase);
-        const prevSel = selectedItem;
-        setTimeout(() => {
+        const isLastPlanned = (sessionStepIndex >= (sessionPlanSchemas.length - 1));
+        if (isLastPlanned) {
           setAwaitingTransition(null);
-          pickNextItem(prevSel);
-        }, DEFAULT_TRANSITION_DELAY_MS);
-        setPending(false);
-        return;
+          endSession();
+          setPending(false);
+          return;
+        } else {
+          const phrase = nextTransitionPhrase();
+          setAwaitingTransition(phrase);
+          const prevSel = selectedItem;
+          setTimeout(() => {
+            setAwaitingTransition(null);
+            pickNextItem(prevSel);
+          }, DEFAULT_TRANSITION_DELAY_MS);
+          setPending(false);
+          return;
+        }
       }
       const newProbeText = (merged as any)?.probe?.text ?? '';
       if (newProbeText) {
@@ -300,7 +369,7 @@ export function useAssessment() {
     } finally {
       setPending(false);
     }
-  }, [awaitingProbe, probeInput, pending, sessionId, selectedItem, pickNextItem]);
+  }, [awaitingProbe, probeInput, pending, sessionId, selectedItem, pickNextItem, sessionPlanSchemas.length, sessionStepIndex, endSession]);
 
   useEffect(() => { initializeSession(); }, [initializeSession]);
 

@@ -184,7 +184,7 @@ export default function Home() {
                       <div className="hidden sm:flex lg:hidden items-center gap-3 ml-auto">
                         <label className="text-sm font-semibold text-primary">User ID:</label>
                         <input
-                          className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                          className={`h-[30px] w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                           value={userIdInput}
                           onChange={(e) => setUserIdInput(e.target.value)}
                           onBlur={(e) => updateUserId(e.target.value)}
@@ -206,7 +206,7 @@ export default function Home() {
                       <div className="hidden lg:flex items-center gap-3 ml-auto">
                         <label className="text-sm font-semibold text-primary">User ID:</label>
                         <input
-                          className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                          className={`h-[30px] w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                           value={userIdInput}
                           onChange={(e) => setUserIdInput(e.target.value)}
                           onBlur={(e) => updateUserId(e.target.value)}
@@ -222,7 +222,7 @@ export default function Home() {
                         />
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-2 h-[30px] px-3 text-sm font-semibold text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150`}
+                          className={`inline-flex items-center gap-2 h-[30px] px-3 text-sm font-semibold text-foreground bg-white border border-input-border rounded-lg hover:bg-gray-50 transition duration-150`}
                           onClick={() => setIsSidebarVisible(!isSidebarVisible)}
                           aria-label={isSidebarVisible ? 'Hide session info' : 'Show session info'}
                           title={isSidebarVisible ? 'Hide session info' : 'Show session info'}

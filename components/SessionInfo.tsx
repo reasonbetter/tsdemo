@@ -64,7 +64,7 @@ export default function SessionInfo({
     </>
   );
 
-  if (bare) return <div className="bg-card shadow-sm border border-border rounded-xl p-4">{content}</div>;
+  if (bare) return <>{content}</>;
 
   return (
     <CollapsibleSection title="Session Info" titleSize="sm" className="bg-card shadow-sm" defaultOpen={true} isCollapsible={false}>

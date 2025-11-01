@@ -222,30 +222,33 @@ export default function Home() {
                         />
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-2 h-[30px] ${isSidebarVisible ? 'px-2' : 'px-3'} text-sm font-semibold text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150`}
+                          className={`inline-flex items-center gap-2 h-[30px] px-3 text-sm font-semibold text-foreground bg-card border border-input-border rounded-lg hover:bg-gray-50 transition duration-150`}
                           onClick={() => setIsSidebarVisible(!isSidebarVisible)}
                           aria-label={isSidebarVisible ? 'Hide session info' : 'Show session info'}
                           title={isSidebarVisible ? 'Hide session info' : 'Show session info'}
                         >
                           {isSidebarVisible ? (
-                            // Only left chevron when open (collapse)
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 24 24"
-                              width="18"
-                              height="18"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                              className="text-muted-foreground"
-                            >
-                              <polyline points="15 18 9 12 15 6" />
-                            </svg>
+                            // "Session Info" + left chevron when open (collapse)
+                            <>
+                              <span>Session Info</span>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                width="18"
+                                height="18"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                                className="text-muted-foreground"
+                              >
+                                <polyline points="15 18 9 12 15 6" />
+                              </svg>
+                            </>
                           ) : (
-                            // "Details" + right chevron when closed (expand)
+                            // "Session Info" + right chevron when closed (expand)
                             <>
                               <span>Session Info</span>
                               <svg
@@ -314,9 +317,13 @@ export default function Home() {
 
             <aside className={`hidden ${isSidebarVisible ? 'lg:block' : 'lg:hidden'} lg:col-span-1 transition-all duration-300 ease-in-out`}>
                 <div className="space-y-4">
-                  {/* Group the top controls and session info in a white box */}
+                  {/* Group the session info in a white box with header and bottom controls */}
                   <div className="bg-white rounded-xl border border-border p-4 space-y-4">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex items-center">
+                      <h3 className="text-base font-semibold text-foreground">Session Info</h3>
+                    </div>
+                    <SessionInfo bare hideReset hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
+                    <div className="flex justify-between gap-2 pt-2">
                       <button type="button" className="px-4 py-1 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={endSession}>
                         End Session
                       </button>
@@ -324,7 +331,6 @@ export default function Home() {
                         View Admin Logs
                       </a>
                     </div>
-                    <SessionInfo bare hideReset hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
                   </div>
 
                   <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />

@@ -316,8 +316,11 @@ export function useAssessment() {
       // try to set outgoing trace if present
       try {
         const msgs = (aj as any)?.debug?.messages ?? null;
-        setOutgoingTurnTrace(formatOutgoingTraceForDisplay(msgs));
-      } catch {}
+        const formattedTrace = formatOutgoingTraceForDisplay(msgs);
+        setOutgoingTurnTrace(formattedTrace);
+      } catch (err) {
+        console.error('Error formatting outgoing trace:', err);
+      }
 
       const turn = await apiPostTurn({ sessionId, schemaId: selectedItem.SchemaID, itemId: selectedItem.ItemID, ajMeasurement: (aj as any)?.measurement ?? null, userResponse: input });
       try { setCurrentDriverId((turn as any)?.unitState?.meta?.driverId ?? null); } catch {}
@@ -367,7 +370,13 @@ export function useAssessment() {
         setDebugLog((lines) => [...lines, `[AJ error 2]: ${aj2.error}`]);
       }
       setLatestMeasurement((aj2 as any)?.measurement ?? null);
-      try { const msgs = (aj2 as any)?.debug?.messages ?? null; setOutgoingTurnTrace(formatOutgoingTraceForDisplay(msgs)); } catch {}
+      try {
+        const msgs = (aj2 as any)?.debug?.messages ?? null;
+        const formattedTrace = formatOutgoingTraceForDisplay(msgs);
+        setOutgoingTurnTrace(formattedTrace);
+      } catch (err) {
+        console.error('Error formatting outgoing trace (probe):', err);
+      }
       const merged = await apiPostTurn({ sessionId, schemaId: selectedItem.SchemaID, itemId: selectedItem.ItemID, ajMeasurement: (aj2 as any)?.measurement ?? null, userResponse: initial_answer, probeResponse: probeInput });
       try { setCurrentDriverId((merged as any)?.unitState?.meta?.driverId ?? null); } catch {}
       setHistory(merged.transcript || []);

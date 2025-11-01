@@ -149,15 +149,34 @@ export default function Home() {
                   <button
                       className="hidden sm:flex items-center justify-center px-3 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
                       onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-                      aria-label={isSidebarVisible ? 'Hide Details' : 'Show Details'}
+                      aria-label={isSidebarVisible ? 'Collapse details panel' : 'Expand details panel'}
+                      title={isSidebarVisible ? 'Collapse details' : 'Expand details'}
                   >
                       <svg
                         className="w-5 h-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
                       >
-                        <path fillRule="evenodd" d="M7.707 3.293a1 1 0 010 1.414L5.414 7H14a1 1 0 110 2H5.414l2.293 2.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0zM17.707 9.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H6a1 1 0 110-2h8.586l-2.293-2.293a1 1 0 011.414-1.414l4 4z" clipRule="evenodd" />
+                        {/* center divider */}
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        {isSidebarVisible ? (
+                          // collapse (->|<-): arrows point inward toward the divider
+                          <>
+                            <path d="M6 7 L10 11 L6 15" />
+                            <path d="M18 7 L14 11 L18 15" />
+                          </>
+                        ) : (
+                          // expand (<-|->): arrows point outward away from the divider
+                          <>
+                            <path d="M10 7 L6 11 L10 15" />
+                            <path d="M14 7 L18 11 L14 15" />
+                          </>
+                        )}
                       </svg>
                   </button>
               </div>

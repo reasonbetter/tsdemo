@@ -32,8 +32,14 @@ export function formatMeasurementForDisplay(measurement: unknown): string {
 
 // Prettify a turn trace messages array for display
 export function formatOutgoingTraceForDisplay(messages: unknown): string {
+  if (!messages) {
+    return 'Debug trace not available.\nSet DEBUG_API_RESPONSES=true in .env to enable.';
+  }
   if (!Array.isArray(messages)) {
-    return 'Trace available after first kernel AJ call.';
+    return 'Debug trace not available.\nSet DEBUG_API_RESPONSES=true in .env to enable.';
+  }
+  if (messages.length === 0) {
+    return 'No messages in trace.';
   }
   const formatted = messages
     .map((msg: any) => `role: ${msg?.role}\n\n${msg?.content}`)

@@ -3,7 +3,7 @@
   "SchemaID": "BiasDirectionOpen",
   "MutuallyExclusiveWith": ["AEG_WFH_JobSatisfaction_T1"],
   "MutuallyExclusiveGroup": "wfh_job_satisfaction",
-  "Stem": "A large tech company allowed its software developers to choose whether to work fully remotely or in the office. Later, an analysis showed that the average productivity metrics were identical for the remote group and the office group.\n\nWhat is your interpretation of these results regarding how remote work might affect performance, for better or worse? Explain your reasoning.",
+  "Stem": "A large tech company allowed its employees to work remotely if they wanted. Later, an analysis showed that productivity levels were the same for the remote group and the office group.\n\nWhat do these results mean about how remote work affects performance at the company, for better or worse? Explain your reasoning.",
   "Content": {
     "ScenarioDefinition": {
       "Intervention": "Working fully remotely (vs. in the office).",

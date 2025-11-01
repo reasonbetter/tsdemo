@@ -105,7 +105,7 @@ export default function Home() {
       <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
 
        <div className={`transition-all duration-300 ${!isSidebarVisible ? 'max-w-4xl mx-auto' : ''}`}>
-         <header className="flex flex-col -gap-2 sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-2 lg:-mb-2">
+         <header className="relative flex flex-col -gap-2 sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-2 lg:-mb-2">
               <div className="flex items-center -ml-4 sm:ml-0 gap-0 sm:gap-0">
                   {/* Mobile logo */}
                   <Image src="/AIowl5.PNG" alt="Wise Wireframe Logo" width={150} height={150} className="block sm:hidden -ml-6 mr-0" priority />
@@ -119,7 +119,7 @@ export default function Home() {
               <div className="flex flex-col items-end gap-2 ml-3 sm:ml-0 w-full sm:w-auto">
                   {/* Toggle icon above, on desktop */}
                   <div
-                      className="hidden sm:flex items-center justify-center"
+                      className="hidden sm:flex items-center justify-center absolute top-0 right-0"
                       role="button"
                       tabIndex={0}
                       onClick={() => setIsSidebarVisible(!isSidebarVisible)}
@@ -190,11 +190,32 @@ export default function Home() {
                 {selectedItem && progressTotal > 0 && (
                   <div className="mt-2 mb-8">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      <div className="w-full sm:flex-1">
+                      {/* Progress (narrower on desktop) */}
+                      <div className="w-full sm:w-2/5">
                         <SessionProgress current={progressCurrent} total={progressTotal} />
                       </div>
-                      <div className="hidden sm:flex items-center gap-3">
-                        <button type="button" className="px-6 py-2 text-base font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                      {/* User ID inline (desktop only) */}
+                      <div className="hidden sm:flex items-center gap-2 sm:w-2/5 justify-center">
+                        <label className="text-sm font-medium text-primary">User ID:</label>
+                        <input
+                          className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                          value={userIdInput}
+                          onChange={(e) => setUserIdInput(e.target.value)}
+                          onBlur={(e) => updateUserId(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              updateUserId((e.target as HTMLInputElement).value);
+                              (e.target as HTMLInputElement).blur();
+                            }
+                          }}
+                          placeholder="Optional"
+                          readOnly={userIdInput === userTag && userTag !== ""}
+                        />
+                      </div>
+                      {/* End Session (smaller on desktop) */}
+                      <div className="hidden sm:flex items-center gap-3 sm:w-auto">
+                        <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                           End Session
                         </button>
                       </div>

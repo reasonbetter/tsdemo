@@ -46,7 +46,7 @@ export default function ProbeForm({
         rows={3}
       />
       <div className="mt-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:hidden">
           <label className="text-sm font-medium text-primary">User ID:</label>
           <input
             className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${'border-input-border focus:ring-primary focus:border-primary'}`}

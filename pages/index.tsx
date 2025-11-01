@@ -10,6 +10,7 @@ import ProbeForm from '@/components/ProbeForm';
 import useAssessment from 'hooks/useAssessment';
 import TransitionMessage from '@/components/TransitionMessage';
 import SessionProgress from '@/components/SessionProgress';
+import { CollapsibleSection } from '@/components/CollapsibleSection';
 
 
 // Assessment state and actions are provided by useAssessment
@@ -268,31 +269,14 @@ export default function Home() {
                         End Session
                       </button>
                     </div>
-                    {/* Mobile Details button on its own line, left-justified */}
+                    {/* Mobile Details: collapsible container with nested sections */}
                     <div className="sm:hidden mt-2">
-                      <button
-                        className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 inline-flex items-center gap-2"
-                        onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-                        aria-expanded={isSidebarVisible}
-                        aria-label={isSidebarVisible ? 'Hide details' : 'Show details'}
-                      >
-                        <span>Details</span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          width="16"
-                          height="16"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className={`${isSidebarVisible ? 'rotate-180' : ''}`}
-                          aria-hidden="true"
-                        >
-                          <polyline points="6 9 12 15 18 9" />
-                        </svg>
-                      </button>
+                      <CollapsibleSection title="Details" className="bg-card shadow-sm" defaultOpen={false} titleSize="sm">
+                        <div className="space-y-6">
+                          <SessionInfo theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
+                          <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />
+                        </div>
+                      </CollapsibleSection>
                     </div>
                   </div>
                 )}
@@ -303,7 +287,7 @@ export default function Home() {
 
             </main>
 
-            <aside className={`lg:col-span-1 transition-all duration-300 ease-in-out ${isSidebarVisible ? 'opacity-100 translate-x-0' : 'hidden'}`}>
+            <aside className={`hidden ${isSidebarVisible ? 'lg:block' : 'lg:hidden'} lg:col-span-1 transition-all duration-300 ease-in-out`}>
                 <div className="space-y-6">
                     <SessionInfo theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
 

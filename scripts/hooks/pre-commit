@@ -6,10 +6,10 @@ set -euo pipefail
 red() { printf "\033[0;31m%s\033[0m\n" "$*"; }
 yellow() { printf "\033[0;33m%s\033[0m\n" "$*"; }
 
-# Block staged env files outright
-if git diff --cached --name-only | grep -E '(^|/)(\.env(\..*)?|\.env\.local)$' >/dev/null 2>&1; then
+# Block staged env files outright (including stray "env" files)
+if git diff --cached --name-only | grep -E '(^|/)(\.env(\..*)?|\.env\.local|env)$' >/dev/null 2>&1; then
   red "Blocked: Attempt to commit one or more .env* files."
-  git diff --cached --name-only | grep -E '(^|/)(\.env(\..*)?|\.env\.local)$' || true
+  git diff --cached --name-only | grep -E '(^|/)(\.env(\..*)?|\.env\.local|env)$' || true
   yellow "Remove these from the index (keep locally):"
   yellow "  git rm --cached <path> && echo '<path>' >> .gitignore"
   yellow "If you must proceed, use: git commit --no-verify"
@@ -33,5 +33,20 @@ if echo "$STAGED_ADDITIONS" | grep -E -i 'OPENAI_API_KEY\s*=\s*[^\s]'; then
   exit 1
 fi
 
-exit 0
+# Block committing Postgres connection strings / DATABASE_URL with credentials
+if echo "$STAGED_ADDITIONS" | grep -E -i 'DATABASE_URL\s*=\s*postgres(ql)?://'; then
+  red "Blocked: DATABASE_URL appears set to a Postgres connection string."
+  yellow "Store this in .env.local (gitignored) or your hosting env vars."
+  yellow "If this is intentional (docs, etc.), bypass with: git commit --no-verify"
+  exit 1
+fi
 
+# Also catch generic postgres URIs that include embedded credentials
+if echo "$STAGED_ADDITIONS" | grep -E -i 'postgres(ql)?://[^\s]*@'; then
+  red "Blocked: Postgres URI with embedded credentials detected in staged changes."
+  yellow "Remove/redact the credentials and try again."
+  yellow "If this is a false positive, bypass with: git commit --no-verify"
+  exit 1
+fi
+
+exit 0

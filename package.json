@@ -8,7 +8,9 @@
     "postinstall": "prisma generate",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "export:md": "node scripts/export-to-md.js",
+    "export:schemas:md": "node scripts/export-schemas-md.js"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",

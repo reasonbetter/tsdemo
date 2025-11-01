@@ -14,6 +14,7 @@ Single codebase for local dev and Vercel deploys. Use env vars to point to diffe
 - Install the local pre-commit hook to block secrets:
   - `bash scripts/install-git-hooks.sh`
   - Bypass if needed: `git commit --no-verify`
+- Quick audit any time: `bash scripts/scan_secrets.sh`
 
 ## Vercel + Neon
 
@@ -36,4 +37,3 @@ Single codebase for local dev and Vercel deploys. Use env vars to point to diffe
 - Adjust transition message duration: `utils/transitionPhrases.ts` (`DEFAULT_TRANSITION_DELAY_MS`)
 - Update transition text: `utils/transitionPhrases.ts` phrase list
 - Tweak fade timing: `tailwind.config.ts` (`animate-fadeIn`)
-

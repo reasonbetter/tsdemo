@@ -12,6 +12,7 @@ pnpm-lock.yaml
 .env.development
 .env.production
 .env.test
+env
 
 # macOS system files
 .DS_Store

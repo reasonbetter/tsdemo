@@ -16,7 +16,7 @@ import SessionProgress from '@/components/SessionProgress';
 
 // Helper component for rendering markdown prompts professionally
 const Prose = ({ children, size = 'lg' }: { children: string, size?: 'sm' | 'lg' }) => (
-    <div className={`${size === 'lg' ? 'text-base sm:text-lg leading-relaxed' : 'text-sm sm:text-base leading-normal'} tracking-[-0.01em] text-foreground mb-8 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>li]:mb-2`}>
+    <div className={`${size === 'lg' ? 'text-base sm:text-lg leading-relaxed' : 'text-sm sm:text-base leading-normal'} tracking-[-0.01em] text-foreground mb-4 sm:mb-8 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-5 [&>li]:mb-2`}>
       <ReactMarkdown>{children}</ReactMarkdown>
     </div>
   );
@@ -116,7 +116,7 @@ export default function Home() {
                     <p className="text-sm text-muted-foreground mt-0.5">[Causal Inference Demo]</p>
                   </div>
               </div>
-              <div className="flex flex-wrap items-center gap-4 ml-3 sm:ml-0 sm:justify-end">
+              <div className="flex flex-wrap items-center justify-between sm:justify-end gap-4 ml-3 sm:ml-0 w-full sm:w-auto">
                   <div className="flex items-center gap-2">
                       <label className="text-sm font-medium text-foreground">User ID:</label>
                       <div className="flex items-center gap-2">
@@ -196,8 +196,13 @@ export default function Home() {
                 </section>
 
                 {selectedItem && progressTotal > 0 && (
-                  <div className="mt-2 mb-8 w-full sm:w-1/2 sm:mx-auto">
-                    <SessionProgress current={progressCurrent} total={progressTotal} />
+                  <div className="mt-2 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="w-full sm:w-1/2">
+                      <SessionProgress current={progressCurrent} total={progressTotal} />
+                    </div>
+                    <button type="button" className="px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 self-start sm:self-auto" onClick={endSession}>
+                      End Session
+                    </button>
                   </div>
                 )}
 

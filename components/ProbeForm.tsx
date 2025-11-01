@@ -39,7 +39,7 @@ export default function ProbeForm({
         aria-busy={pending}
         rows={3}
       />
-      <div className="flex justify-start sm:justify-end mt-4">
+      <div className="flex justify-end mt-4">
         <button type="submit" className="px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base font-semibold rounded-lg shadow-sm bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition duration-150" disabled={pending}>
           {pending ? (
             <span className="flex items-center">

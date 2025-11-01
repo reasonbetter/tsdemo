@@ -147,11 +147,10 @@ export default function Home() {
                       </div>
                   </div>
                   <button
-                      className="px-4 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
+                      className="hidden sm:block px-4 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
                       onClick={() => setIsSidebarVisible(!isSidebarVisible)}
                   >
-                      <span className="sm:hidden">Details</span>
-                      <span className="hidden sm:inline">{isSidebarVisible ? 'Hide Details' : 'Show Details'}</span>
+                      {isSidebarVisible ? 'Hide Details' : 'Show Details'}
                   </button>
               </div>
          </header>
@@ -196,13 +195,21 @@ export default function Home() {
                 </section>
 
                 {selectedItem && progressTotal > 0 && (
-                  <div className="mt-2 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="w-full sm:w-1/2">
+                  <div className="mt-2 mb-8 flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      <button type="button" className="px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                        End Session
+                      </button>
+                      <button
+                        className="sm:hidden px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
+                        onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+                      >
+                        Details
+                      </button>
+                    </div>
+                    <div className="w-full sm:flex-1">
                       <SessionProgress current={progressCurrent} total={progressTotal} />
                     </div>
-                    <button type="button" className="px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 self-start sm:self-auto" onClick={endSession}>
-                      End Session
-                    </button>
                   </div>
                 )}
 

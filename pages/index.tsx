@@ -130,42 +130,14 @@ export default function Home() {
                       <Image
                         src="/sidebar.svg"
                         alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
-                        width={40}
-                        height={40}
+                        width={32}
+                        height={32}
                         className={`cursor-pointer opacity-70 ${isSidebarVisible ? 'rotate-180' : ''}`}
                         priority
                       />
                   </div>
 
-                  <div className="flex items-center gap-2">
-                      <label className="text-sm font-medium text-primary">User ID:</label>
-                      <div className="flex items-center gap-2">
-                          <input
-                              className={`w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
-                              value={userIdInput}
-                              onChange={(e) => setUserIdInput(e.target.value)}
-                              onBlur={(e) => updateUserId(e.target.value)}
-                              onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                      e.preventDefault();
-                                      updateUserId((e.target as HTMLInputElement).value);
-                                      (e.target as HTMLInputElement).blur();
-                                  }
-                              }}
-                              placeholder="Optional"
-                              readOnly={userIdInput === userTag && userTag !== ""}
-                          />
-                          {userIdInput === userTag && userTag !== "" && (
-                              <>
-                                  <svg className="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                      <title>ID Saved</title>
-                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L9 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                  </svg>
-                                  <button onClick={() => setUserTag("")} className="text-xs text-muted-foreground hover:text-foreground">Edit</button>
-                              </>
-                          )}
-                      </div>
-                  </div>
+                  {/* (User ID moved into main card) */}
                   
               </div>
          </header>
@@ -192,6 +164,9 @@ export default function Home() {
                         ellipsisCount={ellipsisCount}
                         onSubmit={onSubmit}
                         onEndSession={endSession}
+                        userIdInput={userIdInput}
+                        setUserIdInput={setUserIdInput}
+                        updateUserId={updateUserId}
                       />
                     )}
 
@@ -205,6 +180,9 @@ export default function Home() {
                         ellipsisCount={ellipsisCount}
                         onSubmit={onSubmitProbe}
                         onEndSession={endSession}
+                        userIdInput={userIdInput}
+                        setUserIdInput={setUserIdInput}
+                        updateUserId={updateUserId}
                       />
                     )}
                 </section>
@@ -226,10 +204,27 @@ export default function Home() {
                         End Session
                       </button>
                       <button
-                        className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
+                        className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 inline-flex items-center gap-2"
                         onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+                        aria-expanded={isSidebarVisible}
+                        aria-label={isSidebarVisible ? 'Hide details' : 'Show details'}
                       >
-                        Details
+                        <span>Details</span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className={`${isSidebarVisible ? 'rotate-180' : ''}`}
+                          aria-hidden="true"
+                        >
+                          <polyline points="6 9 12 15 18 9" />
+                        </svg>
                       </button>
                     </div>
                   </div>

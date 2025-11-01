@@ -3,7 +3,7 @@
   "SchemaID": "SelectionEffectIdentification",
   "MutuallyExclusiveWith": ["SEI_ClinicalTrial_Adherence_T1", "SEI_CompanyExpansion_Survivorship_T1"],
   "MutuallyExclusiveGroup": "sei_adherence_attrition",
-  "Stem": "A 12-week weight loss program reports that the average participant who completed the program lost 30 pounds. Suppose the program is not actually effective but also that the effect was not by chance. How could the reported average weight loss be so high?",
+  "Stem": "A 12-week weight loss program reports that the average participant who completed the program lost 30 pounds. Suppose the program is not actually effective but also that the effect was not by chance.\n\n How could the reported average weight loss be so high?",
   "Content": {
     "ScenarioDefinition": {
       "A_text": "completing the 12-week program",

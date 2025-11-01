@@ -146,21 +146,24 @@ export default function Home() {
                           )}
                       </div>
                   </div>
-                  <button
-                      className="hidden sm:flex items-center justify-center px-3 py-2 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150"
+                  <div
+                      className="hidden sm:flex items-center justify-center"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsSidebarVisible(!isSidebarVisible); } }}
                       aria-label={isSidebarVisible ? 'Collapse details panel' : 'Expand details panel'}
                       title={isSidebarVisible ? 'Collapse details' : 'Expand details'}
                   >
                       <Image
                         src="/sidebar.svg"
-                        alt=""
+                        alt={isSidebarVisible ? 'Collapse details' : 'Expand details'}
                         width={20}
                         height={20}
-                        className={`transition-transform duration-200 ${isSidebarVisible ? 'rotate-180' : ''}`}
+                        className={`cursor-pointer transition-transform duration-200 ${isSidebarVisible ? 'rotate-180' : ''}`}
                         priority
                       />
-                  </button>
+                  </div>
               </div>
          </header>
        </div>

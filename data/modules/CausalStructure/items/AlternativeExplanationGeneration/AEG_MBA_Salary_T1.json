@@ -10,17 +10,14 @@
       "B_text": "higher salaries"
     },
     "ThemeRegistry": [
-      { "ThemeID": "prior_ability_experience", "Aliases": ["more work experience","academic achievement","cognitive ability"] },
+      { "ThemeID": "prior_ability", "Aliases": ["academic achievement","cognitive ability","pre-existing business skill"] },
       { "ThemeID": "ambition_drive", "Aliases": ["conscientiousness","willingness to negotiate salary","strong work ethic"] },
-      { "ThemeID": "ses_network_capital", "Aliases": ["family wealth","pre-existing professional networks","privileged background"] },
+      { "ThemeID": "ses_capital", "Aliases": ["family wealth"] },
+      { "ThemeID": "network_experience", "Aliases": ["pre-existing professional networks","more work experience"] },
       { "ThemeID": "industry_sorting", "Aliases": ["work in finance","tech industry","choice of career field"] },
       { "ThemeID": "company_sponsorship", "Aliases": ["employer paid for MBA","sponsored by high-paying firm","identified as high-potential employee"] }
     ],
-    "TooGeneral": [
-      "background",
-      "personality",
-      "where they work",
-      "selection effects"
+    "TooGeneral": ["background", "personality", "where they work", "selection effects"
     ],
     "Examples": {
       "RunsThroughA": [
@@ -88,6 +85,9 @@
       "NotRelevant": [
         { "id": "relevance_1", "text": "Please focus on explaining the link between having an MBA degree and higher salaries." },
         { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ],
+      "RunsThroughA": [
+        { "id": "rta_1", "text": "Please avoid relying on having an MBA degree directly causing higher salaries. Try a different kind of explanation." }
       ]
     }
   },

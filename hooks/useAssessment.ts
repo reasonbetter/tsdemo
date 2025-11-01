@@ -49,6 +49,8 @@ export function useAssessment() {
   const [showSessionEndOverlay, setShowSessionEndOverlay] = useState(false);
   const [capByDriverId, setCapByDriverId] = useState<Record<string, { usesProbes?: boolean; continuousScore?: boolean }>>({});
   const [currentDriverId, setCurrentDriverId] = useState<string | null>(null);
+  const STORAGE_KEY = 'ri.session.v1';
+  const [restoredFromStorage, setRestoredFromStorage] = useState(false);
 
   // Helper: convert kernel theta vector to display form via utils
 
@@ -62,6 +64,34 @@ export function useAssessment() {
     }
     return () => interval && clearInterval(interval);
   }, [pending]);
+
+  // Restore session from localStorage (before fetching items)
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw || 'null');
+      if (!saved || !saved.sessionId || !saved.selectedItem) return;
+      setSessionId(saved.sessionId as string);
+      setUserTag(saved.userTag || '');
+      setSelectedItem(saved.selectedItem as SelectedItem);
+      setSessionPlanSchemas(Array.isArray(saved.sessionPlanSchemas) ? saved.sessionPlanSchemas : []);
+      setSessionStepIndex(Number.isFinite(saved.sessionStepIndex) ? saved.sessionStepIndex : 0);
+      // Rehydrate sets
+      const usedMap: Record<string, Set<string>> = {};
+      if (saved.usedItemsBySchema && typeof saved.usedItemsBySchema === 'object') {
+        for (const k of Object.keys(saved.usedItemsBySchema)) {
+          usedMap[k] = new Set<string>(saved.usedItemsBySchema[k] || []);
+        }
+      }
+      setUsedItemsBySchema(usedMap);
+      setUsedMutExGroups(new Set<string>((saved.usedMutExGroups || []) as string[]));
+      setSeenKernelIds(Array.isArray(saved.seenKernelIds) ? saved.seenKernelIds : []);
+      setSessionInitialized(true);
+      setRestoredFromStorage(true);
+    } catch {}
+  }, []);
 
   // Load kernel items on mount
   useEffect(() => {
@@ -89,7 +119,7 @@ export function useAssessment() {
         const plan = [AEG, AEG, BDO, SEI].sort(() => Math.random() - 0.5);
         setSessionPlanSchemas(plan);
         setSessionStepIndex(0);
-        if (items.length > 0 && (!selectedItem || !selectedItem.isKernel)) {
+        if (!restoredFromStorage && items.length > 0 && (!selectedItem || !selectedItem.isKernel)) {
           // pick first item from the first schema in the plan
           const sid = plan[0];
           const pool = (bySchema[sid] ?? []);
@@ -118,7 +148,7 @@ export function useAssessment() {
       } catch {}
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [restoredFromStorage, selectedItem]);
 
   const pickNextItem = useCallback((prev?: SelectedItem) => {
     // Prefer session plan sequence if available
@@ -247,12 +277,19 @@ export function useAssessment() {
     } catch {
       setSelectedItem(null);
     }
+    // Clear persisted storage for a clean session start
+    try { if (typeof window !== 'undefined') localStorage.removeItem(STORAGE_KEY); } catch {}
+    setRestoredFromStorage(false);
   }, [userIdInput, itemsBySchema]);
 
   const endSession = useCallback(() => {
     logEvent('session_end_manual', { item_count: history.length });
     setShowSessionEndOverlay(true);
-    setTimeout(() => { setShowSessionEndOverlay(false); initializeSession(); }, 2000);
+    setTimeout(() => {
+      setShowSessionEndOverlay(false);
+      try { if (typeof window !== 'undefined') localStorage.removeItem(STORAGE_KEY); } catch {}
+      initializeSession();
+    }, 2000);
   }, [history.length, initializeSession, logEvent]);
 
   const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
@@ -371,7 +408,27 @@ export function useAssessment() {
     }
   }, [awaitingProbe, probeInput, pending, sessionId, selectedItem, pickNextItem, sessionPlanSchemas.length, sessionStepIndex, endSession]);
 
-  useEffect(() => { initializeSession(); }, [initializeSession]);
+  useEffect(() => { if (!restoredFromStorage) initializeSession(); }, [initializeSession, restoredFromStorage]);
+  // Persist key parts of session so navigation to Admin doesn't reset it
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+      if (!sessionId || !selectedItem) return;
+      const usedMap: Record<string, string[]> = {};
+      for (const k of Object.keys(usedItemsBySchema)) usedMap[k] = Array.from(usedItemsBySchema[k] || []);
+      const payload = {
+        sessionId,
+        userTag,
+        selectedItem,
+        sessionPlanSchemas,
+        sessionStepIndex,
+        usedItemsBySchema: usedMap,
+        usedMutExGroups: Array.from(usedMutExGroups),
+        seenKernelIds,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch {}
+  }, [sessionId, userTag, selectedItem, sessionPlanSchemas, sessionStepIndex, usedItemsBySchema, usedMutExGroups, seenKernelIds]);
 
   return {
     // state

@@ -79,6 +79,9 @@
       "NotRelevant": [
         { "id": "relevance_1", "text": "Please focus on explaining the link between being married and higher levels of happiness." },
         { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ],
+      "RunsThroughA": [
+        { "id": "rta_1", "text": "Please avoid relying on being married directly causing higher levels of happiness. Try a different kind of explanation." }
       ]
     }
   },

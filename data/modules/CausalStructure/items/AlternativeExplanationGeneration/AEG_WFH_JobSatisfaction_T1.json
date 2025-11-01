@@ -69,6 +69,9 @@
       "NotRelevant": [
         { "id": "relevance_1", "text": "Please focus on explaining the link between working from home and higher job satisfaction." },
         { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ],
+      "RunsThroughA": [
+        { "id": "rta_1", "text": "Please avoid relying on working from home (WFH) directly causing higher job satisfaction. Try a different kind of explanation." }
       ]
     }
   },

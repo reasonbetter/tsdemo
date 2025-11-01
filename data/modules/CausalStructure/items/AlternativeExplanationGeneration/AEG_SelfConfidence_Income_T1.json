@@ -87,6 +87,9 @@
       "NotRelevant": [
         { "id": "relevance_1", "text": "Please focus on explaining the link between higher self-confidence and higher incomes." },
         { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ],
+      "RunsThroughA": [
+        { "id": "rta_1", "text": "Please avoid relying on higher self-confidence directly causing higher income. Try a different kind of explanation." }
       ]
     }
   },

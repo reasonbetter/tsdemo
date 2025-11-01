@@ -72,6 +72,9 @@
       "NotRelevant": [
         { "id": "relevance_1", "text": "Please focus on explaining the link between playing violent video games and aggressive behavior." },
         { "id": "relevance_2", "text": "Please focus on explaining the association described in the question." }
+      ],
+      "RunsThroughA": [
+        { "id": "rta_1", "text": "Please avoid relying on playing violent video games directly causing aggressive behavior in school. Try a different kind of explanation." }
       ]
     }
   },

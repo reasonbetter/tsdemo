@@ -124,6 +124,9 @@
           "id": "relevance_2",
           "text": "Please focus on explaining the association described in the question."
         }
+      ],
+      "RunsThroughA": [
+        { "id": "rta_1", "text": "Please avoid relying on owning a pet directly causing lower levels of stress. Try a different kind of explanation." }
       ]
     }
   },

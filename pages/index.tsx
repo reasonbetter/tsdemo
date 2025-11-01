@@ -197,7 +197,7 @@ export default function Home() {
                           placeholder="Optional"
                       readOnly={userIdInput === userTag && userTag !== ""}
                         />
-                        <button type="button" className="inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                        <button type="button" className="inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                           End Session
                         </button>
                         <div
@@ -236,7 +236,7 @@ export default function Home() {
                         }}
                         placeholder="Optional"
                       />
-                      <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                      <button type="button" className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                         End Session
                       </button>
                       <button

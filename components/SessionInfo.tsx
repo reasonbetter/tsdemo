@@ -11,15 +11,17 @@ export default function SessionInfo({
   latestMeasurement,
   onReset,
   capabilities,
+  bare,
 }: {
   theta: DisplayTheta;
   selectedItem: SelectedItem;
   latestMeasurement: any | null;
   onReset: () => void;
   capabilities?: { usesProbes?: boolean; continuousScore?: boolean } | null;
+  bare?: boolean;
 }) {
-  return (
-    <CollapsibleSection title="Session Info" titleSize="sm" className="bg-card shadow-sm" defaultOpen={true} isCollapsible={false}>
+  const content = (
+    <>
       <div className="flex flex-wrap gap-3">
         <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-muted-foreground bg-background border border-border rounded-full">
           <strong>θ</strong> {Number(getDisplayTheta(theta)?.mean ?? 0).toFixed(2)}
@@ -59,6 +61,14 @@ export default function SessionInfo({
           View Admin Logs
         </a>
       </div>
+    </>
+  );
+
+  if (bare) return <div className="bg-card shadow-sm border border-border rounded-xl p-4">{content}</div>;
+
+  return (
+    <CollapsibleSection title="Session Info" titleSize="sm" className="bg-card shadow-sm" defaultOpen={true} isCollapsible={false}>
+      {content}
     </CollapsibleSection>
   );
 }

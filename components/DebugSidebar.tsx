@@ -4,9 +4,11 @@ import { CollapsibleSection } from '@/components/CollapsibleSection';
 export default function DebugSidebar({
   outgoingTurnTrace,
   debugLog,
+  titleSize = 'sm',
 }: {
   outgoingTurnTrace: string;
   debugLog: string[];
+  titleSize?: 'xs' | 'sm' | 'lg';
 }) {
   // Parse the latest debug entry to extract AJ raw and DO raw data
   const parseLatestDebugEntry = () => {
@@ -40,13 +42,13 @@ export default function DebugSidebar({
 
   return (
     <>
-      <CollapsibleSection title="Outgoing Trace" titleSize="sm" className="bg-card shadow-sm">
+      <CollapsibleSection title="Outgoing Trace" titleSize={titleSize} className="bg-card shadow-sm">
         <div className="font-mono text-xs bg-gray-800 text-gray-200 rounded-lg p-4 whitespace-pre-wrap overflow-auto max-h-60 shadow-inner">
           {outgoingTurnTrace}
         </div>
       </CollapsibleSection>
 
-      <CollapsibleSection title="AJ Debug" titleSize="sm" className="bg-card shadow-sm">
+      <CollapsibleSection title="AJ Debug" titleSize={titleSize} className="bg-card shadow-sm">
         <div className="font-mono text-xs bg-gray-900 text-gray-400 rounded-lg p-4 space-y-3 max-h-80 overflow-auto shadow-inner">
           <div>
             <div className="text-gray-300 font-semibold mb-1">AJ raw:</div>
@@ -65,4 +67,3 @@ export default function DebugSidebar({
     </>
   );
 }
-

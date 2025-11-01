@@ -277,15 +277,7 @@ export default function Home() {
                         </div>
                       </CollapsibleSection>
                     </div>
-                    {/* Mobile Details: collapsible container with nested sections */}
-                    <div className="sm:hidden mt-2">
-                      <CollapsibleSection title="Session Info" className="bg-card shadow-sm" defaultOpen={false} titleSize="sm">
-                        <div className="space-y-6">
-                          <SessionInfo bare theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />
-                          <DebugSidebar outgoingTurnTrace={outgoingTurnTrace} debugLog={debugLog} />
-                        </div>
-                      </CollapsibleSection>
-                    </div>
+                    
                   </div>
                 )}
 

@@ -73,7 +73,7 @@ export default function SessionInfo({
           )}
           {!hideAdminLink && (
             <a className="px-4 py-1 text-sm font-semibold rounded-lg text-primary border border-primary-border hover:bg-primary-light transition duration-150" href="/admin" title="Admin log">
-              View Admin Logs
+              Admin
             </a>
           )}
         </div>

@@ -127,7 +127,7 @@ export default function Home() {
                     title="Admin log"
                     className="inline-flex items-center h-[38px] px-4 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150"
                   >
-                    View Admin Logs
+                    Admin 
                   </a>
               </div>
          </header>
@@ -303,7 +303,7 @@ export default function Home() {
                               End Session
                             </button>
                             <a className="inline-flex items-center h-[38px] px-4 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150 whitespace-nowrap" href="/admin" title="Admin log">
-                              View Admin Logs
+                               Admin
                             </a>
                           </div>
                           <SessionInfo bare hideReset hideAdminLink theta={theta} selectedItem={selectedItem} latestMeasurement={latestMeasurement} onReset={initializeSession} capabilities={driverCapabilities} />

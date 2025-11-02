@@ -315,9 +315,7 @@ export default function Home() {
                   </div>
                 )}
 
-                {history.length > 0 && (
-                  <TranscriptPanel history={history} currentTheta={theta} capabilities={driverCapabilities} />
-                )}
+                <TranscriptPanel history={history} currentTheta={theta} capabilities={driverCapabilities} />
 
             </main>
 

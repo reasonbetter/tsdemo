@@ -26,6 +26,7 @@ export function buildAjMessages(schema: SchemaEnvelope, item: ItemEnvelope, ctx:
   const probeLibrary = Object.keys(itemProbeLibrary).length > 0 ? itemProbeLibrary : schemaProbeLibrary;
   const dominanceOrder = dc.DominanceOrder ?? [];
   const contract = stringifyCompact(schema.AJ_Contract_JsonSchema);
+  const schemaDescription: string | undefined = (schema as any)?.Description || (schema as any)?.description;
   const stem = item.Stem ?? "";
 
   // Normalize system guidance (string or JSON)
@@ -50,7 +51,9 @@ export function buildAjMessages(schema: SchemaEnvelope, item: ItemEnvelope, ctx:
     ? `\n\nDOMINANCE ORDER (If multiple AnswerTypes apply, choose the one that appears earliest in this list):\n${stringifyCompact(dominanceOrder)}`
     : "";
 
-  const sys = `${sysBase}${probeLibraryBlock}${dominanceOrderBlock}\n\nSTRICT OUTPUT RULES:\n${strictJsonRules}`;
+  const schemaDescBlock = schemaDescription ? `\n\nSCHEMA DESCRIPTION:\n${schemaDescription}` : "";
+  // Reordered for clarity: put strict rules first, then schema context, then guidance, then dominance order and probe library
+  const sys = `STRICT OUTPUT RULES:\n${strictJsonRules}${schemaDescBlock}\n\nMEASUREMENT GUIDANCE:\n${sysBase}${dominanceOrderBlock}${probeLibraryBlock}`;
 
   const contextBits: string[] = [];
   const content: any = (item as any)?.Content ?? {};
@@ -78,7 +81,8 @@ export function buildAjMessages(schema: SchemaEnvelope, item: ItemEnvelope, ctx:
   }
 
   const contextBlock = contextBits.length > 0 ? `\n\nCONTEXT:\n${contextBits.join("\n\n")}` : "";
-  const user_prompt = `ITEM STEM:\n${stem}${contextBlock}\n\nUSER ANSWER:\n${ctx.userText}\n\nReturn JSON only that conforms to the following JSON Schema (object or boolean):\n\n${contract}\n\nIMPORTANT: Your entire response must be only the JSON object, starting with { and ending with }. Do not repeat the prompt or add any other text.`;
+  // Reordered for clarity: stem and user answer first, then context, then schema id and contract
+  const user_prompt = `ITEM STEM:\n${stem}\n\nUSER ANSWER:\n${ctx.userText}${contextBlock}\n\nSCHEMA ID: ${schema.SchemaID}\n\nReturn JSON only that conforms to the following JSON Schema (object or boolean):\n\n${contract}\n\nIMPORTANT: Your entire response must be only the JSON object, starting with { and ending with }. Do not repeat the prompt or add any other text.`;
 
   return [
     { role: "system", content: sys },

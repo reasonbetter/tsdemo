@@ -133,7 +133,7 @@ export default function Admin() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="mb-6 text-3xl font-bold leading-tight tracking-tight text-foreground">Admin — Session Logs</h1>
+      <h1 className="mb-6 text-3xl font-bold leading-tight tracking-tight text-foreground">Session Logs</h1>
       <p className="mb-6 text-muted-foreground">Review full session transcripts stored in the database.</p>
 
       {error && (

@@ -419,7 +419,7 @@ What do we learn from this about the actual effect that charter schools in the d
   - Thanks. What about the other side? Explain how the results might look this way even if the charter schools were actually worse.
   - Understood. Now, please explain a scenario where charter schools decrease performance, but the study still shows no difference.
 - MaskedHarm_Only_Explained:
-  - Okay. Now consider the opposite possibility: how could the study show no difference even if the charter schools were actually *more effective* than the public schools?
+  - Okay. Now consider the opposite possibility: how could the study show no difference even if the charter schools were actually more effective than the public schools?
   - Thanks. What about the other side? Explain how the results might look this way even if the charter schools were actually better.
   - Understood. Now, please explain a scenario where charter schools improve performance, but the study still shows no difference.
 - Neither_Explained_Sufficiently:
@@ -468,7 +468,7 @@ How should this finding be interpreted when considering the program's effect on 
   - Thanks, that covers the key possibilities regarding the therapy's benefits and risks.
   - Got it. That's a thorough analysis of the findings.
 - MaskedBenefit_Only_Explained:
-  - Okay. Now consider the opposite possibility: how could the study show no difference even if the intensive therapy actually *slowed down* recovery?
+  - Okay. Now consider the opposite possibility: how could the study show no difference even if the intensive therapy actually slowed down recovery?
   - Thanks. What about the potential risks? Explain how the results might look this way even if the therapy was actually detrimental.
   - Understood. Now, please explain a scenario where the therapy lengthens recovery time, but the study still shows no difference.
 - MaskedHarm_Only_Explained:

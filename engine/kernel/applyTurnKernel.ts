@@ -199,7 +199,9 @@ export async function applyTurnKernel(params: {
       score = { value: 0, label: 'final_default_zero' };
     }
   }
-  const theta: ThetaState = thetaService.update(session.theta, abilityKey, score, scoring);
+  // Capture theta before applying this turn's update for accurate transcript diffs
+  const thetaBefore: ThetaState = session.theta;
+  const theta: ThetaState = thetaService.update(thetaBefore, abilityKey, score, scoring);
 
   // 12) Sanitize AJ-generated probe per schema policy
   const policyCheck = enforceProbePolicy(schema, decision.probe ?? null);
@@ -218,7 +220,8 @@ export async function applyTurnKernel(params: {
       text: item.Stem,
       answer: params.userText,
       label: "kernel",
-      theta_state_before: session.theta,
+      // Use theta captured before this update so the history reflects per-item change correctly
+      theta_state_before: thetaBefore,
       exchanges: policyCheck.probe ? [{ probe_text: policyCheck.probe.text, probe_answer: "", label: "None" }] : [],
     };
     session.transcript = [...(session.transcript || []), newEntry];

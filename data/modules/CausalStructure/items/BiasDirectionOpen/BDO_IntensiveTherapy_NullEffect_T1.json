@@ -15,7 +15,7 @@
         {"id": "stop_success_3", "text": "Got it. That's a thorough analysis of the findings."}
       ],
       "MaskedBenefit_Only_Explained": [
-        {"id": "flip_harm_1", "text": "Okay. Now consider the opposite possibility: how could the study show no difference even if the intensive therapy actually *slowed down* recovery?"},
+        {"id": "flip_harm_1", "text": "Okay. Now consider the opposite possibility: how could the study show no difference even if the intensive therapy actually slowed down recovery?"},
         {"id": "flip_harm_2", "text": "Thanks. What about the potential risks? Explain how the results might look this way even if the therapy was actually detrimental."},
         {"id": "flip_harm_3", "text": "Understood. Now, please explain a scenario where the therapy lengthens recovery time, but the study still shows no difference."}
       ],

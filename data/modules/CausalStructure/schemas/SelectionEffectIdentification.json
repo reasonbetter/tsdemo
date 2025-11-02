@@ -15,23 +15,21 @@
   "DriverConfig": {
     "AJ_System_Guidance": {
       "AnswerTypeCatalog": [
-        { "id": "Good", "description": "A plausible explanation that identifies a specific selection mechanism consistent with the premise." },
+        { "id": "Good", "description": "Specific selection mechanism" },
         { "id": "NotDistinct", "description": "A plausible explanation, but relies on the same mechanism as a previous answer." },
         { "id": "NotSpecific", "description": "Acknowledges bias but does not describe the specific mechanism or confounding variable." },
         { "id": "NotClear", "description": "The meaning of the response cannot be interpreted without elaboration." },
-        { "id": "RejectsAssumption", "description": "Violates or contradicts a stated assumption or constraint in the prompt." },
+        { "id": "RejectsAssumption", "description": "Violates a stated constraint" },
         { "id": "NotPlausible", "description": "The proposed mechanism is implausible in the context." },
         { "id": "NotRelevant", "description": "The response is irrelevant to the task." },
         { "id": "MultipleExplanation", "description": "The response contains multiple explanations." }
       ],
       "AnswerTypeGuidance": [
-        "CORE TASK: Identify a SELECTION EFFECT (non-random sorting or sampling) that explains the observed association.",
-        "SELECTION MECHANISM: A 'Good' answer must describe how groups differ systematically or how the sample is biased, and how this explains the outcome (name the factor Z or process).",
-        "CONSTRAINT ADHERENCE: Any explanation that contradicts the stated assumption(s) MUST be classified as 'RejectsAssumption'.",
-        "SPECIFICITY: Merely naming 'confounding' or 'selection bias' without a specific mechanism is 'NotSpecific'.",
-        "DISTINCTNESS: Use the item's ThemeRegistry for ThemeTag; if none fits, use 'NOVEL:…'. Compare against previously accepted themes to decide Good vs NotDistinct. ThemeTag is REQUIRED for Good and NotDistinct.",
-        "SINGLE EXPLANATION RULE: If multiple explanations appear in one turn, classify as MultipleExplanation.",
-        "TIE-BREAKING: If multiple AnswerTypes fit, choose the one appearing earliest in Tie-Breaking Order."
+        "Selection mechanism: Identify how groups differ or how sampling is biased, and how that explains the association.",
+        "Constraint adherence: If the explanation contradicts a stated assumption → RejectsAssumption.",
+        "Specificity: ‘Confounding/selection bias’ without a specific mechanism → NotSpecific.",
+        "Distinctness/ThemeTag: Use ThemeRegistry’s ThemeID (or NOVEL:…). ThemeTag required for Good/NotDistinct.",
+        "Single explanation: If multiple appear → MultipleExplanation."
       ],
       "ProbingGuidance": [
         "VARIATION RULE: Select a Probe ID from the ProbeLibrary that has not yet been used in the current unit, if available.",
@@ -39,7 +37,7 @@
         "STANDARDIZED SELECTION: Select a probe from the appropriate category in the ProbeLibrary. Do not generate new probe text."
       ]
     },
-    "DominanceOrder": [
+    "Tie-BreakingOrder": [
       "MultipleExplanation","RejectsAssumption","NotRelevant","NotDistinct","NotClear","NotSpecific","NotPlausible"
     ],
     "ConfidencePolicy": { "GoodAcceptanceMinConfidence": 0.6, "NovelAcceptanceMinConfidence": 0.75 },

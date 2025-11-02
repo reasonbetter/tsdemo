@@ -24,7 +24,7 @@ export function buildAjMessages(schema: SchemaEnvelope, item: ItemEnvelope, ctx:
   const itemProbeLibrary = (item as any)?.Content?.ProbeLibrary ?? {};
   const schemaProbeLibrary = dc.ProbeLibrary ?? {};
   const probeLibrary = Object.keys(itemProbeLibrary).length > 0 ? itemProbeLibrary : schemaProbeLibrary;
-  const dominanceOrder = dc.DominanceOrder ?? [];
+  const dominanceOrder: string[] = (dc as any)['Tie-BreakingOrder'] ?? dc.DominanceOrder ?? [];
   const contract = stringifyCompact(schema.AJ_Contract_JsonSchema);
   const schemaDescription: string | undefined = (schema as any)?.Description || (schema as any)?.description;
   const stem = item.Stem ?? "";
@@ -51,22 +51,7 @@ export function buildAjMessages(schema: SchemaEnvelope, item: ItemEnvelope, ctx:
     : "";
 
   const schemaDescBlock = schemaDescription ? `\n\nSCHEMA DESCRIPTION:\n${schemaDescription}` : "";
-  function coreTaskForSchema(s: SchemaEnvelope): string {
-    const id = s.SchemaID;
-    switch (id) {
-      case 'AlternativeExplanationGeneration':
-        return "Evaluate one alternative explanation for the A–B association; classify the AnswerType (and ThemeTag when required).";
-      case 'BiasDirectionOpen':
-        return "Classify the user's explanation of a null result into Masked Benefit, Masked Harm, Both, or a quality category; return a single AnswerType.";
-      case 'BiasDirectionSequential':
-        return "For one direction this turn (BiasPositive or BiasNegative), identify a selection/sampling mechanism and return a single AnswerType.";
-      case 'SelectionEffectIdentification':
-        return "Identify a specific selection effect consistent with stated constraints that explains the association; return a single AnswerType.";
-      default:
-        return "Evaluate the user's answer for this item and return exactly one JSON object that conforms to the JSON Schema.";
-    }
-  }
-  const coreTask = `\n\nCORE TASK:\n${coreTaskForSchema(schema)}`;
+  // CORE TASK is provided globally; omit here to reduce duplication.
   const atGuidanceBlock = answerTypeGuidance && answerTypeGuidance.length ? `\n\nANSWERTYPEGUIDANCE:\n${stringifyCompact(answerTypeGuidance)}` : "";
   const atCatalogBlock = answerTypeCatalog && answerTypeCatalog.length ? `\n\nANSWERTYPECATALOG:\n${stringifyCompact(answerTypeCatalog)}` : "";
   const probingGuidanceBlock = probingGuidance && probingGuidance.length ? `\n\nPROBING GUIDANCE:\n${stringifyCompact(probingGuidance)}` : "";
@@ -109,7 +94,7 @@ export function buildAjMessages(schema: SchemaEnvelope, item: ItemEnvelope, ctx:
   }
 
   // Minimal system message: core task + output contract + strict JSON rule
-  const sys = `CORE TASK:\n${coreTaskForSchema(schema)}\n\nOUTPUT CONTRACT:\n${outputContractFromSchema(schema)}\n\nSTRICT OUTPUT RULES:\n${strictJsonRules}`;
+  const sys = `OUTPUT CONTRACT:\n${outputContractFromSchema(schema)}\n\nSTRICT OUTPUT RULES:\n${strictJsonRules}`;
 
   const contextBits: string[] = [];
   const content: any = (item as any)?.Content ?? {};

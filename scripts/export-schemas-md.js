@@ -160,8 +160,11 @@ async function main() {
           for (const g of aj.ProbingGuidance) lines.push(`    - ${g}`);
         }
       }
-      if (Array.isArray(dc.DominanceOrder) && dc.DominanceOrder.length) {
-        lines.push(`  - Tie-Breaking Order: ${dc.DominanceOrder.join(' → ')}`);
+      const tbo = Array.isArray(dc['Tie-BreakingOrder']) && dc['Tie-BreakingOrder'].length
+        ? dc['Tie-BreakingOrder']
+        : (Array.isArray(dc.DominanceOrder) && dc.DominanceOrder.length ? dc.DominanceOrder : null);
+      if (tbo) {
+        lines.push(`  - Tie-Breaking Order: ${tbo.join(' → ')}`);
       }
       if (dc.ConfidencePolicy) {
         lines.push('  - Confidence Policy:');

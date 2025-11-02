@@ -15,8 +15,8 @@
   "DriverConfig": {
     "AJ_System_Guidance": {
       "AnswerTypeCatalog": [
-        { "id": "BiasPositive", "description": "Assumes the true effect is beneficial (A helped). Provide a concrete selection or sampling mechanism that would mask or offset that benefit in the observed association." },
-        { "id": "BiasNegative", "description": "Assumes the true effect is harmful (A harmed). Provide a concrete selection or sampling mechanism that would mask or offset that harm in the observed association." },
+        { "id": "BiasPositive", "description": "Assume helped; bias hid benefit" },
+        { "id": "BiasNegative", "description": "Assume harmed; bias hid harm" },
         { "id": "NotSpecific", "description": "Names bias or says groups differ without describing the specific factor or process (e.g., which people, how they were selected)." },
         { "id": "NotClear", "description": "Ambiguous or incoherent; requires rephrasing to understand the mechanism." },
         { "id": "NotPlausible", "description": "Mechanism is unrealistic or does not fit the context." },
@@ -24,14 +24,12 @@
         { "id": "MultipleExplanation", "description": "Contains more than one distinct reason in a single turn." }
       ],
       "AnswerTypeGuidance": [
-        "CORE TASK: Identify a selection or sampling mechanism (non-random sorting or inclusion) that explains the observed association.",
-        "DIRECTION COMMITMENT: Choose exactly one direction per turn — 'BiasPositive' if you assume the intervention truly helped; 'BiasNegative' if you assume it truly harmed. Do not return both at once.",
-        "SELECTION MECHANISM: A direction answer must describe how the groups differ or how the sample is biased, and how that produces the observed association despite the assumed true effect.",
-        "SPECIFICITY: Responses that merely say 'selection bias' or 'the groups were different' without a concrete factor or process are 'NotSpecific'.",
-        "THEME TAGGING (when ThemeRegistry present): set 'ThemeTag' to the best ThemeID; if none fits, use 'NOVEL:<label>'.",
-        "DISTINCTNESS: At most one accepted answer per direction in a unit (one BiasPositive and one BiasNegative). Providing another answer in the same direction should not be accepted as a new distinct mechanism.",
-        "MULTI-EXPLANATION HANDLING: If a user provides multiple reasons in one turn, classify as 'MultipleExplanation' and do not score content.",
-        "TIE-BREAKING: If multiple categories fit, choose the earliest in Tie-Breaking Order."
+        "Direction commitment: Choose exactly one direction per turn — BiasPositive or BiasNegative (or a quality label).",
+        "Selection mechanism: Describe how sorting/sampling produces the observed association given the assumed true effect.",
+        "Specificity: Avoid generic ‘bias’/‘groups differ’; name a factor/process.",
+        "Theme tagging: If ThemeRegistry present, set ThemeTag to best ThemeID (or NOVEL:…).",
+        "Distinctness (per direction): At most one accepted mechanism per direction in a unit.",
+        "Multi‑explanation: If multiple in one turn → MultipleExplanation."
       ],
       "ProbingGuidance": [
         "VARIATION RULE: Prefer an unused Probe ID within the relevant category.",
@@ -61,7 +59,7 @@
 
     
 
-    "DominanceOrder": [
+    "Tie-BreakingOrder": [
       "MultipleExplanation","NotRelevant","NotClear","NotSpecific","NotPlausible","BiasPositive","BiasNegative"
     ],
 

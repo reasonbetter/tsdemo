@@ -10,22 +10,21 @@
   "DriverConfig": {
     "AJ_System_Guidance": {
       "AnswerTypeCatalog": [
-        { "id": "Both_Explained", "description": "Explains BOTH a Masked Benefit and a Masked Harm scenario with specific mechanism and masking logic." },
-        { "id": "MaskedBenefit_Only_Explained", "description": "Explains Masked Benefit (Negative Bias masking helpful effect) with mechanism and logic; not Masked Harm." },
-        { "id": "MaskedHarm_Only_Explained", "description": "Explains Masked Harm (Positive Bias masking harmful effect) with mechanism and logic; not Masked Benefit." },
-        { "id": "NotSpecific", "description": "Clear/relevant but insufficiently specified: e.g., says \"selection bias\" or \"groups differ\" without a concrete mechanism or masking logic." },
-        { "id": "NotDistinct", "description": "A plausible explanation, but relies on the same underlying mechanism/logic as a previous explanation in this unit." },
+        { "id": "Both_Explained", "description": "Explains both (with logic)" },
+        { "id": "MaskedBenefit_Only_Explained", "description": "Only Masked Benefit explained" },
+        { "id": "MaskedHarm_Only_Explained", "description": "Only Masked Harm explained" },
+        { "id": "NotSpecific", "description": "Vague; lacks mechanism" },
+        { "id": "NotDistinct", "description": "Repeats mechanism" },
         { "id": "NotPlausible", "description": "Mechanism is unrealistic or does not fit the context; not a credible masking story." },
         { "id": "NotClear", "description": "Ambiguous/incoherent." },
         { "id": "NotRelevant", "description": "Irrelevant to the task." }
       ],
       "AnswerTypeGuidance": [
-        "STRICT REQUIREMENTS: (A) Specific mechanism; (B) Direction of bias; (C) Masking logic (bias + true effect → observed null).",
-        "MaskedBenefit: true benefit masked by negative bias (worse participants) → up to average.",
-        "MaskedHarm: true harm masked by positive bias (better participants) → down to average.",
-        "CLASSIFICATION ORDER: NotRelevant/NotClear → NotDistinct/NotPlausible → Both_Explained → Masked[X]_Only → NotSpecific (apply Tie-Breaking Order on ties).",
-        "SPECIFICITY: 'Selection bias' or 'groups differ' without a concrete factor/process → 'NotSpecific'.",
-        "DISTINCTNESS: If the explanation repeats the same underlying mechanism as earlier, classify as 'NotDistinct'."
+        "Requirements: Name the specific mechanism + direction of bias + masking logic (how true effect + bias → observed null).",
+        "MaskedBenefit: True benefit masked by negative bias (worse participants) → up to average.",
+        "MaskedHarm: True harm masked by positive bias (better participants) → down to average.",
+        "Specificity: ‘Selection bias’ or ‘groups differ’ without a concrete factor/process → NotSpecific.",
+        "Distinctness: Don’t repeat the same mechanism as an earlier answer → NotDistinct."
       ],
       "ProbingGuidance": [
         "VARIATION RULE: Prefer an unused Probe ID within the relevant category.",
@@ -34,7 +33,7 @@
     },
     "ConfidencePolicy": { "MinConfidence": 0.6 },
     "ClarificationPolicy": { "MaxTotal": 2, "MaxConsecutiveNotClear": 1, "MaxConsecutiveNotSpecific": 1 },
-    "DominanceOrder": ["NotRelevant","NotClear","NotDistinct","NotPlausible","Both_Explained","MaskedBenefit_Only_Explained","MaskedHarm_Only_Explained","NotSpecific"],
+    "Tie-BreakingOrder": ["NotRelevant","NotClear","NotDistinct","NotPlausible","Both_Explained","MaskedBenefit_Only_Explained","MaskedHarm_Only_Explained","NotSpecific"],
     "AnswerTypeMap": { "Neither_Explained_Sufficiently": "NotSpecific" }
   },
 

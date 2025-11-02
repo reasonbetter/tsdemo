@@ -65,7 +65,9 @@ function extractContent(item: ItemEnvelope) {
 function extractConfig(schema: SchemaEnvelope) {
   const dc: any = (schema as any).DriverConfig ?? schema;
   const DominanceOrder: AnswerType[] =
+    ((dc as any)['Tie-BreakingOrder'] as any) ??
     (dc.DominanceOrder as any) ??
+    ((dc.AJ_System_Guidance as any)?.['Tie-BreakingOrder'] as any) ??
     (dc.AJ_System_Guidance?.DominanceOrder as any) ??
     [
       "MultipleExplanation", "RunsThroughA", "NotRelevant", "NotDistinct", "NotClear", "NotSpecific", "NotPlausible",

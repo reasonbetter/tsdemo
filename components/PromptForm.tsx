@@ -58,7 +58,7 @@ export default function PromptForm({
             placeholder="Optional"
           />
         </div>
-        <button type="submit" className="ml-auto px-4 py-1.5 sm:px-6 sm:py-2 text-sm sm:text-base font-semibold rounded-lg shadow-sm bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition duration-150 whitespace-nowrap" disabled={pending}>
+        <button type="submit" className="ml-auto inline-flex items-center h-[38px] px-4 sm:px-6 text-sm sm:text-base font-semibold rounded-lg shadow-sm bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition duration-150 whitespace-nowrap" disabled={pending}>
           {pending ? (
             <span className="flex items-center">
               Thinking

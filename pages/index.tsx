@@ -125,7 +125,7 @@ export default function Home() {
                   <a
                     href="/admin"
                     title="Admin log"
-                    className="inline-flex items-center h-[36px] px-4 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150"
+                    className="inline-flex items-center h-[38px] px-4 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150"
                   >
                     View Admin Logs
                   </a>
@@ -190,7 +190,7 @@ export default function Home() {
                       <div className="hidden sm:flex lg:hidden items-center gap-3 ml-auto">
                         <label className="text-sm font-semibold text-primary">User ID:</label>
                         <input
-                          className={`h-[36px] w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                          className={`h-[38px] w-36 px-2 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                           value={userIdInput}
                           onChange={(e) => setUserIdInput(e.target.value)}
                           onBlur={(e) => updateUserId(e.target.value)}
@@ -204,7 +204,7 @@ export default function Home() {
                           placeholder="Optional"
                           readOnly={userIdInput === userTag && userTag !== ""}
                         />
-                        <button type="button" className="inline-flex items-center h-[36px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                        <button type="button" className="inline-flex items-center h-[38px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                           End Session
                         </button>
                       </div>
@@ -212,7 +212,7 @@ export default function Home() {
                       <div className="hidden lg:flex items-center gap-3 ml-auto">
                         <label className="text-sm font-semibold text-primary">User ID:</label>
                         <input
-                          className={`h-[36px] w-36 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                          className={`h-[38px] w-36 px-2 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                           value={userIdInput}
                           onChange={(e) => setUserIdInput(e.target.value)}
                           onBlur={(e) => updateUserId(e.target.value)}
@@ -228,7 +228,7 @@ export default function Home() {
                         />
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-2 h-[36px] px-3 text-sm font-semibold text-foreground bg-white border border-input-border rounded-lg hover:bg-gray-50 transition duration-150`}
+                          className={`inline-flex items-center gap-2 h-[38px] px-3 text-sm font-semibold text-foreground bg-white border border-input-border rounded-lg hover:bg-gray-50 transition duration-150`}
                           onClick={() => setIsSidebarVisible(!isSidebarVisible)}
                           aria-label={isSidebarVisible ? 'Hide session info' : 'Show session info'}
                           title={isSidebarVisible ? 'Hide session info' : 'Show session info'}
@@ -280,7 +280,7 @@ export default function Home() {
                     <div className="sm:hidden flex items-center gap-3 mt-4">
                       <label className="text-sm font-semibold text-primary">User ID:</label>
                       <input
-                        className={`h-[36px] w-28 px-2 py-1 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
+                        className={`h-[38px] w-28 px-2 text-sm border rounded-lg transition duration-150 ${userIdInput === userTag && userTag !== "" ? 'bg-gray-100 text-muted-foreground' : 'border-input-border focus:ring-primary focus:border-primary'}`}
                         value={userIdInput}
                         onChange={(e) => setUserIdInput(e.target.value)}
                         onBlur={(e) => updateUserId(e.target.value)}
@@ -299,10 +299,10 @@ export default function Home() {
                         <div className="space-y-4">
                           {/* Mobile top controls: End Session + Admin */}
                           <div className="flex items-center gap-3">
-                            <button type="button" className="inline-flex items-center h-[36px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
+                            <button type="button" className="inline-flex items-center h-[38px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150 whitespace-nowrap" onClick={endSession}>
                               End Session
                             </button>
-                            <a className="inline-flex items-center h-[36px] px-4 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150 whitespace-nowrap" href="/admin" title="Admin log">
+                            <a className="inline-flex items-center h-[38px] px-4 text-sm font-semibold rounded-lg bg-white text-primary border border-primary-border hover:bg-primary-light transition duration-150 whitespace-nowrap" href="/admin" title="Admin log">
                               View Admin Logs
                             </a>
                           </div>

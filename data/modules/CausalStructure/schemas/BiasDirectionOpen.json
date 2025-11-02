@@ -20,14 +20,16 @@
         { "id": "NotRelevant", "description": "Irrelevant to the task." }
       ],
       "AnswerTypeGuidance": [
-        "CORE TASK: Classify into exactly one AnswerType.",
-        "STRICT REQUIREMENTS: (A) Specific mechanism; (B) Direction of bias; (C) Masking logic (bias + true effect → null).",
-        "MaskedBenefit: intervention helps but participants were inherently worse (Negative Bias) → up to average.",
-        "MaskedHarm: intervention harms (e.g., time cost) but participants were inherently better (Positive Bias) → down to average.",
-        "CLASSIFICATION ORDER: NotRelevant/NotClear → NotDistinct/NotPlausible → Both_Explained → Masked[X]_Only → NotSpecific (apply DominanceOrder on ties).",
-        "SPECIFICITY: Responses that merely say 'selection bias' or 'the groups were different' without a concrete factor/process are 'NotSpecific'.",
-        "DISTINCTNESS: If the explanation repeats the same underlying mechanism as earlier, classify as 'NotDistinct'.",
-        "PROBES: Select a probe ID from the item-level ProbeLibrary category matching the AnswerType. Prefer unused IDs."
+        "STRICT REQUIREMENTS: (A) Specific mechanism; (B) Direction of bias; (C) Masking logic (bias + true effect → observed null).",
+        "MaskedBenefit: true benefit masked by negative bias (worse participants) → up to average.",
+        "MaskedHarm: true harm masked by positive bias (better participants) → down to average.",
+        "CLASSIFICATION ORDER: NotRelevant/NotClear → NotDistinct/NotPlausible → Both_Explained → Masked[X]_Only → NotSpecific (apply Tie-Breaking Order on ties).",
+        "SPECIFICITY: 'Selection bias' or 'groups differ' without a concrete factor/process → 'NotSpecific'.",
+        "DISTINCTNESS: If the explanation repeats the same underlying mechanism as earlier, classify as 'NotDistinct'."
+      ],
+      "ProbingGuidance": [
+        "VARIATION RULE: Prefer an unused Probe ID within the relevant category.",
+        "SELECTION: Choose a probe ID from the item-level ProbeLibrary category that matches the AnswerType. Do not generate new probe text."
       ]
     },
     "ConfidencePolicy": { "MinConfidence": 0.6 },

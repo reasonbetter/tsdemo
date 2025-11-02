@@ -31,7 +31,7 @@
         "SPECIFICITY: Merely naming 'confounding' or 'selection bias' without a specific mechanism is 'NotSpecific'.",
         "DISTINCTNESS: Use the item's ThemeRegistry for ThemeTag; if none fits, use 'NOVEL:…'. Compare against previously accepted themes to decide Good vs NotDistinct. ThemeTag is REQUIRED for Good and NotDistinct.",
         "SINGLE EXPLANATION RULE: If multiple explanations appear in one turn, classify as MultipleExplanation.",
-        "TIE-BREAKING: If multiple AnswerTypes fit, choose the one appearing earliest in DominanceOrder."
+        "TIE-BREAKING: If multiple AnswerTypes fit, choose the one appearing earliest in Tie-Breaking Order."
       ],
       "ProbingGuidance": [
         "VARIATION RULE: Select a Probe ID from the ProbeLibrary that has not yet been used in the current unit, if available.",

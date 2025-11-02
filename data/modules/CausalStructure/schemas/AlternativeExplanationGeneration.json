@@ -22,12 +22,10 @@
         {"id": "MultipleExplanation", "description": "The response contains multiple explanations."}
       ],
       "AnswerTypeGuidance": [
-        "DISTINCTNESS AND NOVELTY: Map the explanation to exactly one ThemeID from the item’s ThemeRegistry. If none fits, return a ThemeTag with 'NOVEL:' prefix and a concise label. Compare ThemeTag against previously accepted themes to decide Good vs NotDistinct. ThemeTag is REQUIRED for Good and NotDistinct.",
-        "CRITICAL: You must compare the ThemeTag against previous themes in the session history AND other themes in the current response to determine if the AnswerType is 'Good' or 'NotDistinct'. You MUST return the ThemeTag if the AnswerType is 'Good' or 'NotDistinct'",
-        "SINGLE EXPLANATION RULE: Score exactly one explanation per user turn. If the user provides multiple explanations, classify as MultipleExplanation and use a MultipleExplanation probe; do not score the turn.",
-        "PLAUSIBILITY: Evaluate plausibility based on commonly understood dynamics. Ensure the mechanism is concrete and respects plausible temporal ordering. Valid mechanisms include: Common Cause, Reverse Causation, Detection Bias, and Opportunity Cost/Displacement (e.g., A displaces a protective factor C).",
-        "INDEPENDENCE RULE (Anti-Smuggling): The explanation's mechanism MUST NOT rely on the direct causal pathway A->B, or cause B ONLY through A. Scrutinize responses to ensure they are not merely mediators (A->Mediator->B). If the explanation depends on A occurring first to cause B (except for displacement), it is invalid (classify as RunsThroughA). Report your confidence level.",
-        "TIE-BREAKING: If an answer fits multiple AnswerTypes, choose the one that appears earliest in the DominanceOrder list."
+        "DISTINCTNESS / THEME TAG: Map to exactly one ThemeID from the item’s ThemeRegistry; if none fits, use 'NOVEL:<label>'. Compare ThemeTag against previously accepted themes; repeats → NotDistinct. ThemeTag is REQUIRED for Good and NotDistinct.",
+        "SINGLE EXPLANATION: Score exactly one explanation per turn. If the user provides multiple explanations, classify as MultipleExplanation and do not score the turn.",
+        "INDEPENDENCE (Anti-Smuggling): The mechanism MUST NOT rely on A→B (including mediators A→M→B). Displacement is allowed. If it depends on A first causing B, classify as RunsThroughA.",
+        "PLAUSIBILITY: Ensure a concrete, temporally sensible mechanism (e.g., Common Cause, Reverse Causation, Detection Bias, Displacement)."
       ],
       "ProbingGuidance": [
         "VARIATION RULE: Review the session history. You MUST select a Probe ID from the ProbeLibrary that has not yet been used in the current unit, if available. If all probes in that category have been used, you may reuse them.",

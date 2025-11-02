@@ -161,7 +161,7 @@ async function main() {
         }
       }
       if (Array.isArray(dc.DominanceOrder) && dc.DominanceOrder.length) {
-        lines.push(`  - Dominance Order: ${dc.DominanceOrder.join(' → ')}`);
+        lines.push(`  - Tie-Breaking Order: ${dc.DominanceOrder.join(' → ')}`);
       }
       if (dc.ConfidencePolicy) {
         lines.push('  - Confidence Policy:');
@@ -242,4 +242,3 @@ async function main() {
 }
 
 main().catch((err) => { console.error(err?.stack || String(err)); process.exit(1); });
-

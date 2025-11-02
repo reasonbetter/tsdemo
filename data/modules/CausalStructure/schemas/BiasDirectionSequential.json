@@ -28,10 +28,10 @@
         "DIRECTION COMMITMENT: Choose exactly one direction per turn — 'BiasPositive' if you assume the intervention truly helped; 'BiasNegative' if you assume it truly harmed. Do not return both at once.",
         "SELECTION MECHANISM: A direction answer must describe how the groups differ or how the sample is biased, and how that produces the observed association despite the assumed true effect.",
         "SPECIFICITY: Responses that merely say 'selection bias' or 'the groups were different' without a concrete factor or process are 'NotSpecific'.",
-        "THEME TAGGING (required when ThemeRegistry is present): If the item provides a ThemeRegistry, you MUST set 'ThemeTag' to the best matching ThemeID. If no ThemeRegistry is present, you may omit it. Novel mechanisms may use 'NOVEL:label'.",
+        "THEME TAGGING (when ThemeRegistry present): set 'ThemeTag' to the best ThemeID; if none fits, use 'NOVEL:<label>'.",
         "DISTINCTNESS: At most one accepted answer per direction in a unit (one BiasPositive and one BiasNegative). Providing another answer in the same direction should not be accepted as a new distinct mechanism.",
         "MULTI-EXPLANATION HANDLING: If a user provides multiple reasons in one turn, classify as 'MultipleExplanation' and do not score content.",
-        "TIE-BREAKING: If multiple categories fit, choose the earliest in DominanceOrder."
+        "TIE-BREAKING: If multiple categories fit, choose the earliest in Tie-Breaking Order."
       ],
       "ProbingGuidance": [
         "VARIATION RULE: Prefer an unused Probe ID within the relevant category.",

@@ -47,7 +47,7 @@ export function buildAjMessages(schema: SchemaEnvelope, item: ItemEnvelope, ctx:
     : "";
 
   const dominanceOrderBlock = dominanceOrder.length > 0
-    ? `\n\nDOMINANCE ORDER:\n${stringifyCompact(dominanceOrder)}`
+    ? `\n\nTIE-BREAKING ORDER:\n${dominanceOrder.join(', ')}`
     : "";
 
   const schemaDescBlock = schemaDescription ? `\n\nSCHEMA DESCRIPTION:\n${schemaDescription}` : "";

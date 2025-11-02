@@ -42,7 +42,7 @@ export default function SessionInfo({
           <span className="inline-flex items-center gap-2 px-2 py-0.5 text-xs text-purple-700 bg-purple-100 border border-purple-200 rounded-full">Continuous</span>
         )}
         {onEndSession && (
-          <button type="button" className="ml-auto inline-flex items-center h-[30px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={onEndSession}>
+          <button type="button" className="ml-auto inline-flex items-center h-[36px] px-4 text-sm font-semibold rounded-lg bg-card text-foreground border border-input-border hover:bg-gray-50 transition duration-150" onClick={onEndSession}>
             End Session
           </button>
         )}

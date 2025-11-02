@@ -5,8 +5,6 @@
   "GuidanceVersion": "1.0.0",
   "Ability": { "key": "causal.aeg" },
 
-  
-
   "PolicyDefaults": {
     "MaxConsecutiveFailedAttempts": 2
   },

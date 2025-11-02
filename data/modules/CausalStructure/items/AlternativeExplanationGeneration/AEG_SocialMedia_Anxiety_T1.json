@@ -2,7 +2,7 @@
   "ItemID": "AEG_SocialMedia_Anxiety_T1",
   "SchemaID": "AlternativeExplanationGeneration",
   "MutuallyExclusiveWith": ["AEG_PetStress_T1", "AEG_TeaDrinking_Stress_T1"],
-  "Stem": "People who use a lot of social media report higher levels of anxiety. Give one reason why this might be true, other than social media causing more anxiety.",
+  "Stem": "Suppose that people who use a lot of social media have higher levels of anxiety. Give one reason why this might be true, other than social media causing more anxiety.",
   "Content": {
     "ScenarioDefinition": { "A_text": "using social media a lot", "B_text": "higher anxiety" },
     "ThemeRegistry": [

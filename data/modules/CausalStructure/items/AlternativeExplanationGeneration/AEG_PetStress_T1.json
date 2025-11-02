@@ -3,7 +3,7 @@
   "SchemaID": "AlternativeExplanationGeneration",
   "MutuallyExclusiveWith": ["AEG_TeaDrinking_Stress_T1", "AEG_SocialMedia_Anxiety_T1"],
   "MutuallyExclusiveGroup": "stress_relief_lifestyle",
-  "Stem": "Adults who own a pet report lower levels of stress, on average, than those who do not. Give one reason why this might be true, other than pet ownership reducing stress.",
+  "Stem": "Imagine we discover that adults who own a pet have lower levels of stress, on average, than those who do not. Give one reason why this might be true, other than pet ownership reducing stress.",
   "Content": {
     "ScenarioDefinition": {
       "A_text": "owning a pet",
